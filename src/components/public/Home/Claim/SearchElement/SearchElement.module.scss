@@ -1,0 +1,28 @@
+
+.searchContainer{
+    width: auto;
+    margin: 1rem 1rem 1.5rem 1rem;
+}
+
+.searchBox{
+    height: 33px;
+    background-color: #192430;
+    border-radius: 50px;
+    align-items: center;
+    padding-left: 9px;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.searchArea{
+    margin-left: 10px;
+    max-width: 720px;
+    width: calc(95% - 10px);
+    background: none;
+    border: none;
+    outline: none;
+    color: white;
+
+    font-family: "Montserrat", sans-serif;
+    font-weight: lighter;
+}

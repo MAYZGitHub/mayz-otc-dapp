@@ -1,0 +1,62 @@
+.barContent{
+  padding: 1rem;
+}
+
+ul.navSection {
+  color: #192430;
+
+  flex-direction: column;
+
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.sectionTitle {
+  color: white;
+  text-transform: uppercase;
+
+  font-size: 0.775rem;
+  padding: 5px 15px;
+  width: 100%;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  margin-top: 1.5rem;
+}
+
+button .sidebarItem .activeLink{
+  opacity: 1;
+}
+button.sidebarItem {
+  color: #fff;
+
+  display: flex;
+  opacity: 0.65;
+  padding: 12px 5px 12px 12px;
+  align-items: center;
+  white-space: nowrap;
+
+  gap: 1rem;
+}
+
+button.sidebarItem:hover{
+  opacity: 1;
+}
+
+.sidebarIcon{
+  align-items: center;
+  display: flex;
+}
+
+.sidebarText { 
+  display: flex;
+  
+  align-items: center;
+  font-size:14px;
+  font-style: normal;
+  font-weight: 300;
+}

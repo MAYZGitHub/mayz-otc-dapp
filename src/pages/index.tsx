@@ -14,11 +14,12 @@ const HomePage: NextPage = () => {
 
   return (
     <main >
-      <div className={styles.topbar}>
+      <div className={styles.pageWrapper}>
+        <div className={styles.topbar}></div>
+        <Sidebar />
+        {/* Wrapping the `Home` component inside a `<main>` element for semantic HTML structure. */}
+        <Home />
       </div>
-      <Sidebar />
-      {/* Wrapping the `Home` component inside a `<main>` element for semantic HTML structure. */}
-      <Home />
     </main>
   );
 };

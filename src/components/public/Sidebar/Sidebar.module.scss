@@ -1,27 +1,31 @@
-section.sidebar{
-    background-color: #192430;
-    color: #FFF;
-    position: fixed;
-    // left: 260px;
-    width: 260px;
-    height: 100%;
-    top: 60px;
-    left: 0;
-    z-index: 5;
+.sideBarArea {
+  width: 260px;
+  flex-shrink: 0;
+  margin-top: 60px;
+  // height: 100%;
+
+
+  display: block;
 }
 
-button.item{
-  color: #FFF;
-  opacity: 0.65;
-  gap: 1rem;
-  padding: 12px 5px 12px 12px;
-  align-items: center;
-  white-space: nowrap;
-  display: flex;
-  background-color: transparent;
-  border: none;
-  text-align: center;
+.sideBarArea .sideBarBox {
+  background-color: #192430;
+  left: 0;
+  width: 260px;
+  height: 100%;
+  position: relative;
+
+  z-index: 2;
+  box-shadow: 0;
 }
 
-.itemText{
+.simplebarPlaceholder{
+  width: auto;
+  height: 45rem;
 }
+
+.simplebarOffset{
+  height: auto;
+  overflow: hidden;
+}
+

@@ -1,9 +1,9 @@
 import { Head, Html, Main, NextScript } from 'next/document';
 
 export const metadata = {
-    title: 'Cardano Simple Marketplace - SmartDB Example',
+    title: 'MAYZ - OTC',
     description: '',
-    applicationName: 'Cardano Simple Marketplace - SmartDB Example',
+    applicationName: 'MAYZ - OTC',
     themeColor: '#ffffff',
 };
 

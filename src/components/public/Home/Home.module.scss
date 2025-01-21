@@ -1,1 +1,56 @@
+.mainContainer{
+    max-width: 1400px;
+    padding: 1.5rem;
+    //width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
 
+.mainSection{
+    padding-top: 60px;
+
+    flex-grow: 1;
+}
+
+.card{
+    margin-bottom: 30px;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    color: inherit;
+    background-color: #303a45;
+    background-clip: border-box;
+    border: 0 solid transparent;
+    border-radius: 0.3rem;
+}
+
+.cardHeader{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;  
+
+
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+
+    margin-bottom: 0;
+
+    border-bottom: 1px solid #475059;
+    margin-top: 0;
+    line-height: 1.2;
+}
+.walletBtn{
+    opacity: 0.65;
+}
+
+.walletBtn:hover{
+    opacity: 1;
+}
+
+.cardCaption{
+    font-size: 1.125rem;
+    font-weight: 400;
+}
