@@ -551,7 +551,7 @@ The `useHome.ts` file is a critical part of the architecture, enabling interacti
 
 5. **SmartDB Entity Integration**  
    ```typescript
-   // import { xxxEntity } from '@example/src/lib/SmartDB/Entities/xxx.Entity';
+   // import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
    // await BaseSmartDBFrontEndApiCalls.createHookApi(xxxEntity, newAppState.validatorAddress!, newAppState.mintingPolicyID_CS!);
    ```
    - **Important**: Uncomment and replace `xxx` with the name of your entity.  
@@ -562,7 +562,7 @@ The `useHome.ts` file is a critical part of the architecture, enabling interacti
 1. **Replace `xxx` with your entity name**  
    ```typescript
    // Example:
-   import { MarketNFTEntity } from '@example/src/lib/SmartDB/Entities/MarketNFT.Entity';
+   import { MarketNFTEntity } from '@/lib/SmartDB/Entities/MarketNFT.Entity';
    await BaseSmartDBFrontEndApiCalls.createHookApi(
        MarketNFTEntity, 
        newAppState.validatorAddress!, 
@@ -586,7 +586,7 @@ Here's a completed example of the hook with the `MarketNFTEntity` integrated:
 
 ```typescript
 import { useContext, useEffect, useState } from 'react';
-import { MarketNFTEntity } from '@example/src/lib/SmartDB/Entities/MarketNFT.Entity';
+import { MarketNFTEntity } from '@/lib/SmartDB/Entities/MarketNFT.Entity';
 import { CS, useWalletStore } from 'smart-db';
 import { AppStateContext } from '@/pages/_app';
 import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';

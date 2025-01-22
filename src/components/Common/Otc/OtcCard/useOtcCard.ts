@@ -1,5 +1,5 @@
 // import { useContext, useEffect, useState } from 'react';
-// import { xxxEntity } from '@example/src/lib/SmartDB/Entities/xxx.Entity';
+// import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
 // import { CS, useWalletStore } from 'smart-db';
 // import { AppStateContext } from '@/pages/_app';
 // import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';

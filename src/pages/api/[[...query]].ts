@@ -1,4 +1,4 @@
-import { initBackEnd } from '@example/src/lib/SmartDB/backEnd';
+import { initBackEnd } from '@/lib/SmartDB/backEnd';
 import { smartDBMainApiHandler } from 'smart-db/backEnd';
 
 // This file is essential for initializing the backend of the application.

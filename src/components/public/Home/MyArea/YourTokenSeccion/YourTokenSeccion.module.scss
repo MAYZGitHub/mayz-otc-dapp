@@ -1,0 +1,13 @@
+@use '@styles/shared.scss';
+
+.yourTokenSeccionContainer {
+    margin: 1rem 1rem 1.5rem 1rem;
+    align-items: center;
+}
+
+.tokenGrid {
+    margin-top: 1rem;
+    display:grid;
+    gap: 1rem 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1rem));
+}

@@ -7,17 +7,17 @@ export default function OtcCard(prop : any) {
 
     return (
         <section className={styles.otcCardContainer}>
-            <div className={styles.otcSeparator}> </div>
+            <div className={styles.separator}> </div>
             <div className={styles.otcBox}>
                 <div className={styles.otcDescription}>
-                    <img className={styles.otcTokenPhoto} src={prop.image.src} height={32} width={32} alt={prop.photoAlt} />
+                    <img className={styles.otcTokenPhoto} src={prop.image.src} alt={prop.photoAlt} />
                     <text className={styles.otcTokenName}> {prop.tokenName} </text>
                 </div>
                 <span className={styles.tokenAmount}> {prop.tokenAmount} Tokens </span>
-                <button type='button' onClick={() => console.log("Claimear OTC")}>Claim</button>
+                {prop.btnMod}
+                {/*<button type='button' onClick={() => console.log("Claimear OTC")}>Claim</button>*/}
             </div>
 
         </section>
     );
 }
-

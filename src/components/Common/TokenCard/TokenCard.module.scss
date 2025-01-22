@@ -1,0 +1,77 @@
+@use '@styles/shared.scss';
+
+.tokenCardContainer{
+    background-color: #192430;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 0.5rem;
+    
+    .tokenName{
+        font-size: larger;
+        font-weight: 500;
+        text-transform: capitalize;
+    }
+
+    .tokenAmount{
+        opacity: 0.5;
+        font-size: smaller;
+        font-weight:lighter;
+    }
+
+    .tokenPhoto{
+        margin-top: 1.5rem;
+        width: 65px;
+        height: 65px;
+        border-radius: 100%;
+    }
+
+    .separator{
+        margin-top: 0.1rem;
+        width: 80%;
+    }
+
+    .tokenAmountForm{
+        width: auto;
+        padding: 0.3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content:center;
+
+        .tokenAmountCaption{
+            font: inherit;
+            font-size: small;
+            font-weight: lighter;
+        }
+        
+        .tokenAmountInput{
+            background-color: #303A45;
+            margin: 1px;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+            outline: none;
+
+            font:inherit;
+            font-size: smaller;
+            color: white;
+            width: 65%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .deployButton{
+            width: 85%;
+
+            background-color:#226199 ;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+            font: inherit;
+            font-size: small;
+            font-weight: 600;
+            color: white;
+            border-radius: 4px;
+
+        }
+    }
+}

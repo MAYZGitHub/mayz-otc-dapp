@@ -3,10 +3,12 @@ import Sidebar from '../Sidebar/Sidebar';
 import { useHome } from './useHome';
 import styles from './Home.module.scss'
 import Claim from './Claim/Claim';
+import MyArea from './MyArea/MyArea';
+import WalletConnector from '../../Common/WalletConnector/WalletConnector';
 export default function Home() {
-    const { } = useHome();
+    const {sidebarState, isWalletConnectorModalOpen, setIsWalletConnectorModalOpen, isWalletConnected} = useHome();
 
-    const svgWallet = false ?
+    const svgWallet = isWalletConnected ?
         (
             <svg width="32px" height="32px" viewBox="0 0 24 17" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -30,20 +32,30 @@ export default function Home() {
             </svg>
         )
 
+    function renderHome(){
+        if(!isWalletConnected){
+            return (<text>Please connect, your wallet</text>);
+        }
+
+        switch (sidebarState) {
+            case 'Claim': return <Claim/>;
+            case 'My Area': return <MyArea/>
+            default: return null;
+        }
+    }
 
     return (
         <section className={styles.mainSection}>
+            <WalletConnector isWalletConnectorModalOpen={isWalletConnectorModalOpen} setIsWalletConnectorModalOpen={setIsWalletConnectorModalOpen}/>
             <div className={styles.mainContainer}>
-                <div>
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <h4 className={styles.cardCaption}> $MAYZ - Over The Counter</h4>
-                            <button onClick={() => console.log("Agregar wallet selector")} type="button" className={styles.walletBtn}>
-                                {svgWallet}
-                            </button>
-                        </div>
-                        <Claim/>
+                <div className={styles.card}>
+                    <div className={styles.cardHeader}>
+                        <h4 className={styles.cardCaption}> $MAYZ - Over The Counter</h4>
+                        <button onClick={() => setIsWalletConnectorModalOpen(true)} type="button" className={styles.walletBtn}>
+                            {svgWallet}
+                        </button>
                     </div>
+                    {renderHome()}
                 </div>
             </div>
         </section>

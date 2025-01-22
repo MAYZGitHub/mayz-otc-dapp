@@ -28,10 +28,11 @@
         ],
         "baseUrl": ".",
         "paths": {
-            "@example/*": ["./*"],
+            "@root/*": ["./*"],
             "@/*": [
               "./src/*"
-            ]
+            ],
+            "@styles/*": ["./styles/*"]
             // "smart-db/*": ["./node_modules/@manupadilla/smart-db/dist/*"],  // Alias for all smart-db subfolders
             // "smart-db": ["./node_modules/@manupadilla/smart-db/dist"]  // Main alias for root
         }

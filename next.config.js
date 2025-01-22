@@ -38,7 +38,7 @@ const nextConfig = {
         // This allows you to omit extensions when importing ES modules
         config.resolve.fullySpecified = false;
         // Alias para importar módulos de ejemplo
-        config.resolve.alias['@example'] = path.resolve(__dirname, './');
+        config.resolve.alias['@root'] = path.resolve(__dirname, './');
         // Evitar las advertencias críticas sin desactivar completamente los módulos
         config.module.parser = {
             javascript: {

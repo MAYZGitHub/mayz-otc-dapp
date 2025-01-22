@@ -4,7 +4,7 @@
 // import { AppStateContext } from '@/pages/_app';
 // import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
 
-export const useSidebar = () => {
+export const useYourTokenSeccion = () => {
 //   /*
 //     This store comes from the global store provided by SmartDB.
 //     It provides all necessary utilities for managing the connected wallet,

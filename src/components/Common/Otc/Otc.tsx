@@ -3,17 +3,19 @@ import { useOtc } from './useOtc';
 import styles from './Otc.module.scss'
 import OtcCard from './OtcCard/OtcCard';
 
-import messiImage from './../../../../public/messi.jpg'
-
-export default function Otc() {
+export default function Otc(prop: any) {
     const { } = useOtc();
+
+    const otcElems = prop.tokens.map((token: any) =>
+    (
+        <OtcCard image={token.srcImageToken} photoAlt={token.photoAlt} tokenName={token.tokenName} tokenAmount={token.tokenAmount} btnMod={token.btnMod}/>
+    )
+    )
 
     return (
         <section className={styles.OtcContainer}>
-            <text className={styles.seccionCaption}> New's OTC</text>
-            <OtcCard image={messiImage} photoAlt="Messi" tokenName="Messi" tokenAmount={100000} />
-            <OtcCard image={messiImage} photoAlt="Messi" tokenName="Messi" tokenAmount={10} />
-
+            <text className={styles.seccionCaption}> {prop.seccionCaption}</text>
+            {otcElems}
         </section>
     );
 }

@@ -1,6 +1,6 @@
 // Global Styles
 
-@import url(https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700);
+@import url(https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700);
 
 body {
   margin:0;
@@ -22,6 +22,13 @@ button {
 }
 
 div {
+  font-family: "Montserrat", sans-serif;
+
+  display: block;
+  unicode-bidi: isolate;
+}
+
+text {
   font-family: "Montserrat", sans-serif;
 
   display: block;

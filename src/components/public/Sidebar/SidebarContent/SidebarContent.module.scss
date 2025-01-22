@@ -28,9 +28,7 @@ ul.navSection {
   margin-top: 1.5rem;
 }
 
-button .sidebarItem .activeLink{
-  opacity: 1;
-}
+
 button.sidebarItem {
   color: #fff;
 
@@ -41,6 +39,14 @@ button.sidebarItem {
   white-space: nowrap;
 
   gap: 1rem;
+}
+
+.activeLink{
+  opacity: 1 !important;
+}
+
+.sidebarItem:disabled{
+  opacity: 0.1 !important;
 }
 
 button.sidebarItem:hover{

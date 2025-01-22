@@ -1,10 +1,7 @@
-.otcSeparator{
-    margin-top: 10px;
-    border-bottom: 1px solid #9FA1A7;
-}
+@use '@styles/shared.scss';
 
 .otcBox{
-    margin-top: 10px;
+    margin-top: 0.8rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -18,24 +15,23 @@
         .otcTokenName {
             text-transform: uppercase;
         
-            margin-left: 10px;
+            margin-left: 1rem;
         }
         
         .otcTokenPhoto{
-            width: 32;
-            height: 32;
+            width: 2rem;
+            height: 2rem;
         }
     }
 
     button{
-        background-color: #EC663A;
-
+        background-color: black;
         font-family: inherit;
         color: white;
-        border-radius: 7px;
-        width: 87px;
-        height: 23px;
-        margin-right: 5px;
+        border-radius: 0.5rem;
+        width: 5.7rem;
+        height: 1.3rem;
+        margin-right: 1rem;
     }
 }
 
