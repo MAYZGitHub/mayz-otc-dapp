@@ -2,10 +2,9 @@
 // import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
 // import { CS, useWalletStore } from 'smart-db';
 // import { AppStateContext } from '@/pages/_app';
-// import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
 
 import { useState } from "react";
-import { formatTokenNameHexToStr, getAssetOfUTxOs, getUrlForImage, TokenMetadataFrontEndApiCalls, TokensWithMetadataAndAmount, useDetails, useWalletStore } from "smart-db";
+import { formatTokenNameHexToStr, getAssetOfUTxOs, getUrlForImage, Token_For_Store_With_Validity, Token_With_Metadata_And_Amount, TokenMetadataFrontEndApiCalls, TokensWithMetadataAndAmount, useDetails, useWalletStore } from "smart-db";
 
 export const useMyArea = () => {
    //   /*
@@ -130,8 +129,8 @@ export const useMyArea = () => {
       dependencies: [walletStore.isWalletDataLoaded], // Dependency on wallet data being loaded
    });
 
-   function deployBtnHandler() {
-      console.log("Deploy me")
+   function deployBtnHandler(token : Token_With_Metadata_And_Amount) {
+      console.log(`Deploy me ${formatTokenNameHexToStr(token.TN_Hex)}`)
    }
 
    function cancelBtnHandler() {
@@ -150,7 +149,7 @@ export const useMyArea = () => {
          photoAlt: formatTokenNameHexToStr(token.TN_Hex),
          tokenName: formatTokenNameHexToStr(token.TN_Hex),
          tokenAmount: token.amount,
-         btnHandler: deployBtnHandler }
+         btnHandler: deployBtnHandler(token) }
       })
 
    }

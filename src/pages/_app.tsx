@@ -5,11 +5,11 @@ import { SessionProvider } from 'next-auth/react';
 import type { AppProps } from 'next/app';
 import { ReactNotifications } from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css';
-import { AppGeneral, CS, globalStore } from 'smart-db';
+import { AppGeneral, CS, globalStore, useAppGeneral } from 'smart-db';
 import Layout from '../components/UI/Layout/Layout';
 import 'smart-db/dist/styles.css';
 // import { Address, MintingPolicy, SpendingValidator } from 'lucid-cardano';
-import { createContext, Dispatch, SetStateAction, useState } from 'react';
+import { createContext, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import '@styles/global.scss';
 
 // import {mintingPolicyIDPreScript, validatorScript } from '../lib/Commons/Constants/onchain';
@@ -36,6 +36,20 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
     // Use the useState hook to manage the app state locally within the component.
     const [appState, setAppState] = useState<AppState>(initialAppState);
 
+    const [isLoadingResources, setIsLoadingResources] = useState(true);
+    const [isLoadingDatabaseService, setIsLoadingDatabaseService] = useState(true);
+
+    useEffect(() => {
+        const initialize = async () => {
+            // Ensure initialization logic is complete
+            //await dataBaseService.initializeData();
+
+            setIsLoadingDatabaseService(false);
+        };
+
+        initialize();
+    }, []);
+
     return (
         // Provide the app state and setter function to the entire app via context.
         <AppStateContext.Provider value={{ appState, setAppState }}>
@@ -45,13 +59,15 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
                 <StoreProvider store={globalStore}>
                     {/* Run the general app component from SmartDB for init procedures */}
                     <AppGeneral />
-                    {/* Include the React Notifications component for global notifications */}
+                    ( isLoadingDatabaseService &&
+                    ({/* Include the React Notifications component for global notifications */}
                     <ReactNotifications />
                     {/* Wrap the app content with the Layout component */}
                     <Layout>
                         {/* Render the current page component */}
                         <Component {...pageProps} />
-                    </Layout>
+                    </Layout>)
+                    )
                 </StoreProvider>
             </SessionProvider>
         </AppStateContext.Provider>
