@@ -11,26 +11,38 @@ import 'smart-db/dist/styles.css';
 // import { Address, MintingPolicy, SpendingValidator } from 'lucid-cardano';
 import { createContext, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import '@styles/global.scss';
+import { Address, MintingPolicy, SpendingValidator } from 'lucid-cardano';
+import { BlockfrostProvider, MeshTxBuilder, MeshWallet } from '@meshsdk/core';
 
 // import {mintingPolicyIDPreScript, validatorScript } from '../lib/Commons/Constants/onchain';
 
-export type SidebarMenu = 'Claim' | 'My Area'
+export type SidebarMenu = 'Claim' | 'My Area' | 'Protocol Area'
 
 // // Define the shape of the application state.
 export type AppState = {
-    sidebarState: string
+    // Global state variables
+    validatorScript?: SpendingValidator; // The script for the market validator.
+    validatorAddress?: Address; // The address of the market (optional).
+    mintingPolicyIDScript?: MintingPolicy; // The script for minting policy (optional).
+    mintingPolicyID_CS?: CS; // The asset class of the minting policy (optional).
+    meshWallet?: MeshWallet; // The wallet for the mesh network.
+    sidebarState: string;
+
+    protocolScript?: string;
+    protocolAddress?: string;
+    protocolCS?: CS;
 };
 
 // // Initial state for the app, with default values.
-const initialAppState: AppState = {
-    sidebarState: 'Claim'
+const initialAppState: AppState = {    
+    sidebarState: 'Protocol Area',
 };
 
 // Create a context for managing the app state globally.
 export const AppStateContext = createContext<{
     appState: AppState;
     setAppState: Dispatch<SetStateAction<AppState>>; // Function to update the app state.
-}>({ appState: initialAppState, setAppState: () => {} });
+}>({ appState: initialAppState, setAppState: () => { } });
 
 export default function MyApp({ Component, pageProps }: AppProps<{ session?: Session }>) {
     // Use the useState hook to manage the app state locally within the component.
@@ -59,15 +71,17 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
                 <StoreProvider store={globalStore}>
                     {/* Run the general app component from SmartDB for init procedures */}
                     <AppGeneral />
-                    ( isLoadingDatabaseService &&
-                    ({/* Include the React Notifications component for global notifications */}
-                    <ReactNotifications />
-                    {/* Wrap the app content with the Layout component */}
-                    <Layout>
-                        {/* Render the current page component */}
-                        <Component {...pageProps} />
-                    </Layout>)
-                    )
+                    {!isLoadingDatabaseService && (
+                        <>
+                            {/* Include the React Notifications component for global notifications */}
+                            <ReactNotifications />
+                            {/* Wrap the app content with the Layout component */}
+                            <Layout>
+                                {/* Render the current page component */}
+                                <Component {...pageProps} />
+                            </Layout>
+                        </>
+                    )}
                 </StoreProvider>
             </SessionProvider>
         </AppStateContext.Provider>

@@ -30,6 +30,13 @@ type OTC @smartDBEntity(plutusDataIsSubType: false, isNETIdUnique: true, tokenNa
  od_min_ada: String @specialType(typeName:"bigint") @convertible(params:["isForDatum: true"])
 }
 
+type LocalProtocolAdmin @entity  @specialImports(fromSmart_db:["TN"], fromLucid_cardano:["Address", "PolicyId"]){
+ pp_protocol_address: String @specialType(typeName:"Address")
+ pp_protocol_id_tn: String @specialType(typeName:"TN")
+ pp_protocol_policy_id: String @specialType(typeName:"PolicyId")
+ pp_protocol_script_hash: String
+}
+
 
 type Query @resolvers {
     not_used: String

@@ -1,3 +1,4 @@
+import { MeshWallet } from '@meshsdk/core';
 import { Script } from 'lucid-cardano';
 import { scriptSchema, yup } from 'smart-db/backEnd';
 
@@ -66,4 +67,18 @@ export const CancelOtcTxParamsSchema = yup.object().shape({
     validatorAddress: yup.string().required(),
     OTCScript: scriptSchema.required(),
     mintingOtcNFT: scriptSchema.required()
+});
+
+export const PROTOCOL_CREATE = 'Otc - Create';
+export const PROTOCOL_UPDATE_PARAMS = 'Otc - Update Params';
+export const PROTOCOL_UPDATE_MIN_ADA = 'Otc - Update Min ADA';
+
+export interface CreateProtocolTxParams {
+    mayzAmount: bigint,
+    meshWallet: MeshWallet,
+}
+
+export const CreateProtocolTxParamsSchema = yup.object().shape({
+    mayzAmount: yup.mixed().required(),
+    meshWallet: yup.object().required()
 });

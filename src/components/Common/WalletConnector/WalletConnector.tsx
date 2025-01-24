@@ -62,28 +62,6 @@ const WalletConnector: React.FC<WalletConnectorProps> = ({ isWalletConnectorModa
           {walletStore.isConnected === false ? (
             <>
               <h2 className={styles.walletConnectHeader}>Connect Wallet</h2>
-              <text className={styles.walletConnectText}>Wallet Private Key:</text>
-              <div className={styles.grid}>
-                {/* Input field for entering private key */}
-                <input 
-                  name="privateKey" 
-                  value={privateKey ?? ''} 
-                  onChange={(e) => setPrivateKey(e.target.value)} 
-                  className={styles.inputField} 
-                />
-                {/* Button to connect using the private key */}
-                <button
-                  className={styles.buttonConnectWithKey}
-                  onClick={async () => {
-                    if (privateKey !== undefined) {
-                      // Connect wallet using the provided private key
-                      await walletFromKeyConnect(privateKey, createSignedSession, true, false);
-                    }
-                  }}
-                >
-                  Connect With Key
-                </button>
-              </div>
               {/* Display a list of available wallets for the user to select */}
               <WalletList
                 walletStore={walletStore}

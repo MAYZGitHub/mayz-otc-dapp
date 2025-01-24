@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import { Convertible, BaseSmartDBEntity, asSmartDBEntity, type TN } from 'smart-db';
 import { VrfKeyHash, type PolicyId,  } from 'lucid-cardano';
+import { protocolIdTn } from '../../Commons/Constants/onchain';
 
 @asSmartDBEntity()
 export class ProtocolAdminEntity extends BaseSmartDBEntity {
@@ -10,7 +11,7 @@ export class ProtocolAdminEntity extends BaseSmartDBEntity {
     protected static _plutusDataIsSubType = false;
     protected static _is_NET_id_Unique = true;
     // TODO: Ckeck name and parameters
-    _NET_id_TN: string = 'ProtocolAdminID';
+    _NET_id_TN: string = protocolIdTn;
 
     // #region fields
     @Convertible( { isForDatum: true,  type: String} )

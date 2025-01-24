@@ -20,13 +20,25 @@ export default function SidebarContent() {
       <ul className={styles.navSection}>
         <div className={styles.sectionTitle} > Over The Counter </div >
         <li className={styles.sectionItem}>
+          <button onClick={() => setSideBarState('Protocol Area')} disabled={!isWalletConnected} className={`${styles.sidebarItem} ${sidebarState == 'Protocol Area' && styles.activeLink}`} >
+            <span className={styles.sidebarIcon}>
+              {svgIcon}
+            </span>
+            <span className='width: 100% !important;'>
+              <div className={styles.sidebarText}>
+                <span>Protocol Area </span>
+              </div>
+            </span>
+          </button>
+        </li>
+        <li className={styles.sectionItem}>
           <button onClick={() => setSideBarState('Claim')} disabled={!isWalletConnected} className={`${styles.sidebarItem} ${sidebarState == 'Claim' && styles.activeLink}`} >
             <span className={styles.sidebarIcon}>
               {svgIcon}
             </span>
             <span className='width: 100% !important;'>
               <div className={styles.sidebarText}>
-                <span>Deploy </span>
+                <span>Claim </span>
               </div>
             </span>
           </button>

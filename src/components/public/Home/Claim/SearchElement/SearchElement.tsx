@@ -1,7 +1,7 @@
 // SearchElement.tsx
 import { useSearchElement } from './useSearchElement';
 import styles from './SearchElement.module.scss'
-export default function SearchElement() {
+export default function SearchElement(prop: any) {
     const { } = useSearchElement();
 
     const svgSearch = (
@@ -17,7 +17,7 @@ export default function SearchElement() {
         <section className={styles.searchContainer}>
             <form className={styles.searchBox}>
                 {svgSearch}
-                <input className={styles.searchArea} type="text" onChange={() => { console.log("filtrito de busqueda") }} placeholder='Search by name or policy ID' />
+                <input className={styles.searchArea} type="text" onChange={prop.handleInputChange} placeholder='Search by name or policy ID' />
             </form>
         </section>
     );

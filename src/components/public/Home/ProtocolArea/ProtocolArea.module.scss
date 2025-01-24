@@ -1,0 +1,46 @@
+.formulario {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  
+    .form-group {
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+  
+      label {
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+  
+      input {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+      }
+    }
+  
+    button {
+        margin-top: 1rem;
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+  
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  
+      .error-message {
+          color: red;
+          margin-top: 5px;
+      }
+  }

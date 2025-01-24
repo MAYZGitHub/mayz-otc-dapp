@@ -15,7 +15,7 @@ export const useOtcCard = () => {
 
 //   /*
 //     Access the global application state and state updater function from the AppStateContext.
-//     These properties allow managing and sharing app-wide states such as `menuClass`, `marketScript`,
+//     These properties allow managing and sharing app-wide states such as `menuClass`, `otcScript`,
 //     `marketAddress`, and the minting policy configurations across components.
 //   */
 //   const { appState, setAppState } = useContext(AppStateContext);

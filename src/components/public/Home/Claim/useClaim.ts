@@ -3,8 +3,25 @@
 // import { CS, useWalletStore } from 'smart-db';
 // import { AppStateContext } from '@/pages/_app';
 // import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
+import debounce from 'lodash/debounce';
+
+
+import { useCallback, useState } from "react";
 
 export const useClaim = () => {
+   const [searchTerm, setSearchTerm] = useState("");
+
+
+   const debouncedSetSearchTerm = useCallback(
+      debounce((value) => {
+        setSearchTerm(value);
+      }, 100),
+      []
+    );
+  
+    const handleInputChange = (event: any) => {
+      debouncedSetSearchTerm(event.target.value);
+    };
 //   /*
 //     This store comes from the global store provided by SmartDB.
 //     It provides all necessary utilities for managing the connected wallet,
@@ -15,7 +32,7 @@ export const useClaim = () => {
 
 //   /*
 //     Access the global application state and state updater function from the AppStateContext.
-//     These properties allow managing and sharing app-wide states such as `menuClass`, `marketScript`,
+//     These properties allow managing and sharing app-wide states such as `menuClass`, `otcScript`,
 //     `marketAddress`, and the minting policy configurations across components.
 //   */
 //   const { appState, setAppState } = useContext(AppStateContext);
@@ -103,6 +120,8 @@ export const useClaim = () => {
 //   }, [walletStore._lucidForUseAsUtils]);
 
    return {
+      searchTerm,
+      handleInputChange,
 //     isWalletConnectorModalOpen,
 //     setIsWalletConnectorModalOpen,
    };

@@ -5,6 +5,7 @@ import styles from './Home.module.scss'
 import Claim from './Claim/Claim';
 import MyArea from './MyArea/MyArea';
 import WalletConnector from '../../Common/WalletConnector/WalletConnector';
+import ProtocolArea from './ProtocolArea/ProtocolArea';
 export default function Home() {
     const {sidebarState, isWalletConnectorModalOpen, setIsWalletConnectorModalOpen, isWalletConnected} = useHome();
 
@@ -40,6 +41,7 @@ export default function Home() {
         switch (sidebarState) {
             case 'Claim': return <Claim/>;
             case 'My Area': return <MyArea/>
+            case 'Protocol Area': return <ProtocolArea/>
             default: return null;
         }
     }

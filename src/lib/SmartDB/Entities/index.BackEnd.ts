@@ -4,3 +4,5 @@ export * from './OTC.Entity.Mongo';
 export * from './OTC.Entity.PostgreSQL';
 export * from './ProtocolAdmin.Entity.Mongo';
 export * from './ProtocolAdmin.Entity.PostgreSQL';
+export * from './LocalProtocolAdmin.Entity.Mongo';
+export * from './LocalProtocolAdmin.Entity.PostgreSQL';

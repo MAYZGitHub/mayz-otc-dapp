@@ -968,7 +968,7 @@ The `Sell` component is responsible for selling a token. It calls the backend AP
 // Function to handle the sell transaction for a specific asset
     const handleBtnSellTx = async () => {
         if (walletStore.isConnected !== true) return; // Ensure wallet is connected
-        if (marketAddress === undefined || marketScript === undefined || mintingPolicyIDScript === undefined || mintingPolicyID_CS === undefined) {
+        if (marketAddress === undefined || otcScript === undefined || mintingPolicyIDScript === undefined || mintingPolicyID_CS === undefined) {
             return; // Ensure all required values are available before proceeding
         }
         if (!(isLoadingAnyTx === undefined || isLoadingAnyTx == tokenToSell.CS + tokenToSell.TN_Hex)) return;
@@ -997,7 +997,7 @@ The `Sell` component is responsible for selling a token. It calls the backend AP
                 datumID_TN: mintingPolicyID_TN,
                 validatorAddress: marketAddress,
                 mintingPolicyID: mintingPolicyIDScript,
-                validatorMarket: marketScript,
+                validatorMarket: otcScript,
                 priceOfAsset: BigInt(inputValue), // Use the input value as the asset price
             };
 
