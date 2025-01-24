@@ -138,11 +138,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 // Add additional values to the transaction, including minimum ADA requirement
                 valueForTx = addAssetsList([otcNFT_Value, valueForTx]);
 
-                const mayz_AC = mayzPolicyId + strToHex(mayzTn);
-                const mayz_Value: Assets = { [mayz_AC]: mayzLockAmount };
+                const mayzAC = mayzPolicyId + strToHex(mayzTn);
+                const mayzValue: Assets = { [mayzAC]: mayzLockAmount };
 
                 // Add additional values to the transaction, including minimum ADA requirement
-                valueForTx = addAssetsList([mayz_Value, valueForTx]);
+                valueForTx = addAssetsList([mayzValue, valueForTx]);
 
                 const minAdaParameter = calculateMinAdaOfUTxO({
                     datum: OTCEntity.datumToCborHex(datumPlainObjectWithoutMinADA),
@@ -313,11 +313,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 // Add additional values to the transaction, including minimum ADA requirement
                 valueForGetBackToContract = addAssetsList([otcNFT_Value, valueForGetBackToContract]);
 
-                const mayz_AC = mayzPolicyId + strToHex(mayzTn);
-                const mayz_Value: Assets = { [otcNFT_AC]: mayzLockAmount };
+                const mayzAC = mayzPolicyId + strToHex(mayzTn);
+                const mayzValue: Assets = { [otcNFT_AC]: mayzLockAmount };
 
                 // Add additional values to the transaction, including minimum ADA requirement
-                valueForGetBackToContract = addAssetsList([mayz_Value, valueForGetBackToContract]);
+                valueForGetBackToContract = addAssetsList([mayzValue, valueForGetBackToContract]);
 
                 const minAdaValue: Assets = {
                     lovelace: Otc.od_min_ada,
@@ -464,16 +464,16 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 }
 
                 const policyID_AC = Otc.od_token_policy_id + strToHex(mintingPolicyID_TN);
-                const policyID_Value: Assets = { [policyID_AC]: 1n };
+                const policyID_toBurnValue: Assets = { [policyID_AC]: -1n };
 
                 const otcNFT_AC = Otc.od_otc_nft_policy_id + strToHex(Otc.od_otc_nft_tn);
-                const otcNFT_Value: Assets = { [otcNFT_AC]: 1n };
+                const otcNFT_toBurnValue: Assets = { [otcNFT_AC]: -1n };
 
-                const mayz_AC = mayzPolicyId + strToHex(mayzTn);
-                const mayz_Value: Assets = { [mayz_AC]: mayzLockAmount };
+                const mayzAC = mayzPolicyId + strToHex(mayzTn);
+                const mayzValue: Assets = { [mayzAC]: mayzLockAmount };
 
                 // Add additional values to the transaction, including minimum ADA requirement
-                let valueForGetBackToUser = mayz_Value;
+                let valueForGetBackToUser = mayzValue;
 
                 const minAdaValue: Assets = {
                     lovelace: Otc.od_min_ada,
@@ -501,8 +501,8 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
 
                 // Configures transaction actions: mint, collect, attach policies, and send funds
                 tx = tx
-                    .mintAssets(policyID_Value, otcPolicyIdBurnRedeemerCloseHex)
-                    .mintAssets(otcNFT_Value, otcNftBurnRedeemerHex)
+                    .mintAssets(policyID_toBurnValue, otcPolicyIdBurnRedeemerCloseHex)
+                    .mintAssets(otcNFT_toBurnValue, otcNftBurnRedeemerHex)
                     .collectFrom([OTC_UTxO], otcPolicyIdBurnRedeemerCloseHex)
                     .attachSpendingValidator(OTCScript)
                     .attachMintingPolicy(mintingOtcNFT)
@@ -630,16 +630,16 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 }
 
                 const policyID_AC = Otc.od_token_policy_id + strToHex(mintingPolicyID_TN);
-                const policyID_Value: Assets = { [policyID_AC]: 1n };
+                const policyID_toBurnValue: Assets = { [policyID_AC]: -1n };
 
                 const otcNFT_AC = Otc.od_otc_nft_policy_id + strToHex(Otc.od_otc_nft_tn);
-                const otcNFT_Value: Assets = { [otcNFT_AC]: 1n };
+                const otcNFT_toBurnValue: Assets = { [otcNFT_AC]: -1n };
 
-                const mayz_AC = mayzPolicyId + strToHex(mayzTn);
-                const mayz_Value: Assets = { [mayz_AC]: mayzLockAmount };
+                const mayzAC = mayzPolicyId + strToHex(mayzTn);
+                const mayzValue: Assets = { [mayzAC]: mayzLockAmount };
 
                 // Add additional values to the transaction, including minimum ADA requirement
-                let valueForGetBackToUser = mayz_Value;
+                let valueForGetBackToUser = mayzValue;
 
                 const minAdaValue: Assets = {
                     lovelace: Otc.od_min_ada,
@@ -667,8 +667,8 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
 
                 // Configures transaction actions: mint, collect, attach policies, and send funds
                 tx = tx
-                    .mintAssets(policyID_Value, otcPolicyIdBurnRedeemerCancelHex)
-                    .mintAssets(otcNFT_Value, otcNftBurnRedeemerHex)
+                    .mintAssets(policyID_toBurnValue, otcPolicyIdBurnRedeemerCancelHex)
+                    .mintAssets(otcNFT_toBurnValue, otcNftBurnRedeemerHex)
                     .collectFrom([OTC_UTxO], otcPolicyIdBurnRedeemerCancelHex)
                     .attachSpendingValidator(OTCScript)
                     .attachMintingPolicy(mintingOtcNFT)
