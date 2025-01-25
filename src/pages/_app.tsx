@@ -26,6 +26,7 @@ export type AppState = {
     mintingPolicyIDScript?: MintingPolicy; // The script for minting policy (optional).
     mintingPolicyID_CS?: CS; // The asset class of the minting policy (optional).
     meshWallet?: MeshWallet; // The wallet for the mesh network.
+    blockChainProvider?: BlockfrostProvider;
     sidebarState: string;
 
     protocolScript?: string;

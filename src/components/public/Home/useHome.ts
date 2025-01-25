@@ -3,6 +3,14 @@ import { AppStateContext } from "@root/src/pages/_app";
 import { useContext, useEffect, useState } from "react";
 import { useWalletStore } from "smart-db";
 
+export interface SettersModalTx{
+   setIsTxModalOpen: (value: boolean) => void;
+   setTxHash: (value: string) => void;
+   setIsTxError: (value: boolean) => void;
+   setTxMessage: (value: string) => void;
+   setTxConfirmed: (value: boolean) => void;
+}
+
 export const useHome = () => {
    //   /*
    //     This store comes from the global store provided by SmartDB.
@@ -19,7 +27,12 @@ export const useHome = () => {
    //   */
    const { appState, setAppState } = useContext(AppStateContext);
    const { sidebarState } = appState;
-
+   //   //----------------------------------------------------------------------------
+   const [isTxModalOpen, setIsTxModalOpen] = useState(false); // State for showing transaction modal
+   const [txHash, setTxHash] = useState<string>(); // Transaction hash state
+   const [isTxError, setIsTxError] = useState(false); // Error state for transaction
+   const [txMessage, setTxMessage] = useState(''); // Message related to transaction
+   const [txConfirmed, setTxConfirmed] = useState(false); // Confirmation state for transaction
    //   //----------------------------------------------------------------------------
 
    //   /*
@@ -29,11 +42,19 @@ export const useHome = () => {
    //   */
    const [isWalletConnectorModalOpen, setIsWalletConnectorModalOpen] = useState(false);
    //   //----------------------------------------------------------------------------
-
+   const settersModalTx = { setIsTxModalOpen, setTxHash, setIsTxError, setTxMessage, setTxConfirmed };
    return {
       sidebarState,
       isWalletConnected: walletStore.isConnected,
       isWalletConnectorModalOpen,
       setIsWalletConnectorModalOpen,
+      // -----------------------------
+      isTxModalOpen,
+      txHash,
+      isTxError,
+      txMessage,
+      txConfirmed,
+      // -----------------------------
+      settersModalTx
    };
 };

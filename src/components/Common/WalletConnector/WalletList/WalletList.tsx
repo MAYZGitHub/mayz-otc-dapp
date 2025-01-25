@@ -6,6 +6,7 @@ import styles from './WalletList.module.scss'; // Assuming you will create a SCS
 import { AppStateContext } from '@root/src/pages/_app';
 import { MeshWallet } from '@meshsdk/core';
 import { blockChainProvider } from '@root/src/lib/Commons/Constants/onchain';
+import { useWalletList } from './useWalletList';
 
 // Define props for WalletList component
 interface Props {
@@ -19,27 +20,7 @@ interface Props {
 }
 
 const WalletList: React.FC<Props> = ({ walletStore, walletSelected, walletConnect, walletInstall, createSignedSession }) => {
-  async function walletConnect_(wallet: CardanoWallet) {
-
-    await walletConnect(wallet, createSignedSession, true, false, true);
-
-    const walletStore = useWalletStore();
-
-    const { appState, setAppState } = useContext(AppStateContext);
-    if(walletStore.info?.address!=undefined && walletStore.info?.address!=""){
-    const meshWallet = new MeshWallet({
-      networkId: 0,
-      fetcher: blockChainProvider,
-      submitter: blockChainProvider,
-      key: {
-        type: "address",
-        address: walletStore.info?.address!,
-      },
-    });
-
-      setAppState({ ...appState, meshWallet: meshWallet });
-    }
-  }
+  const {walletConnect_} = useWalletList({walletConnect, createSignedSession})
   //--------------------------------------
   return (
     <>

@@ -6,8 +6,19 @@ import Claim from './Claim/Claim';
 import MyArea from './MyArea/MyArea';
 import WalletConnector from '../../Common/WalletConnector/WalletConnector';
 import ProtocolArea from './ProtocolArea/ProtocolArea';
+import ModalTransaction from '../../Common/ModalTransaction/ModalTransaction';
 export default function Home() {
-    const {sidebarState, isWalletConnectorModalOpen, setIsWalletConnectorModalOpen, isWalletConnected} = useHome();
+    const { sidebarState,
+        isWalletConnectorModalOpen,
+        setIsWalletConnectorModalOpen,
+        isWalletConnected,
+        isTxModalOpen,
+        txHash,
+        isTxError,
+        txMessage,
+        txConfirmed,
+        settersModalTx
+    } = useHome();
 
     const svgWallet = isWalletConnected ?
         (
@@ -33,22 +44,22 @@ export default function Home() {
             </svg>
         )
 
-    function renderHome(){
-        if(!isWalletConnected){
+    function renderHome() {
+        if (!isWalletConnected) {
             return (<text>Please connect, your wallet</text>);
         }
 
         switch (sidebarState) {
-            case 'Claim': return <Claim/>;
-            case 'My Area': return <MyArea/>
-            case 'Protocol Area': return <ProtocolArea/>
+            case 'Claim': return <Claim settersModalTx={settersModalTx}/>;
+            case 'My Area': return <MyArea settersModalTx={settersModalTx}/>
+            case 'Protocol Area': return <ProtocolArea settersModalTx={settersModalTx}/>
             default: return null;
         }
     }
 
     return (
         <section className={styles.mainSection}>
-            <WalletConnector isWalletConnectorModalOpen={isWalletConnectorModalOpen} setIsWalletConnectorModalOpen={setIsWalletConnectorModalOpen}/>
+            <WalletConnector isWalletConnectorModalOpen={isWalletConnectorModalOpen} setIsWalletConnectorModalOpen={setIsWalletConnectorModalOpen} />
             <div className={styles.mainContainer}>
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
@@ -60,6 +71,15 @@ export default function Home() {
                     {renderHome()}
                 </div>
             </div>
+            {/* Modal displaying transaction status */}
+            <ModalTransaction
+                isOpen={isTxModalOpen}
+                onRequestClose={() => settersModalTx.setIsTxModalOpen(false)}
+                txMessage={txMessage}
+                txHash={txHash!}
+                txConfirmed={txConfirmed}
+                isTxError={isTxError}
+            />
         </section>
     );
 }

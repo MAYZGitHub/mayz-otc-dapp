@@ -6,19 +6,23 @@ import styles from './YourTokenSeccion.module.scss'
 import messiImage from '@root/public/messi.jpg'
 
 export default function YourTokenSeccion(prop: any) {
-    const { } = useYourTokenSeccion();
-    console.log(prop)
-    const tokens = prop.tokens.map((token: any) =>
+    const { deployBtnHandler,
+        isLoadingDetails,
+        isLoadedDetails,
+        current,
+        tokenCardInterface } = useYourTokenSeccion(prop.settersModalTx);
+    const tokens = () =>
     (
-        <TokenCard image={token.srcImageToken} photoAlt={token.photoAlt} tokenName={token.tokenName} tokenAmount={token.tokenAmount} btnHandler={token.btnHandler}/>
-    )
+        tokenCardInterface()?.map(token =>
+            <TokenCard image={token.srcImageToken} photoAlt={token.photoAlt} tokenName={token.tokenName} tokenAmount={token.tokenAmount} btnHandler={token.btnHandler} />
+        )
     )
     return (
         <section className={styles.yourTokenSeccionContainer}>
             <text className={styles.seccionCaption}> Your tokens </text>
-            <div className={styles.separator}/>
+            <div className={styles.separator} />
             <div className={styles.tokenGrid}>
-                {tokens}
+                { tokens()}
             </div>
         </section>
     );
