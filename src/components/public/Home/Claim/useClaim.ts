@@ -1,14 +1,15 @@
-// import { useContext, useEffect, useState } from 'react';
-// import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
-// import { CS, useWalletStore } from 'smart-db';
-// import { AppStateContext } from '@/pages/_app';
-// import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
 import debounce from 'lodash/debounce';
 
 
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
+import { OTCEntityWithMetadata, SettersModalTx } from '../useHome';
+import { BaseSmartDBFrontEndBtnHandlers, formatTokenNameHexToStr, getUrlForImage, Token_With_Metadata_And_Amount, useWalletStore } from 'smart-db';
+import { AppStateContext } from '@root/src/pages/_app';
+import { ClaimOTCTxParams } from '@root/src/lib/Commons/Constants/transactions';
+import { OTCEntity } from '@root/src/lib/SmartDB/Entities';
+import { OTCApi } from '@root/src/lib/SmartDB/FrontEnd';
 
-export const useClaim = () => {
+export const useClaim = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], walletTokens: Token_With_Metadata_And_Amount[], settersModalTx: SettersModalTx) => {
    const [searchTerm, setSearchTerm] = useState("");
 
 
@@ -22,107 +23,93 @@ export const useClaim = () => {
     const handleInputChange = (event: any) => {
       debouncedSetSearchTerm(event.target.value);
     };
-//   /*
-//     This store comes from the global store provided by SmartDB.
-//     It provides all necessary utilities for managing the connected wallet,
-//     including its state, connection, and interaction with the blockchain.
-//   */
-//   const walletStore = useWalletStore();
-//   //----------------------------------------------------------------------------
+   const walletStore = useWalletStore();
+   //----------------------------------------------------------------------------
+   //----------------------------------------------------------------------------
+   const { appState, setAppState } = useContext(AppStateContext);
+   const { meshWallet, otcSmartContractAddress, otcSmartContractScript, otcSmartContractCS, protocolCS } = appState;
+   //----------------------------------------------------------------------------
 
-//   /*
-//     Access the global application state and state updater function from the AppStateContext.
-//     These properties allow managing and sharing app-wide states such as `menuClass`, `otcScript`,
-//     `marketAddress`, and the minting policy configurations across components.
-//   */
-//   const { appState, setAppState } = useContext(AppStateContext);
-//   const { validatorScript, validatorAddress, mintingPolicyIDPreScript, mintingPolicyIDScript } = appState;
-//   //----------------------------------------------------------------------------
 
-//   /*
-//     This state is used to control the visibility of the wallet connector modal.
-//     By managing this at the parent component level, it allows child components
-//     to trigger or access the modal state as needed.
-//   */
-//   const [isWalletConnectorModalOpen, setIsWalletConnectorModalOpen] = useState(false);
-//   //----------------------------------------------------------------------------
+   function filterOtc() {
+      return listOfOtcEntityWithTokens.filter((otcEntity) =>
+         walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)
+      );
+   }
 
-//   /*
-//     Function to generate scripts required for transactions using the Lucid library.
-//   */
-//   async function generateScripts(lucid: Lucid) {
-//     let newAppState = { ...appState };
+   async function cancelBtnHandler(id: string) {
+      if (walletStore.isConnected !== true) return; // Ensure the wallet is connected
+      if (otcSmartContractAddress === undefined || otcSmartContractScript === undefined || otcSmartContractCS === undefined || protocolCS === undefined) return;
 
-//     /*
-//       Example implementation: The minting policy script here is not parametrized.
-//       However, in a real-world scenario, the script could have been exported directly
-//       from the smart contract project with parameters applied, making it ready to use.
-//     */
-//     if (mintingPolicyIDScript === undefined || validatorAddress === undefined) {
-//       /*
-//         Apply parameters to the minting policy script.
-//       */
-//       const mintingPolicyIDScript_: MintingPolicy = {
-//         type: 'PlutusV2',
-//         script: applyParamsToScript(mintingPolicyIDPreScript?.script, [lucid!.utils.validatorToScriptHash(validatorScript)]),
-//       };
+      settersModalTx.setIsTxModalOpen(true); // Open transaction modal
 
-//       /* 
-//         Generate the minting policy ID based on the script.
-//       */
-//       const policyID_CS: CS = lucid.utils.mintingPolicyToId(mintingPolicyIDScript_);
+      settersModalTx.setTxConfirmed(false);
+      try {
+         settersModalTx.setTxHash(undefined);
+         settersModalTx.setIsTxError(false);
+         settersModalTx.setTxMessage('Creating Transaction...');
 
-//       /*
-//         Update the app state with the generated minting policy ID.
-//       */
-//       newAppState = {
-//         mintingPolicyIDScript: mintingPolicyIDScript_,
-//         mintingPolicyID_CS: policyID_CS,
-//         ...newAppState,
-//       };
+         const txParams: ClaimOTCTxParams = {
+            otcDbId: id,
+            otcSmartContractAddress: otcSmartContractAddress,
+            otcScript: otcSmartContractScript //TODO: Migrar a Mesh con plutus V3
+         };
+         const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransactionV1(
+            OTCEntity,
+            'Cancel OTC...',
+            'Cancel Tx',
+            settersModalTx.setTxMessage,
+            settersModalTx.setTxHash,
+            walletStore,
+            txParams,
+            OTCApi.callGenericTxApi_.bind(OTCApi, 'claim-tx')
+         );
+         if (result === false) {
+            throw 'There was an error in the transaction';
+         }
+         settersModalTx.setTxConfirmed(result);
+      } catch (e) {
+         console.error(e);
+         settersModalTx.setTxHash(undefined);
+         settersModalTx.setIsTxError(true);
+      }
+   }
 
-//       console.log(`mintingPolicyID_CS: ${policyID_CS}`);
+      function tokenCardInterface() {
+         const otcToClaim = filterOtc();
+   
+         const mapTokenToInterface = (token: OTCEntityWithMetadata, handler: (id: string) => void) => ({
+            key: token.metadata.CS + token.metadata.TN_Hex,
+            srcImageToken: getUrlForImage(token.metadata.image),
+            photoAlt: formatTokenNameHexToStr(token.metadata.TN_Hex),
+            tokenName: formatTokenNameHexToStr(token.metadata.TN_Hex),
+            tokenAmount: token.entity.od_token_amount,
+            tokenCS: token.metadata.CS,
+            btnHandler: () => handler(token.entity._DB_id),
+         });
+   
+         return otcToClaim.map((token) => mapTokenToInterface(token, cancelBtnHandler));
+   
+      }
 
-//       /*
-//         Generate and update the market address from the validator script.
-//       */
-//       const marketAddress_ = lucid.utils.validatorToAddress(validatorScript);
-//       newAppState = { validatorAddress, ...newAppState };
-
-//       console.log(`marketAddress: ${marketAddress_}`);
-//       /*
-//         Update the global app state with the new configurations.
-//       */
-
-//       setAppState(newAppState);
-//     }
-//     /*
-//       Set up a synchronization hook for `MarketNFTEntity` with the blockchain,
-//       allowing the app to stay updated with the latest data for this entity.
-//     */
-//     await BaseSmartDBFrontEndApiCalls.createHookApi(xxxEntity, newAppState.validatorAddress!, newAppState.mintingPolicyID_CS!);
-//   }
-
-//   /*
-//     Effect hook to trigger the script generation when the Lucid instance is available
-//   */
-//   useEffect(() => {
-//     const fetch = async () => {
-//       if (walletStore._lucidForUseAsUtils === undefined) return;
-//       try {
-//         await generateScripts(walletStore._lucidForUseAsUtils);
-//       } catch (e) {
-//         console.error(e);
-//       }
-//     };
-
-//     fetch();
-//   }, [walletStore._lucidForUseAsUtils]);
+      const filteredItems = useMemo(() => {
+        const tokenCards = tokenCardInterface();
+        if (!searchTerm) {
+          return tokenCards; // Mostrar todos los elementos si el campo de búsqueda está vacío
+        }
+    
+        const lowerSearchTerm = searchTerm.toLowerCase();
+    
+        return tokenCards.filter(item =>
+          item.tokenName.toLowerCase().includes(lowerSearchTerm) ||
+          item.tokenCS.toString().includes(searchTerm) ///||
+        );
+      }, [searchTerm]);
+    
 
    return {
       searchTerm,
       handleInputChange,
-//     isWalletConnectorModalOpen,
-//     setIsWalletConnectorModalOpen,
+      filteredItems
    };
 };

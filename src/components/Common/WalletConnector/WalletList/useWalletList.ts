@@ -14,11 +14,6 @@ interface WalletListProps {
    createSignedSession: boolean;
 }
 
-interface AppState {
-   meshWallet?: MeshWallet;
-}
-
-
 export const useWalletList = ({ walletConnect, createSignedSession }: WalletListProps) => {
    const walletStore = useWalletStore();
    const { appState, setAppState } = useContext(AppStateContext)
@@ -26,11 +21,8 @@ export const useWalletList = ({ walletConnect, createSignedSession }: WalletList
 
    async function walletConnect_(wallet: CardanoWallet): Promise<void> {
       await walletConnect(wallet, createSignedSession, true, false, true);
-      const blockChainProvider= new BlockfrostProvider(process.env.BLOCKFROST_KEY_PREVIEW!)
 
-      setAppState({...appState, blockChainProvider: blockChainProvider})
-
-
+      const {blockChainProvider} = appState
 
       if (walletStore.info?.address != undefined && walletStore.info?.address != "") {
          const meshWallet = new MeshWallet({

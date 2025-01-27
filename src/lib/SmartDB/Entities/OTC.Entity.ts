@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Convertible, BaseSmartDBEntity, asSmartDBEntity,type TN } from 'smart-db';
 import {type VrfKeyHash,type PolicyId,  } from 'lucid-cardano';
-import { mintingPolicyID_TN } from '../../Commons/Constants/onchain';
+import { otcSmartContractPolicyIdTn } from '../../Commons/Constants/onchain';
 
 @asSmartDBEntity()
 export class OTCEntity extends BaseSmartDBEntity {
@@ -11,7 +11,7 @@ export class OTCEntity extends BaseSmartDBEntity {
     protected static _plutusDataIsSubType = false;
     protected static _is_NET_id_Unique = true;
     // TODO: Ckeck name and parameters
-    _NET_id_TN: string = mintingPolicyID_TN;
+    _NET_id_TN: string = otcSmartContractPolicyIdTn;
 
     // #region fields
     @Convertible( { isForDatum: true,  } )

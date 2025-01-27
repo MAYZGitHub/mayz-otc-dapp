@@ -21,10 +21,10 @@ export type SidebarMenu = 'Claim' | 'My Area' | 'Protocol Area'
 // // Define the shape of the application state.
 export type AppState = {
     // Global state variables
-    validatorScript?: SpendingValidator; // The script for the market validator.
-    validatorAddress?: Address; // The address of the market (optional).
-    mintingPolicyIDScript?: MintingPolicy; // The script for minting policy (optional).
-    mintingPolicyID_CS?: CS; // The asset class of the minting policy (optional).
+    otcSmartContractScript?: string; // The script for the market validator.
+    otcSmartContractAddress?: Address; // The address of the market (optional).
+    otcSmartContractCS?: CS; // The address of the market (optional).
+
     meshWallet?: MeshWallet; // The wallet for the mesh network.
     blockChainProvider?: BlockfrostProvider;
     sidebarState: string;
@@ -37,6 +37,8 @@ export type AppState = {
 // // Initial state for the app, with default values.
 const initialAppState: AppState = {    
     sidebarState: 'Protocol Area',
+    blockChainProvider: new BlockfrostProvider(`${process.env.BLOCKFROST_KEY_PREVIEW!}`)
+
 };
 
 // Create a context for managing the app state globally.

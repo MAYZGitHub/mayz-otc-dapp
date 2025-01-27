@@ -82,7 +82,6 @@ export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
             console_log(1, this._Entity.className(), `Sell Tx - POST - Init`);
             try {
                 const sanitizedBody = sanitizeForDatabase(req.body);
-                const  blockChainProvider= new BlockfrostProvider(process.env.BLOCKFROST_KEY_PREVIEW!)
 
                 // Destructure required parameters from the request body
                 const {

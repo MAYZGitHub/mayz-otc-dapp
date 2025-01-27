@@ -28,7 +28,7 @@ import {
 } from 'smart-db/backEnd';
 import { OTCEntity } from '../Entities/OTC.Entity';
 import { Assets, Tx } from 'lucid-cardano';
-import { mayzLockAmount, mayzPolicyId, mayzTn, mintingPolicyID_TN } from '../../Commons/Constants/onchain';
+import { mayzLockAmount, mayzPolicyId, mayzTn, otcSmartContractPolicyIdTn } from '../../Commons/Constants/onchain';
 import { BurnNFT, CancelOTC, ClaimOTC, CloseOTC, CreateOTC, MintNFT } from '../Entities/Redeemers/OTC.Redeemer';
 import { CancelOTCTxParams, ClaimOTCTxParams, CloseOTCTxParams, CreateOTCTxParams, OTC_CANCEL, OTC_CLAIM, OTC_CLOSE, OTC_CREATE } from '../../Commons/Constants/transactions';
 
@@ -102,26 +102,25 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const { utxos: uTxOsAtWallet, address } = walletTxParams;
 
                 // Extract transaction parameters related to the asset for sale
-                const { lockAmount, policyIdCS, lockTokenTN, lockTokenCS, otcNftPolicyId, validatorAddress, mintingOtcNFT } = txParams;
+                const { lockAmount, otcSmartContract_CS, lockTokenTN, lockTokenCS, tokenOwnerId, tokenOwnerTN, validatorAddress, ownerNFT_Script: mintingOtcNFT } = txParams;
 
                 const paymentPKH = addressToPubKeyHash(address);
-                const otcNftTN = `OTC-${lockTokenTN}-${lockAmount}`
 
                 // Generate datum object with relevant sale data and no min ADA yet
                 const datumPlainObjectWithoutMinADA = {
                     od_creator: paymentPKH,
-                    od_token_policy_id: policyIdCS,
+                    od_token_policy_id: otcSmartContract_CS,
                     od_token_tn: strToHex(lockTokenTN),
                     od_token_amount: BigInt(lockAmount),
-                    od_otc_nft_policy_id: otcNftPolicyId,
-                    od_otc_nft_tn: strToHex(otcNftTN),
+                    od_otc_nft_policy_id: tokenOwnerId,
+                    od_otc_nft_tn: strToHex(tokenOwnerTN),
                     od_mayz_policy_id: mayzPolicyId,
                     od_mayz_tn: strToHex(mayzTn),
                     od_mayz_locked: BigInt(mayzLockAmount),
                     od_min_ada: BigInt(0),
                 };
 
-                const policyID_AC = policyIdCS + strToHex(mintingPolicyID_TN);
+                const policyID_AC = otcSmartContract_CS + strToHex(otcSmartContractPolicyIdTn);
                 const policyID_Value: Assets = { [policyID_AC]: 1n };
 
                 let valueForTx: Assets = policyID_Value;
@@ -132,7 +131,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 // Add additional values to the transaction, including minimum ADA requirement
                 valueForTx = addAssetsList([lockTokenValue, valueForTx]);
 
-                const otcNFT_AC = otcNftPolicyId + strToHex(otcNftTN);
+                const otcNFT_AC = tokenOwnerId + strToHex(tokenOwnerTN);
                 const otcNFT_Value: Assets = { [otcNFT_AC]: 1n };
 
                 // Add additional values to the transaction, including minimum ADA requirement
@@ -175,6 +174,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const { now, from, until } = await TimeBackEnd.getTxTimeRange();
 
                 let tx: Tx = lucid.newTx();
+                // TODO: Traslate to Mesh
                 tx = tx
                     .mintAssets(policyID_Value, otcPolicyIdMintRedeemerHex)
                     .mintAssets(otcNFT_Value, otcNftMintRedeemerHex)
@@ -261,7 +261,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const { utxos: uTxOsAtWallet, address } = walletTxParams;
 
                 // Extracts specific parameters required for processing the transaction
-                const { otcDbId, validatorAddress, OTCScript } = txParams;
+                const { otcDbId, validatorAddress, otcScript } = txParams;
 
                 // Retrieves the OTC associated with the transaction based on the provided ID
                 const Otc = await OTCBackEndApplied.getById_<OTCEntity>(otcDbId, {
@@ -302,7 +302,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     od_min_ada: Otc.od_min_ada,
                 };
 
-                const policyID_AC = Otc.od_token_policy_id + strToHex(mintingPolicyID_TN);
+                const policyID_AC = Otc.od_token_policy_id + strToHex(otcSmartContractPolicyIdTn);
                 const policyID_Value: Assets = { [policyID_AC]: 1n };
 
                 let valueForGetBackToContract: Assets = policyID_Value;
@@ -348,7 +348,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 // Configures transaction actions: mint, collect, attach policies, and send funds
                 tx = tx
                     .collectFrom([OTC_UTxO], OTCValidatorRedeemerclaim_Hex)
-                    .attachSpendingValidator(OTCScript)
+                    .attachSpendingValidator(otcScript)
                     .payToAddress(address, lockTokenValue)
                     .payToContract(validatorAddress, { inline: datumOfTxHex }, valueForGetBackToContract)
                     .addSigner(address);
@@ -442,7 +442,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const { utxos: uTxOsAtWallet, address } = walletTxParams;
 
                 // Extracts specific parameters required for processing the transaction
-                const { otcDbId, OTCScript, mintingOtcNFT } = txParams;
+                const { otcDbId, otcScript, mintingOtcNFT } = txParams;
 
                 // Retrieves the OTC associated with the transaction based on the provided ID
                 const Otc = await OTCBackEndApplied.getById_<OTCEntity>(otcDbId, {
@@ -463,7 +463,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `OTC UTxO is being used, please wait and try again`;
                 }
 
-                const policyID_AC = Otc.od_token_policy_id + strToHex(mintingPolicyID_TN);
+                const policyID_AC = Otc.od_token_policy_id + strToHex(otcSmartContractPolicyIdTn);
                 const policyID_toBurnValue: Assets = { [policyID_AC]: -1n };
 
                 const otcNFT_AC = Otc.od_otc_nft_policy_id + strToHex(Otc.od_otc_nft_tn);
@@ -504,7 +504,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     .mintAssets(policyID_toBurnValue, otcPolicyIdBurnRedeemerCloseHex)
                     .mintAssets(otcNFT_toBurnValue, otcNftBurnRedeemerHex)
                     .collectFrom([OTC_UTxO], otcPolicyIdBurnRedeemerCloseHex)
-                    .attachSpendingValidator(OTCScript)
+                    .attachSpendingValidator(otcScript)
                     .attachMintingPolicy(mintingOtcNFT)
                     .payToAddress(address, valueForGetBackToUser)
                     .addSigner(address);
@@ -608,7 +608,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const { utxos: uTxOsAtWallet, address } = walletTxParams;
 
                 // Extracts specific parameters required for processing the transaction
-                const { otcDbId, OTCScript, mintingOtcNFT } = txParams;
+                const { otcDbId, otcScript, mintingOtcNFT } = txParams;
 
                 // Retrieves the OTC associated with the transaction based on the provided ID
                 const Otc = await OTCBackEndApplied.getById_<OTCEntity>(otcDbId, {
@@ -629,7 +629,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `OTC UTxO is being used, please wait and try again`;
                 }
 
-                const policyID_AC = Otc.od_token_policy_id + strToHex(mintingPolicyID_TN);
+                const policyID_AC = Otc.od_token_policy_id + strToHex(otcSmartContractPolicyIdTn);
                 const policyID_toBurnValue: Assets = { [policyID_AC]: -1n };
 
                 const otcNFT_AC = Otc.od_otc_nft_policy_id + strToHex(Otc.od_otc_nft_tn);
@@ -670,7 +670,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     .mintAssets(policyID_toBurnValue, otcPolicyIdBurnRedeemerCancelHex)
                     .mintAssets(otcNFT_toBurnValue, otcNftBurnRedeemerHex)
                     .collectFrom([OTC_UTxO], otcPolicyIdBurnRedeemerCancelHex)
-                    .attachSpendingValidator(OTCScript)
+                    .attachSpendingValidator(otcScript)
                     .attachMintingPolicy(mintingOtcNFT)
                     .payToAddress(address, valueForGetBackToUser)
                     .addSigner(address);

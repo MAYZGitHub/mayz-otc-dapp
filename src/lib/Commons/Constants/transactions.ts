@@ -11,61 +11,62 @@ export const OTC_CANCEL = 'Otc - Cancel';
 
 export interface CreateOTCTxParams {
     lockAmount: bigint,
-    policyIdCS: string,
+    otcSmartContract_CS: string,
     lockTokenTN: string,
     lockTokenCS: string,
-    otcNftPolicyId: string,
-    validatorAddress: string,
-    mintingOtcNFT: Script
+    tokenOwnerId: string,
+    tokenOwnerTN: string,
+    otcSmartContractAddress: string,
+    ownerNFT_Script: string
 }
 
 export const CreateOtcTxParamsSchema = yup.object().shape({
     lockAmount: yup.mixed().required(),
-    policyIdCS: yup.string().required(),
+    otcSmartContract_CS: yup.string().required(),
     lockTokenTN: yup.string().required(),
     lockTokenCS: yup.string().required(),
     otcNftPolicyId: yup.string().required(),
-    validatorAddress: yup.string().required(),
+    otcSmartContractAddress: yup.string().required(),
     mintingOtcNFT: scriptSchema.required()
 });
 
 export interface ClaimOTCTxParams {
     otcDbId: string,
-    validatorAddress: string,
-    OTCScript: Script
+    otcSmartContractAddress: string,
+    otcScript: Script
 }
 
 export const ClaimOtcTxParamsSchema = yup.object().shape({
     otcDbId: yup.string().required(),
-    validatorAddress: yup.string().required(),
-    OTCScript: scriptSchema.required()
+    otcSmartContractAddress: yup.string().required(),
+    otcScript: scriptSchema.required()
 });
 
 export interface CloseOTCTxParams {
     otcDbId: string,
-    validatorAddress: string,
-    OTCScript: Script,
+    otcSmartContractAddress: string,
+    otcScript: Script,
     mintingOtcNFT: Script
 }
 
 export const CloseOtcTxParamsSchema = yup.object().shape({
     otcDbId: yup.string().required(),
-    validatorAddress: yup.string().required(),
-    OTCScript: scriptSchema.required(),
+    otcSmartContractAddress: yup.string().required(),
+    otcScript: scriptSchema.required(),
     mintingOtcNFT: scriptSchema.required()
 });
 
 export interface CancelOTCTxParams {
     otcDbId: string,
-    validatorAddress: string,
-    OTCScript: Script,
+    otcSmartContractAddress: string,
+    otcScript: Script,
     mintingOtcNFT: Script
 }
 
 export const CancelOtcTxParamsSchema = yup.object().shape({
     otcDbId: yup.string().required(),
-    validatorAddress: yup.string().required(),
-    OTCScript: scriptSchema.required(),
+    otcSmartContractAddress: yup.string().required(),
+    otcScript: scriptSchema.required(),
     mintingOtcNFT: scriptSchema.required()
 });
 

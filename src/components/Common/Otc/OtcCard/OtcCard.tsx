@@ -7,7 +7,6 @@ export default function OtcCard(prop : any) {
 
     return (
         <section className={styles.otcCardContainer}>
-            <div className={styles.separator}> </div>
             <div className={styles.otcBox}>
                 <div className={styles.otcDescription}>
                     <img className={styles.otcTokenPhoto} src={prop.image.src} alt={prop.photoAlt} />
@@ -17,7 +16,7 @@ export default function OtcCard(prop : any) {
                 {prop.btnMod}
                 {/*<button type='button' onClick={() => console.log("Claimear OTC")}>Claim</button>*/}
             </div>
-
+            <div className={styles.separator}> </div>
         </section>
     );
 }

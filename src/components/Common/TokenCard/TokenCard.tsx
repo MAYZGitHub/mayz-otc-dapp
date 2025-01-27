@@ -3,7 +3,7 @@ import { useTokenCard } from './useTokenCard';
 import styles from './TokenCard.module.scss'
 
 export default function TokenCard(prop: any) {
-    const { } = useTokenCard();
+    const { handleInputChange, amount } = useTokenCard();
 
     return (
         <section className={styles.tokenCardContainer}>
@@ -15,8 +15,8 @@ export default function TokenCard(prop: any) {
                 <text className={styles.tokenAmountCaption} >
                     Amount:
                 </text>
-                <input className={styles.tokenAmountInput} type='number' name='amount'/>
-                <button className={styles.deployButton} type='button' onClick={prop.btnHandler}> Deploy </button>
+                <input className={styles.tokenAmountInput} onChange={(e)=>handleInputChange(e) } type='number' name='amount'/>
+                <button className={styles.deployButton} type='button' onClick={() => console.log(prop.btnHandler(amount))}> Deploy </button>
             </form>
         </section>
     );

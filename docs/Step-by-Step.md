@@ -459,26 +459,26 @@ export const validatorScript: SpendingValidator = {
 
 ```typescript
 // Minting policy in CBORHex format.
-export const mintingPolicyIDPreScriptCBORHEX = 'xxx';
+export const ownerTokenPreScriptCBORHEX = 'xxx';
 ```
-- **`mintingPolicyIDPreScriptCBORHEX`**: Placeholder for the serialized CBORHex of the minting policy script.  
+- **`ownerTokenPreScriptCBORHEX`**: Placeholder for the serialized CBORHex of the minting policy script.  
   - Replace `'xxx'` with the actual CBORHex.  
   - This implementation, give us the posibility off define the minting policy applying params.
 ```typescript
 // Minting policy object.
 export const mintingPolicyIDPreScript: MintingPolicy = {
     type: 'PlutusV2',
-    script: mintingPolicyIDPreScriptCBORHEX,
+    script: ownerTokenPreScriptCBORHEX,
 };
 ```
 - **`mintingPolicyIDPreScript`**: Represents the minting policy in a structured format.  
   - **`type`**: Specifies the script version (`PlutusV2`).  
-  - **`script`**: Uses the `mintingPolicyIDPreScriptCBORHEX`.  
+  - **`script`**: Uses the `ownerTokenPreScriptCBORHEX`.  
 
 #### **Steps to Update Constants**  
 
 1. **Replace the `xxx` placeholders**:  
-   - Update the `validatorScript` and `mintingPolicyIDPreScriptCBORHEX` with the actual serialized scripts generated from your on-chain code.  
+   - Update the `validatorScript` and `ownerTokenPreScriptCBORHEX` with the actual serialized scripts generated from your on-chain code.  
 
 2. **Ensure consistency**:  
    - Verify that the **Token Name (TN)** matches the value used in the on-chain minting policy.  
@@ -500,12 +500,12 @@ export const validatorScript: SpendingValidator = {
     script: '4d01000033...',
 };
 
-export const mintingPolicyIDPreScriptCBORHEX =
+export const ownerTokenPreScriptCBORHEX =
     '590c4c01000033...';
 
 export const mintingPolicyIDPreScript: MintingPolicy = {
     type: 'PlutusV2',
-    script: mintingPolicyIDPreScriptCBORHEX,
+    script: ownerTokenPreScriptCBORHEX,
 };
 ```
 
@@ -552,7 +552,7 @@ The `useHome.ts` file is a critical part of the architecture, enabling interacti
 5. **SmartDB Entity Integration**  
    ```typescript
    // import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
-   // await BaseSmartDBFrontEndApiCalls.createHookApi(xxxEntity, newAppState.validatorAddress!, newAppState.mintingPolicyID_CS!);
+   // await BaseSmartDBFrontEndApiCalls.createHookApi(xxxEntity, newAppState.validatorAddress!, newAppState.ownerTokenCS!);
    ```
    - **Important**: Uncomment and replace `xxx` with the name of your entity.  
    - This line integrates the SmartDB entity with blockchain synchronization, enabling real-time updates between the network and the database.  
@@ -566,7 +566,7 @@ The `useHome.ts` file is a critical part of the architecture, enabling interacti
    await BaseSmartDBFrontEndApiCalls.createHookApi(
        MarketNFTEntity, 
        newAppState.validatorAddress!, 
-       newAppState.mintingPolicyID_CS!
+       newAppState.ownerTokenCS!
    );
    ```
    - This enables the app to synchronize blockchain state with the corresponding database entity.  
@@ -610,9 +610,9 @@ export const useHome = () => {
             };
 
             const policyID_CS: CS = lucid.utils.mintingPolicyToId(mintingPolicyIDScript_);
-            newAppState = { mintingPolicyIDScript: mintingPolicyIDScript_, mintingPolicyID_CS: policyID_CS, ...newAppState };
+            newAppState = { mintingPolicyIDScript: mintingPolicyIDScript_, ownerTokenCS: policyID_CS, ...newAppState };
 
-            console.log(`mintingPolicyID_CS: ${policyID_CS}`);
+            console.log(`ownerTokenCS: ${policyID_CS}`);
 
             const marketAddress_ = lucid.utils.validatorToAddress(validatorScript);
             newAppState = { validatorAddress: marketAddress_, ...newAppState };
@@ -624,7 +624,7 @@ export const useHome = () => {
             await BaseSmartDBFrontEndApiCalls.createHookApi(
                 MarketNFTEntity, 
                 newAppState.validatorAddress!, 
-                newAppState.mintingPolicyID_CS!
+                newAppState.ownerTokenCS!
             );
         }
     }
@@ -968,7 +968,7 @@ The `Sell` component is responsible for selling a token. It calls the backend AP
 // Function to handle the sell transaction for a specific asset
     const handleBtnSellTx = async () => {
         if (walletStore.isConnected !== true) return; // Ensure wallet is connected
-        if (marketAddress === undefined || otcScript === undefined || mintingPolicyIDScript === undefined || mintingPolicyID_CS === undefined) {
+        if (marketAddress === undefined || otcScript === undefined || mintingPolicyIDScript === undefined || ownerTokenCS === undefined) {
             return; // Ensure all required values are available before proceeding
         }
         if (!(isLoadingAnyTx === undefined || isLoadingAnyTx == tokenToSell.CS + tokenToSell.TN_Hex)) return;
@@ -993,7 +993,7 @@ The `Sell` component is responsible for selling a token. It calls the backend AP
             const txParams: SellMarketNFTTxParams = {
                 token_TN,
                 token_CS,
-                datumID_CS: mintingPolicyID_CS,
+                datumID_CS: ownerTokenCS,
                 datumID_TN: mintingPolicyID_TN,
                 validatorAddress: marketAddress,
                 mintingPolicyID: mintingPolicyIDScript,

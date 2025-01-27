@@ -1,65 +1,97 @@
-// import { useContext, useEffect, useState } from 'react';
-// import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
-// import { CS, useWalletStore } from 'smart-db';
-// import { AppStateContext } from '@/pages/_app';
-// import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
-
-import { formatTokenNameHexToStr, getAssetOfUTxOs, getUrlForImage, Token_With_Metadata_And_Amount, TokenMetadataFrontEndApiCalls, TokensWithMetadataAndAmount, useDetails, useWalletStore } from "smart-db";
+import { BaseSmartDBFrontEndBtnHandlers, formatTokenNameHexToStr, getUrlForImage, hexToStr, strToHex, Token_With_Metadata_And_Amount, TokenMetadataFrontEndApiCalls, TokensWithMetadataAndAmount, useDetails, useWalletStore } from "smart-db";
 import { SettersModalTx } from "../../useHome";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { OTCApi } from "@root/src/lib/SmartDB/FrontEnd";
+import { OTCEntity } from "@root/src/lib/SmartDB/Entities";
+import { CreateOTCTxParams } from "@root/src/lib/Commons/Constants/transactions";
+import { AppStateContext } from "@root/src/pages/_app";
+import { getScript } from "@root/src/lib/Commons/meshCommons";
+import { ownerTokenPreScriptCBORHEX, protocolIdTn } from "@root/src/lib/Commons/Constants/onchain";
+import { resolveScriptHash } from "@meshsdk/core";
 
-export const useYourTokenSeccion = (settersModalTx: SettersModalTx) => {
+export const useYourTokenSeccion = (settersModalTx: SettersModalTx, walletTokens: Token_With_Metadata_And_Amount[]) => {
    const walletStore = useWalletStore();
    //----------------------------------------------------------------------------
-   // State for managing loading and input values for tokens
-   const [isLoading, setIsLoading] = useState(false); // Whether the app is loading data
+   const { appState, setAppState } = useContext(AppStateContext);
+   const { meshWallet, otcSmartContractAddress, otcSmartContractScript, otcSmartContractCS, protocolCS } = appState;
    //----------------------------------------------------------------------------
-   const [isLoadingAnyTx, setIsLoadingAnyTx] = useState<string | undefined>(undefined);
-   //----------------------------------------------------------------------------
+   // Function to handle the sell transaction for a specific asset
+   const deployBtnHandler = async (amount: number, token: Token_With_Metadata_And_Amount) => {
+      if (walletStore.isConnected !== true) return; // Ensure wallet is connected
+      if (otcSmartContractAddress === undefined || otcSmartContractScript === undefined || otcSmartContractCS === undefined || protocolCS === undefined) {
+         return; // Ensure all required values are available before proceeding
+      }
 
-   // Function to load the details of the user's assets
-   const loadDetails = async () => {
-      if (walletStore.isWalletDataLoaded === true && walletStore.getUTxOsAtWallet().length > 0) {
-         const totalAssets = getAssetOfUTxOs(walletStore.getUTxOsAtWallet()); // Fetch wallet's UTxOs
-         const assetDetails = await TokenMetadataFrontEndApiCalls.getAssetsWithDetailsApi(totalAssets); // Get metadata details for each asset
-         return assetDetails;
-      } else {
-         return undefined; // Return undefined if wallet data isn't loaded
+      const utxos = walletStore.getUTxOsAtWallet(); // Get the wallet's UTxOs
+      const formattedAmount = amount > 1_000_000 ? `${(amount / 1_000_000).toFixed(2)}M` : amount.toString(); // Format the amount
+      const ownerTokenTN = `OTC-${hexToStr(token.TN_Hex)}-${formattedAmount}`; // Create the token name for the owner
+      const { scriptCbor: ownerTokenScriptHash } =
+         getScript(ownerTokenPreScriptCBORHEX, [utxos[0].txHash, otcSmartContractScript, protocolCS, strToHex(protocolIdTn), strToHex(ownerTokenTN)], 'V3');
+
+      const ownerTokenCs = resolveScriptHash(ownerTokenScriptHash);
+
+      settersModalTx.setIsTxModalOpen(true); // Open transaction modal
+      settersModalTx.setTxConfirmed(false);
+
+      try {
+         settersModalTx.setTxHash("");
+         settersModalTx.setIsTxError(false);
+         settersModalTx.setTxMessage('Creating Transaction...'); // Show loading message
+
+         // Set up parameters for the transaction
+         const txParams: CreateOTCTxParams = {
+            lockAmount: BigInt(amount), // Lock the amount of the asset
+            otcSmartContract_CS: otcSmartContractCS,
+            lockTokenTN: token.TN_Hex,
+            lockTokenCS: token.CS,
+            tokenOwnerId: ownerTokenCs,
+            tokenOwnerTN: ownerTokenTN,
+            validatorAddress: otcSmartContractAddress,
+            ownerNFT_Script: ownerTokenScriptHash // TODO: CHECK THIS
+         };
+
+         // Call the transaction handler to process the transaction
+         const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransactionV1(
+            OTCEntity,
+            'Creating OTC...',
+            'Create Tx',
+            settersModalTx.setTxMessage,
+            settersModalTx.setTxHash,
+            walletStore,
+            txParams,
+            OTCApi.callGenericTxApi_.bind(OTCApi, 'create-tx')
+         );
+
+         if (result === false) {
+            throw 'There was an error in the transaction'; // Handle failure
+         }
+
+         settersModalTx.setTxMessage('Transaction has been confirmed. Refreshing data...');
+         settersModalTx.setTxConfirmed(result); // Set transaction as confirmed
+      } catch (e) {
+         console.error(e);
+         settersModalTx.setTxHash(undefined);
+         settersModalTx.setIsTxError(true); // Set error flag if transaction fails
       }
    };
 
-   // Use the useDetails hook to manage the loading and state of asset details
-   const { isLoadingDetails, isLoadedDetails, current } = useDetails<TokensWithMetadataAndAmount>({
-      nameDetails: 'Balance',
-      loadDetails, // Fetches details using the loadDetails function
-      dependencies: [walletStore.isWalletDataLoaded], // Dependency on wallet data being loaded
-   });
-
-   function deployBtnHandler(token: Token_With_Metadata_And_Amount) {
-      console.log(`Deploy me ${formatTokenNameHexToStr(token.TN_Hex)}`)
-   }
 
    function tokenCardInterface() {
-      const tokens = current?.slice(1)
+      const tokens = walletTokens?.slice(1)
 
       return tokens?.map(token => {
          return {
             srcImageToken: getUrlForImage(token.image),
             photoAlt: formatTokenNameHexToStr(token.TN_Hex),
+            key: token.CS + token.TN_Hex,
             tokenName: formatTokenNameHexToStr(token.TN_Hex),
             tokenAmount: token.amount,
-            btnHandler: deployBtnHandler(token)
+            btnHandler: (amount: number) => deployBtnHandler(amount, token)
          }
       })
-
    }
 
    return {
-      deployBtnHandler,
-
-      isLoadingDetails,
-      isLoadedDetails,
-      current,
       tokenCardInterface
       //     isWalletConnectorModalOpen,
       //     setIsWalletConnectorModalOpen,

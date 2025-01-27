@@ -60,11 +60,11 @@ export const useOtc = () => {
 //       */
 //       newAppState = {
 //         mintingPolicyIDScript: mintingPolicyIDScript_,
-//         mintingPolicyID_CS: policyID_CS,
+//         ownerTokenCS: policyID_CS,
 //         ...newAppState,
 //       };
 
-//       console.log(`mintingPolicyID_CS: ${policyID_CS}`);
+//       console.log(`ownerTokenCS: ${policyID_CS}`);
 
 //       /*
 //         Generate and update the market address from the validator script.
@@ -83,7 +83,7 @@ export const useOtc = () => {
 //       Set up a synchronization hook for `MarketNFTEntity` with the blockchain,
 //       allowing the app to stay updated with the latest data for this entity.
 //     */
-//     await BaseSmartDBFrontEndApiCalls.createHookApi(xxxEntity, newAppState.validatorAddress!, newAppState.mintingPolicyID_CS!);
+//     await BaseSmartDBFrontEndApiCalls.createHookApi(xxxEntity, newAppState.validatorAddress!, newAppState.ownerTokenCS!);
 //   }
 
 //   /*
