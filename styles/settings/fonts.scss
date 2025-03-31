@@ -1,0 +1,74 @@
+$primary-font: 'DM Sans', sans-serif;
+
+$f1400-bold: 700 5.25rem #{$primary-font};
+$f1300-regular: 400 5rem #{$primary-font};
+$f1200-medium: 500 4rem #{$primary-font};
+$f1150-regular: 400 3.75rem #{$primary-font};
+$f1100-regular: 400 3.25rem #{$primary-font};
+$f1100-bold: 700 3.25rem #{$primary-font};
+$f1000-bold: 700 2.75rem #{$primary-font};
+$f1100-medium: 500 3.75rem #{$primary-font};
+$f1000-medium: 500 2.75rem #{$primary-font};
+$title-medium: 500 2.25rem #{$primary-font};
+
+$f900-bold: 700 2rem #{$primary-font};
+$f900-medium: 500 2rem #{$primary-font};
+$f900-regular: 400 2rem #{$primary-font};
+
+$text-edit: 500 1.875rem #{$primary-font};
+$QA: 500 1.5rem #{$primary-font};
+$f800-bold: 700 1.75rem #{$primary-font};
+$f800-medium: 500 1.75rem #{$primary-font};
+$fmilestone: 500 1.625rem #{$primary-font};
+
+$f600-bold: 700 1.125em #{$primary-font};
+$f600-medium: 500 1.25em #{$primary-font};
+
+$f500-medium: 500 1.125em #{$primary-font};
+
+$f400-bold: 700 1rem #{$primary-font};
+$f400-medium: 500 1rem #{$primary-font};
+$f400-regular: 400 1rem #{$primary-font};
+
+$f200-medium: 500 0.875rem #{$primary-font};
+$f150-medium: 500 0.75rem #{$primary-font};
+
+$f50-medium: 500 0.75rem #{$primary-font};
+$f50-regular: 400 0.75rem #{$primary-font};
+
+$goal: 300 4.375rem #{$primary-font};
+
+/* latin-ext */
+@font-face {
+    font-family: "Montserrat", sans-serif;
+    font-style: italic;
+    font-weight: 100 1000;
+    font-display: swap;
+        unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+    font-family: "Montserrat", sans-serif;
+    font-style: italic;
+    font-weight: 100 1000;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
+        U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+    font-family: "Montserrat", sans-serif;
+    font-style: normal;
+    font-weight: 100 1000;
+    font-display: swap;
+    unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+    font-family: "Montserrat", sans-serif;
+    font-style: normal;
+    font-weight: 100 1000;
+    font-display: swap;
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212,
+        U+2215, U+FEFF, U+FFFD;
+}

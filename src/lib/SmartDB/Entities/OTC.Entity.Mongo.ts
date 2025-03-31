@@ -4,7 +4,7 @@ import 'reflect-metadata';
 import { MongoAppliedFor , TN } from 'smart-db';
 import {  BaseSmartDBEntityMongo, IBaseSmartDBEntity } from 'smart-db/backEnd';
 import { OTCEntity } from './OTC.Entity';
-import { VrfKeyHash, PolicyId,  } from 'lucid-cardano';
+import { VrfKeyHash, PolicyId,  } from '@lucid-evolution/lucid';
 
 @MongoAppliedFor([OTCEntity])
 export class OTCEntityMongo extends  BaseSmartDBEntityMongo {

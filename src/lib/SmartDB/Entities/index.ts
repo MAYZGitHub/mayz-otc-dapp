@@ -1,4 +1,3 @@
 
 export * from './OTC.Entity';
-export * from './ProtocolAdmin.Entity';
-export * from './LocalProtocolAdmin.Entity';
+export * from './Protocol.Entity';

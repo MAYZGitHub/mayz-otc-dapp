@@ -8,11 +8,11 @@ import 'react-notifications-component/dist/theme.css';
 import { AppGeneral, CS, globalStore, useAppGeneral } from 'smart-db';
 import Layout from '../components/UI/Layout/Layout';
 import 'smart-db/dist/styles.css';
-// import { Address, MintingPolicy, SpendingValidator } from 'lucid-cardano';
+import { ModalProvider } from '@/contexts/ModalContext';
+// import { Address, MintingPolicy, SpendingValidator } from '@lucid-evolution/lucid';
 import { createContext, Dispatch, SetStateAction, useEffect, useState } from 'react';
 import '@styles/global.scss';
-import { Address, MintingPolicy, SpendingValidator } from 'lucid-cardano';
-import { BlockfrostProvider, MeshTxBuilder, MeshWallet } from '@meshsdk/core';
+import { Address, MintingPolicy, SpendingValidator } from '@lucid-evolution/lucid';
 
 // import {mintingPolicyIDPreScript, validatorScript } from '../lib/Commons/Constants/onchain';
 
@@ -24,9 +24,6 @@ export type AppState = {
     otcSmartContractScript?: string; // The script for the market validator.
     otcSmartContractAddress?: Address; // The address of the market (optional).
     otcSmartContractCS?: CS; // The address of the market (optional).
-
-    meshWallet?: MeshWallet; // The wallet for the mesh network.
-    blockChainProvider?: BlockfrostProvider;
     sidebarState: string;
 
     protocolScript?: string;
@@ -37,8 +34,6 @@ export type AppState = {
 // // Initial state for the app, with default values.
 const initialAppState: AppState = {    
     sidebarState: 'Protocol Area',
-    blockChainProvider: new BlockfrostProvider(`${process.env.BLOCKFROST_KEY_PREVIEW!}`)
-
 };
 
 // Create a context for managing the app state globally.
@@ -73,9 +68,9 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
                 {/* Provide the global store from SmartDB for state management */}
                 <StoreProvider store={globalStore}>
                     {/* Run the general app component from SmartDB for init procedures */}
-                    <AppGeneral />
+                    <AppGeneral loader={<></>} onLoadComplete={() => console.log("Ready")}>
                     {!isLoadingDatabaseService && (
-                        <>
+                        <ModalProvider>
                             {/* Include the React Notifications component for global notifications */}
                             <ReactNotifications />
                             {/* Wrap the app content with the Layout component */}
@@ -83,8 +78,9 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
                                 {/* Render the current page component */}
                                 <Component {...pageProps} />
                             </Layout>
-                        </>
+                        </ModalProvider>
                     )}
+                    </AppGeneral>
                 </StoreProvider>
             </SessionProvider>
         </AppStateContext.Provider>

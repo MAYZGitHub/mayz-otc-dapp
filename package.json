@@ -1,5 +1,5 @@
 {
-  "name": "example-use-smart-db",
+  "name": "mayz-otc",
   "version": "1.0.0",
   "private": true,
   "engines": {
@@ -26,10 +26,10 @@
     "swagger-start": "NODE_ENV=production ts-node -P tsconfig.server.json ./_swagger/server.ts"
   },
   "dependencies": {
-    "@meshsdk/core": "^1.8.13",
+    "@lucid-evolution/lucid": "^0.4.24",
+    "clsx": "^2.1.1",
     "easy-peasy": "^5.0.4",
     "lodash": "^4.17.21",
-    "lucid-cardano": "^0.10.10",
     "next": "^12.1.6",
     "next-auth": "^4.22.1",
     "react": "18.2.0",
@@ -40,8 +40,10 @@
     "smart-db": "file:./smart-db.tgz",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
+    "tailwind-merge": "^3.0.2",
     "typeorm": "^0.3.20",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@jest/expect": "^29.7.0",

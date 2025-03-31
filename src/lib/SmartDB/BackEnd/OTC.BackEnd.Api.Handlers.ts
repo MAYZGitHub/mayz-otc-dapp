@@ -27,8 +27,8 @@ import {
     strToHex,
 } from 'smart-db/backEnd';
 import { OTCEntity } from '../Entities/OTC.Entity';
-import { Assets, Tx } from 'lucid-cardano';
-import { mayzLockAmount, mayzPolicyId, mayzTn, otcSmartContractPolicyIdTn } from '../../Commons/Constants/onchain';
+import { Assets, Tx } from '@lucid-evolution/lucid';
+import { mayzLockAmount, mayzPolicyId, mayzTn, otcSmartContractPolicyIdTn } from '../../../utils/constants/on-chain';
 import { BurnNFT, CancelOTC, ClaimOTC, CloseOTC, CreateOTC, MintNFT } from '../Entities/Redeemers/OTC.Redeemer';
 import { CancelOTCTxParams, ClaimOTCTxParams, CloseOTCTxParams, CreateOTCTxParams, OTC_CANCEL, OTC_CLAIM, OTC_CLOSE, OTC_CREATE } from '../../Commons/Constants/transactions';
 

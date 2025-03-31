@@ -1,12 +1,8 @@
 import Image from 'next/image';
-import React, { useContext } from 'react';
-import { CardanoWallet, IUseWalletStore, useWalletStore } from 'smart-db';
+import React from 'react';
+import { CardanoWallet, IUseWalletStore } from 'smart-db';
 import LoaderButton from '../../LoaderButton/LoaderButton';
 import styles from './WalletList.module.scss'; // Assuming you will create a SCSS module
-import { AppStateContext } from '@root/src/pages/_app';
-import { MeshWallet } from '@meshsdk/core';
-import { blockChainProvider } from '@root/src/lib/Commons/Constants/onchain';
-import { useWalletList } from './useWalletList';
 
 // Define props for WalletList component
 interface Props {
@@ -20,7 +16,6 @@ interface Props {
 }
 
 const WalletList: React.FC<Props> = ({ walletStore, walletSelected, walletConnect, walletInstall, createSignedSession }) => {
-  const {walletConnect_} = useWalletList({walletConnect, createSignedSession})
   //--------------------------------------
   return (
     <>
@@ -38,7 +33,7 @@ const WalletList: React.FC<Props> = ({ walletStore, walletSelected, walletConnec
               onClick={async () => {
                 if (wallet.isInstalled) {
                   // If the wallet is installed, connect it
-                  await walletConnect_(wallet);
+                  await walletConnect(wallet, createSignedSession, true, false, true);
                 }
               }}
             >
@@ -67,4 +62,3 @@ const WalletList: React.FC<Props> = ({ walletStore, walletSelected, walletConnec
 };
 
 export default WalletList;
-

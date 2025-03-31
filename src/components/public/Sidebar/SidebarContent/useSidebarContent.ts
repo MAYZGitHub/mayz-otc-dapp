@@ -2,7 +2,7 @@
 // import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
 // import { CS, useWalletStore } from 'smart-db';
 import { AppStateContext, SidebarMenu } from '@/pages/_app';
-// import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
+// import { applyParamsToScript, Lucid, MintingPolicy } from '@lucid-evolution/lucid';
 
 import { useContext } from "react";
 import { useWalletStore } from 'smart-db';

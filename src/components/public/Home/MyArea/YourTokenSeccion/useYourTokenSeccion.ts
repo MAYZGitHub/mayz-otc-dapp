@@ -5,9 +5,7 @@ import { OTCApi } from "@root/src/lib/SmartDB/FrontEnd";
 import { OTCEntity } from "@root/src/lib/SmartDB/Entities";
 import { CreateOTCTxParams } from "@root/src/lib/Commons/Constants/transactions";
 import { AppStateContext } from "@root/src/pages/_app";
-import { getScript } from "@root/src/lib/Commons/meshCommons";
-import { ownerTokenPreScriptCBORHEX, protocolIdTn } from "@root/src/lib/Commons/Constants/onchain";
-import { resolveScriptHash } from "@meshsdk/core";
+import { ownerTokenPreScriptCBORHEX, protocolIdTn } from "@root/src/utils/constants/on-chain";
 
 export const useYourTokenSeccion = (settersModalTx: SettersModalTx, walletTokens: Token_With_Metadata_And_Amount[]) => {
    const walletStore = useWalletStore();

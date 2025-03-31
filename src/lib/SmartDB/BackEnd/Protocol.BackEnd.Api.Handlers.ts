@@ -25,27 +25,25 @@ import {
     showData,
     strToHex,
 } from 'smart-db/backEnd';
-import { ProtocolAdminEntity } from '../Entities/ProtocolAdmin.Entity';
-import { convertLucidAssetsToMesh, getScript, getTxBuilder } from '../../Commons/meshCommons';
-import { mayzPolicyId, mayzTn, protocolAdminPreScriptCBORHEX, protocolIdTn } from '../../Commons/Constants/onchain';
-import { BlockfrostProvider, currencySymbol, list, MeshWallet, resolveScriptHash } from '@meshsdk/core';
-import { Assets } from 'lucid-cardano';
-import { CreateProtocol } from '../Entities/Redeemers/ProtocolAdmin.Redeemer';
+import { ProtocolEntity } from '../Entities/Protocol.Entity';
+import { mayzPolicyId, mayzTn, ProtocolPreScriptCBORHEX, protocolIdTn } from '../../../utils/constants/on-chain';
+import { Assets } from '@lucid-evolution/lucid';
+import { CreateProtocol } from '../Entities/Redeemers/Protocol.Redeemer';
 import { CreateProtocolTxParams, PROTOCOL_CREATE } from '../../Commons/Constants/transactions';
-import { LocalProtocolAdminEntity } from '../Entities';
-import { LocalProtocolAdminBackEndApplied } from './LocalProtocolAdmin.BackEnd.Api.Handlers';
+//import { LocalProtocolEntity } from '../Entities';
+//import { LocalProtocolBackEndApplied } from './LocalProtocol.BackEnd.Api.Handlers';
 import { useWalletStore } from 'smart-db';
 
-@BackEndAppliedFor(ProtocolAdminEntity)
-export class ProtocolAdminBackEndApplied extends BaseSmartDBBackEndApplied {
-    protected static _Entity = ProtocolAdminEntity;
+@BackEndAppliedFor(ProtocolEntity)
+export class ProtocolBackEndApplied extends BaseSmartDBBackEndApplied {
+    protected static _Entity = ProtocolEntity;
     protected static _BackEndMethods = BaseSmartDBBackEndMethods;
 }
 
-@BackEndApiHandlersFor(ProtocolAdminEntity)
-export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
-    protected static _Entity = ProtocolAdminEntity;
-    protected static _BackEndApplied = ProtocolAdminBackEndApplied;
+@BackEndApiHandlersFor(ProtocolEntity)
+export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
+    protected static _Entity = ProtocolEntity;
+    protected static _BackEndApplied = ProtocolBackEndApplied;
     // #region custom api handlers
 
     protected static _ApiHandlers: string[] = ['tx'];
@@ -107,7 +105,7 @@ export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const { mayzAmount, meshWallet } = txParams;
 
                 const { scriptCbor: protocolScriptHash, scriptAddr: protocolScriptAddress } =
-                    getScript(protocolAdminPreScriptCBORHEX, [uTxOsAtWallet[0].txHash, strToHex(protocolIdTn)], 'V3');
+                    getScript(ProtocolPreScriptCBORHEX, [uTxOsAtWallet[0].txHash, strToHex(protocolIdTn)], 'V3');
 
                 const protocolIdCs = resolveScriptHash(protocolScriptHash);
                 const paymentPKH = addressToPubKeyHash(address);
@@ -128,7 +126,7 @@ export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 let valueForTx: Assets = policyID_Value;
 
                 const minAdaParameter = calculateMinAdaOfUTxO({
-                    datum: ProtocolAdminEntity.datumToCborHex(datumPlainObjectWithoutMinADA),
+                    datum: ProtocolEntity.datumToCborHex(datumPlainObjectWithoutMinADA),
                     assets: valueForTx,
                 });
                 const minAdaValue: Assets = {
@@ -143,8 +141,8 @@ export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 };
 
                 // Create and encode the datum for the transaction
-                let datumOfTx = ProtocolAdminEntity.mkDatumFromPlainObject(datumPlainObject);
-                const datumOfTxHex = ProtocolAdminEntity.datumToCborHex(datumOfTx);
+                let datumOfTx = ProtocolEntity.mkDatumFromPlainObject(datumPlainObject);
+                const datumOfTxHex = ProtocolEntity.datumToCborHex(datumOfTx);
 
                 // Create minting policy and redeemers for the sale transaction
                 const otcNftMintRedeemer = new CreateProtocol();
@@ -180,7 +178,7 @@ export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
 
                 const transactionOTCDatum_Out: TransactionDatum = {
                     address: protocolScriptAddress,
-                    datumType: ProtocolAdminEntity.className(),
+                    datumType: ProtocolEntity.className(),
                     datumObj: datumOfTx,
                 };
 
@@ -199,13 +197,13 @@ export class ProtocolAdminApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 });
                 await TransactionBackEndApplied.create(transaction);
 
-                const localProtocol: LocalProtocolAdminEntity = new LocalProtocolAdminEntity({
+                const localProtocol: LocalProtocolEntity = new LocalProtocolEntity({
                         pp_protocol_address:  protocolScriptAddress,
                         pp_protocol_id_tn:  protocolIdTn,
                         pp_protocol_policy_id:  protocolIdCs,
                         pp_protocol_script_hash: protocolScriptHash,
                 });
-                await LocalProtocolAdminBackEndApplied.create(localProtocol);
+                await LocalProtocolBackEndApplied.create(localProtocol);
 
                 return res.status(200).json({ txCborHex, txHash });
             } catch (error) {

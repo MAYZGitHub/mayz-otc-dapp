@@ -1,11 +1,11 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { OTCEntity } from './OTC.Entity';
-import { PostgreSQLAppliedFor, getPostgreSQLTableName,type TN } from 'smart-db';
-import {  BaseSmartDBEntityPostgreSQL } from 'smart-db/backEnd';
-import { type VrfKeyHash, type PolicyId,  } from 'lucid-cardano';
+import { PostgreSQLAppliedFor,type TN } from 'smart-db';
+import {  BaseSmartDBEntityPostgreSQL, PostgreSQLDatabaseService } from 'smart-db/backEnd';
+import { type VrfKeyHash, type PolicyId,  } from '@lucid-evolution/lucid';
 
 @PostgreSQLAppliedFor([OTCEntity])
-@Entity({ name: getPostgreSQLTableName(OTCEntity.className()) })
+@Entity({ name: PostgreSQLDatabaseService.getTableName(OTCEntity.className()) })
 @Index(['od_creator', 'od_token_policy_id', ]) // Add indices as needed
 export class OTCEntityPostgreSQL extends  BaseSmartDBEntityPostgreSQL {
     protected static Entity = OTCEntity;

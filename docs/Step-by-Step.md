@@ -422,7 +422,7 @@ In this step, we define the constants required for the on-chain implementation. 
 Here are the constants defined in the code, with their purposes and default values:
 
 ```typescript
-import { SpendingValidator, MintingPolicy } from 'lucid-cardano';
+import { SpendingValidator, MintingPolicy } from '@lucid-evolution/lucid';
 
 // Token Name for the Minting Policy.
 export const mintingPolicyID_TN = 'EntityPolicyID'; 
@@ -589,7 +589,7 @@ import { useContext, useEffect, useState } from 'react';
 import { MarketNFTEntity } from '@/lib/SmartDB/Entities/MarketNFT.Entity';
 import { CS, useWalletStore } from 'smart-db';
 import { AppStateContext } from '@/pages/_app';
-import { applyParamsToScript, Lucid, MintingPolicy } from 'lucid-cardano';
+import { applyParamsToScript, Lucid, MintingPolicy } from '@lucid-evolution/lucid';
 
 export const useHome = () => {
     const walletStore = useWalletStore();
@@ -881,7 +881,7 @@ In this handler, the `sellTxApiHandler` function processes the "sell" transactio
 In `transactions.ts`, the interface `RedeemerEntityTxParams` defines the expected parameters for the transaction:
 
 ```typescript
-import { Script } from 'lucid-cardano';
+import { Script } from '@lucid-evolution/lucid';
 import { scriptSchema, yup } from 'smart-db/backEnd';
 
 export const ENTITY_REDEEMER = 'Entity - Redeemer';

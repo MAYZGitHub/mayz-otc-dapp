@@ -1,5 +1,5 @@
 import { MeshWallet } from '@meshsdk/core';
-import { Script } from 'lucid-cardano';
+import { Script } from '@lucid-evolution/lucid';
 import { scriptSchema, yup } from 'smart-db/backEnd';
 
 

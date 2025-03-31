@@ -1,11 +1,9 @@
 
-import { resolveScriptHash } from "@meshsdk/core";
-import { otcScriptPreScriptCBORHEX, otcSmartContractPolicyIdTn, protocolIdTn } from "@root/src/lib/Commons/Constants/onchain";
-import { getScript } from "@root/src/lib/Commons/meshCommons";
+import { otcScriptPreScriptCBORHEX, PROTOCOL_ID_TN, protocolIdTn } from "@root/src/utils/constants/on-chain";
 import { OTCEntity } from "@root/src/lib/SmartDB/Entities";
 import { OTCApi } from "@root/src/lib/SmartDB/FrontEnd";
 import { AppStateContext } from "@root/src/pages/_app";
-import { Lucid } from "lucid-cardano";
+import { Lucid } from "@lucid-evolution/lucid";
 import { useContext, useEffect, useState } from "react";
 import { BaseSmartDBFrontEndApiCalls, getAssetOfUTxOs, pushSucessNotification, pushWarningNotification, strToHex, TokenMetadataEntity, TokenMetadataFrontEndApiCalls, TokensWithMetadataAndAmount, useDetails, useList, useWalletStore } from "smart-db";
 
@@ -56,7 +54,7 @@ export const useHome = () => {
    const settersModalTx = { setIsTxModalOpen, setTxHash, setIsTxError, setTxMessage, setTxConfirmed };
 
    // Function to generate scripts required for transactions using the Lucid library.
-   async function generateScripts(lucid: Lucid) {
+ /*   async function generateScripts(lucid: Lucid) {
       let newAppState = { ...appState };
 
       // Example implementation: The minting policy script here is not parametrized.
@@ -86,21 +84,21 @@ export const useHome = () => {
       // Set up a synchronization hook for `MarketNFTEntity` with the blockchain,
       // allowing the app to stay updated with the latest data for this entity.
       await BaseSmartDBFrontEndApiCalls.createHookApi(OTCEntity, newAppState.otcSmartContractAddress!, newAppState.otcSmartContractCS!);
-   }
+   } */
 
    // Effect hook to trigger the script generation when the Lucid instance is available
-   useEffect(() => {
+/*    useEffect(() => {
       const fetch = async () => {
          if (walletStore._lucidForUseAsUtils === undefined) return;
          try {
             await generateScripts(walletStore._lucidForUseAsUtils); // Generate scripts with Lucid instance
-         } catch (e) {
+         } catch (e) {ß
             console.error(e);
          }
       };
 
       fetch();
-   }, [walletStore._lucidForUseAsUtils]);
+   }, [walletStore._lucidForUseAsUtils]); */
 
    // Function to load the details of the user's assets
    const loadDetails = async () => {
@@ -160,7 +158,7 @@ export const useHome = () => {
    // Sync the market data with the blockchain
    const handleBtnSync = async () => {
       console.log('Syncing MarketNFT data with the blockchain...');
-      if (otcSmartContractAddress === undefined) return;
+/*       if (otcSmartContractAddress === undefined) return;
       try {
          // Sync the data and refresh the list
          await OTCApi.syncWithAddressApi(OTCEntity, otcSmartContractAddress, true);
@@ -169,7 +167,7 @@ export const useHome = () => {
       } catch (e) {
          console.error(e);
          pushWarningNotification(`MarketNFT Sync`, 'Synchronization Error' + e);
-      }
+      } */
    };
 
    return {

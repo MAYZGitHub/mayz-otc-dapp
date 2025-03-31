@@ -4,7 +4,7 @@
 // import { AppStateContext } from '@/pages/_app';
 
 import { AppStateContext } from "@root/src/pages/_app";
-import { Lucid } from "lucid-cardano";
+import { Lucid } from "@lucid-evolution/lucid";
 import { useContext, useState } from "react";
 import { useWalletStore } from "smart-db";
 

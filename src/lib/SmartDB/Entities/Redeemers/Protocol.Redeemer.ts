@@ -1,6 +1,6 @@
 import { BaseTxRedeemer } from "smart-db";
 
-export type ProtocolAdminRedeemer = CreateProtocol | UpdateProtocolParams | UpdateProtocolMinADA
+export type ProtocolRedeemer = CreateProtocol | UpdateProtocolParams | UpdateProtocolMinADA
 
 export class CreateProtocol extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
