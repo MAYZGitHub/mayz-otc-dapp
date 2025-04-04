@@ -1,10 +1,10 @@
-import { useModal } from '@root/src/contexts/ModalContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { CardanoWallet, LoadingSpinner, isEmulator, useWalletActions } from 'smart-db';
 import Toggle from '../Buttons/Toggle/Toggle';
 import styles from './ModalTemplate.module.scss';
+import { useModal } from '@/contexts/ModalContext';
 
 export const WalletSelectorModal: React.FC = () => {
     //--------------------------------------

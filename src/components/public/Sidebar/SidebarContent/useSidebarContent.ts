@@ -1,7 +1,8 @@
 // import { useContext, useEffect, useState } from 'react';
 // import { xxxEntity } from '@/lib/SmartDB/Entities/xxx.Entity';
 // import { CS, useWalletStore } from 'smart-db';
-import { AppStateContext, SidebarMenu } from '@/pages/_app';
+import { SidebarMenu } from '@/pages/_app';
+import { AppStateContext } from '@/contexts/AppState';
 // import { applyParamsToScript, Lucid, MintingPolicy } from '@lucid-evolution/lucid';
 
 import { useContext } from "react";

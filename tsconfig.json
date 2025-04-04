@@ -28,16 +28,12 @@
         ],
         "baseUrl": ".",
         "paths": {
-            "@root/*": ["./*"],
-            "@/*": [
-              "./src/*"
-            ],
+            "@/*": ["./src/*"],
             "@styles/*": ["./styles/*"],
-            "@lib/*":["./lib/*"]
             // "smart-db/*": ["./node_modules/@manupadilla/smart-db/dist/*"],  // Alias for all smart-db subfolders
             // "smart-db": ["./node_modules/@manupadilla/smart-db/dist"]  // Main alias for root
         }
     },
-    "include": ["next-env.d.ts", "jest.config.js", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts",  "__tests__/concurrency/**/*.ts", "__tests__/concurrency/**/*.tsx", "__tests__/concurrency/updateComparison.mts",],
+    "include": ["next-env.d.ts", "jest.config.js", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts",  "__tests__/**/*.ts",  "__tests__/**/*.mts",],
     "exclude": ["node_modules", "_OLD", "src/**/_OLD/*",  "jest.config.js", "jest.config.ts", "*.config.js", "_swagger/*.ts", "__tests__/api/*"]
 }

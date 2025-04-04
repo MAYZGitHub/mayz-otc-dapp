@@ -3,7 +3,7 @@
 
 /* BASE BUTTON */
 
-.standardBtnConnectMob {
+@mixin standardBtnConnectMob {
     width: 52px;
     height: 52px;
     border-radius: 50%;
@@ -12,11 +12,27 @@
     justify-content: center;
     cursor: pointer;
     .icon {
-        fill: colors.$light-color;
+        width: 20px;
+        height: 20px;
+
+        color: red; // this sets the stroke color!
+
+        fill: red !important;
+        stroke: red !important;
+
+        path {
+            fill: red !important;
+            stroke: red !important;
+        }
+
+        use {
+            fill: red !important;
+            stroke: red !important;
+        }
     }
 }
 
-.standardBtnConnect {
+@mixin standardBtnConnect {
     height: 52px;
     background: colors.$primary-dark-color;
     border-radius: 26px;
@@ -35,12 +51,32 @@
             color: colors.$primary-font;
         }
     }
+
+    .icon {
+        width: 20px;
+        height: 20px;
+
+        fill: red !important;
+        stroke: red !important;
+
+        color: red; // this sets the stroke color!
+
+        path {
+            fill: red !important;
+            stroke: red !important;
+        }
+
+        use {
+            fill: red !important;
+            stroke: red !important;
+        }
+    }
 }
 
 /* BUTTON TYPES */
 
 .btnConnectMob {
-    @extend .standardBtnConnectMob;
+    @include standardBtnConnectMob;
     background: colors.$primary-dark-color;
     position: relative;
     &.connected {
@@ -49,7 +85,7 @@
 }
 
 .BtnConnectPrimary {
-    @extend .standardBtnConnect;
+    @include standardBtnConnect;
     position: relative;
     &.connected {
         background: colors.$white-color;
@@ -58,7 +94,7 @@
 }
 
 .BtnConnectSecondary {
-    @extend .standardBtnConnect;
+    @include standardBtnConnect;
     &.connected {
         cursor: default;
     }

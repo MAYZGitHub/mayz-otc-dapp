@@ -6,7 +6,7 @@ export const useWalletApiKey = () => {
     //--------------------------------------
     // State to track if data is still refreshing
     const [isRefreshing, setIsRefreshing] = useState(true);
-    
+
     // Set isRefreshing to false once the component is mounted to stop the loading state
     useEffect(() => {
         setIsRefreshing(false);
@@ -16,21 +16,23 @@ export const useWalletApiKey = () => {
     // Function to load API token details using wallet information
     const loadDetails = async () => {
         let token: string | undefined;
-        
+
         // Get the Lucid instance (Cardano SDK) for blockchain interaction
         const lucid = await walletStore.getLucid();
-        
+
         // Only proceed if the user is authenticated and the Lucid instance is available
         if (status === 'authenticated' && lucid !== undefined && session && session.user && apiToken === '') {
             // Prepare the credentials object with user data from the session
             const credentials: Credentials = {
                 address: session.user.address,
-                walletNameOrSeedOrKey: session.user.walletNameOrSeedOrKey,
+                walletName: session.user.walletName,
+                walletKey: session.user.walletKey,
+                walletSeed: session.user.walletSeed,
                 useBlockfrostToSubmit: session.user.useBlockfrostToSubmit ? 'true' : 'false',
                 isWalletFromSeed: session.user.isWalletFromSeed ? 'true' : 'false',
                 isWalletFromKey: session.user.isWalletFromKey ? 'true' : 'false',
             };
-            
+
             // Fetch the API token using the credentials and the Lucid instance
             token = await AuthApi.generateAuthTokensApi(lucid, credentials, true);
         }
@@ -41,7 +43,7 @@ export const useWalletApiKey = () => {
     // Function to check if the API token details should be loaded based on modal open state
     function checkDependencies() {
         let doLoadDetails = false;
-        
+
         // Trigger loading the details when the modal is open
         if (isOpen === true) {
             doLoadDetails = true;
@@ -121,4 +123,3 @@ export const useWalletApiKey = () => {
     };
     //--------------------------------------
 };
-

@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const path = require('path');
-const webpack = require('webpack');
+// const { join } = require('path');
+// const { access, symlink } = require('fs/promises');
 
 const nextConfig = {
     //-------------
@@ -14,7 +15,14 @@ const nextConfig = {
     reactStrictMode: false,
     //-------------
     images: {
-        domains: ['localhost', 'ipfs.io', 'taptools.io', 'taptools-public.s3.amazonaws.com', 'img.cexplorer.io'],
+        domains: ['localhost', 'ipfs.io', 'taptools.io', 'taptools-public.s3.amazonaws.com', 'img.cexplorer.io', 'github.com', 's3.amazonaws.com'],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'github.com',
+                pathname: '/**',
+            },
+        ],
     },
     generateBuildId: async () => {
         // Generate your build ID here if needed
@@ -24,27 +32,31 @@ const nextConfig = {
     experimental: {
         // appDir: true,
         // serverActions: true, // <-- add this for mongoose and next13
-        esmExternals: true, // <-- add this for mongoose and next13
+        // esmExternals: true, // <-- add this for mongoose and next13
         // serverComponentsExternalPackages:['mongoose'] // <-- add this for mongoose and next13 '@typegoose/typegoose'
     },
-    webpack: (config, { isServer }) => {
-        // or 'errors-only', 'minimal', etc.
-        config.stats = 'verbose';
+    webpack: (config, { dev, isServer }) => {
+        config.stats = 'verbose'; // or 'errors-only', 'minimal', etc.
+
+        config.resolve.alias['@'] = path.resolve(__dirname, './src/');
+
         config.experiments = {
             asyncWebAssembly: true,
+            syncWebAssembly: true,
             topLevelAwait: true,
             layers: true, // optional, with some bundlers/frameworks it doesn't work without
         };
+
         // This allows you to omit extensions when importing ES modules
         config.resolve.fullySpecified = false;
-        // Alias para importar módulos de ejemplo
-        config.resolve.alias['@root'] = path.resolve(__dirname, './');
+
         // Evitar las advertencias críticas sin desactivar completamente los módulos
         config.module.parser = {
             javascript: {
                 exprContextCritical: false, // Esto elimina las advertencias de dependencias críticas
             },
         };
+
         if (isServer) {
             config.externals.push('formidable');
             config.resolve.fallback = {
@@ -78,6 +90,40 @@ const nextConfig = {
             };
         }
 
+        if (dev) {
+            config.devtool = 'eval-source-map'; // Fast for development
+        } else {
+            config.devtool = 'source-map'; // Detailed for production
+        }
+        
+        // config.plugins.push(
+        //     //NOTE: para que anda cardano serialization lib browser y se agregue wasm en next static server
+        //     new (class {
+        //         apply(compiler) {
+        //             compiler.hooks.afterEmit.tapPromise('SymlinkWebpackPlugin', async (compiler) => {
+        //                 if (isServer) {
+        //                     const from = join(compiler.options.output.path, '../static');
+        //                     const to = join(compiler.options.output.path, 'static');
+
+        //                     try {
+        //                         await access(from);
+        //                         // console.log(`${from} already exists`);
+        //                         return;
+        //                     } catch (error) {
+        //                         if (error.code === 'ENOENT') {
+        //                             // No link exists
+        //                         } else {
+        //                             throw error;
+        //                         }
+        //                     }
+
+        //                     await symlink(to, from, 'junction');
+        //                     console.log(`created symlink ${from} -> ${to}`);
+        //                 }
+        //             });
+        //         }
+        //     })()
+        // );
         return config;
     },
     async headers() {

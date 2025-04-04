@@ -1,0 +1,8 @@
+{
+    "alias-tool.mappings": {
+        "@": "${folder}/src/",
+    },
+    "path-autocomplete.pathMappings": {
+        "@": "${folder}/src/"
+    }
+}

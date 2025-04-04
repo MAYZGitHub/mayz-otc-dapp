@@ -3,20 +3,13 @@ import { type Script } from '@lucid-evolution/lucid';
 import 'reflect-metadata';
 import { BaseSmartDBEntity, type CS, Convertible, LUCID_NETWORK_MAINNET_NAME, asSmartDBEntity } from 'smart-db';
 
-export type CampaignFactory = {
-    name: string;
-    fdpCampaignVersion: number;
-    fdpCampaignPolicy_Pre_CborHex: Script;
-    fdpCampaignValidator_Pre_CborHex: Script;
-    fdpCampaignFundsPolicyID_Pre_CborHex: Script;
-    fdpCampaignFundsValidator_Pre_CborHex: Script;
-};
-
 export interface ProtocolDatum {
-    pdProtocolVersion: number;
-    pdAdmins: string[];
-    pdTokenAdminPolicy_CS: string;
-    pdMinADA: bigint;
+    pd_admins: string[];
+    pd_token_admin_policy_id: string;
+    pd_mayz_policy_id: string;
+    pd_mayz_tn: string;
+    pd_mayz_deposit_requirement: bigint;
+    pd_min_ada: bigint;
 }
 
 @asSmartDBEntity()
@@ -35,74 +28,57 @@ export class ProtocolEntity extends BaseSmartDBEntity {
     @Convertible({ isUnique: true })
     name!: string;
 
-    @Convertible({})
-    fdpProtocolVersion!: number;
+    @Convertible()
+    fProtocolScript!: Script;
 
-    @Convertible({})
-    fdpScriptVersion!: number;
+    @Convertible()
+    fProtocolScript_Params!: object;
 
     @Convertible({ isUnique: true })
-    fdpProtocolPolicyID_CS!: CS;
+    fProtocolPolicyID_CS!: CS;
 
     @Convertible()
-    fdpProtocolPolicyID_Script!: Script;
+    fProtocolValidator_AddressMainnet!: string;
 
     @Convertible()
-    fdpProtocolPolicyID_Params!: object;
-
-    @Convertible()
-    fdpProtocolValidator_AddressMainnet!: string;
-
-    @Convertible()
-    fdpProtocolValidator_AddressTestnet!: string;
-
-    @Convertible()
-    fdpProtocolValidator_Script!: Script;
+    fProtocolValidator_AddressTestnet!: string;
 
     @Convertible({ isUnique: true })
-    fdpProtocolValidator_Hash!: string;
+    fProtocolValidator_Hash!: string;
 
     @Convertible()
-    fdpProtocolValidator_Params!: object;
+    fOTCScript!: Script;
 
     @Convertible()
-    fdpScriptPolicyID_CS!: CS;
+    fOTCScript_Params!: object;
 
     @Convertible()
-    fdpScriptPolicyID_Script!: Script;
+    fOTCPolicyID_CS!: CS;
 
     @Convertible()
-    fdpScriptPolicyID_Params!: object;
+    fOTCValidator_AddressMainnet!: string;
 
     @Convertible()
-    fdpScriptValidator_AddressMainnet!: string;
+    fOTCValidator_AddressTestnet!: string;
 
     @Convertible()
-    fdpScriptValidator_AddressTestnet!: string;
+    fOTCValidator_Hash!: string;
 
     @Convertible()
-    fdpScriptValidator_Script!: Script;
+    fOTC_NFT_PRE_Script!: Script;
 
-    @Convertible()
-    fdpScriptValidator_Hash!: string;
-
-    @Convertible()
-    fdpScriptValidator_Params!: object;
-
-    @Convertible({ type: Object })
-    fdpCampaignFactories!: CampaignFactory[];
-    @Convertible( { isForDatum: true,  type: String} )
-    pd_admins!:  string[] ;
-    @Convertible( { isForDatum: true,  } )
-    pd_token_admin_policy_id!:  string ;
-    @Convertible( { isForDatum: true,  } )
-    pd_mayz_policy_id!:  string ;
-    @Convertible( { isForDatum: true,  } )
-    pd_mayz_tn!:  string ;
-    @Convertible( { isForDatum: true,  } )
-    pd_mayz_deposit_requirement!:  bigint ;
-    @Convertible( { isForDatum: true,  } )
-    pd_min_ada!:  bigint ;
+    @Convertible({ isForDatum: true, type: String })
+    pd_admins!: string[];
+    @Convertible({ isForDatum: true })
+    pd_token_admin_policy_id!: string;
+    @Convertible({ isForDatum: true })
+    pd_mayz_policy_id!: string;
+    @Convertible({ isForDatum: true })
+    pd_mayz_tn!: string;
+    @Convertible({ isForDatum: true })
+    pd_mayz_deposit_requirement!: bigint;
+    @Convertible({ isForDatum: true })
+    pd_min_ada!: bigint;
 
     // #endregion fields
 
@@ -110,17 +86,36 @@ export class ProtocolEntity extends BaseSmartDBEntity {
 
     public static defaultFieldsWhenUndefined: Record<string, boolean> = {};
 
-    public static alwaysFieldsForSelect: Record<string, boolean> = {
-        ...super.alwaysFieldsForSelect,
-          pd_admins: true,
-          pd_token_admin_policy_id: true,
-          pd_mayz_policy_id: true,
-          pd_mayz_tn: true,
-          pd_mayz_deposit_requirement: true,
-          pd_min_ada: true,
-    };
+    public static alwaysFieldsForSelect: Record<string, boolean> = {};
 
     // #endregion db
+
+    // #region class methods
+
+    public getNet_Address(): string {
+        if (process.env.NEXT_PUBLIC_CARDANO_NET === LUCID_NETWORK_MAINNET_NAME) {
+            return this.fProtocolValidator_AddressMainnet;
+        } else {
+            return this.fProtocolValidator_AddressTestnet;
+        }
+    }
+
+    public getNET_id_CS(): string {
+        return this.fProtocolPolicyID_CS;
+    }
+
+
+    public getOTC_Net_Address(): string {
+        if (process.env.NEXT_PUBLIC_CARDANO_NET === LUCID_NETWORK_MAINNET_NAME) {
+            return this.fOTCValidator_AddressMainnet;
+        } else {
+            return this.fOTCValidator_AddressTestnet;
+        }
+    }
+
+    public getOTC_NET_id_CS(): string {
+        return this.fOTCPolicyID_CS;
+    }
+
+    // #endregion class methods
 }
-
-

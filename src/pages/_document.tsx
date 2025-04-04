@@ -1,3 +1,5 @@
+'use client';
+
 import { Head, Html, Main, NextScript } from 'next/document';
 
 export const metadata = {
@@ -8,19 +10,17 @@ export const metadata = {
 };
 
 export default function Document() {
-
-	return (
-		<Html lang="en">
-			<Head>
-					<title>{metadata.title}</title>
-                    <meta name="description" content={metadata.description} />
+    return (
+        <Html lang="en">
+            <Head>
+                <meta name="description" content={metadata.description} />
                     <meta name="application-name" content={metadata.applicationName} />
                     <meta name="theme-color" content={metadata.themeColor} />
-			</Head>
-			<body>
-				<Main />
-				<NextScript />
-			</body>
-		</Html>
-	)
+            </Head>
+            <body>
+                <Main />
+                <NextScript />
+            </body>
+        </Html>
+    );
 }

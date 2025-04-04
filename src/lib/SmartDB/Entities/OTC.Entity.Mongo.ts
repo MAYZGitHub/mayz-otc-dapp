@@ -1,28 +1,15 @@
-
 import { Schema, model, models } from 'mongoose';
 import 'reflect-metadata';
-import { MongoAppliedFor , TN } from 'smart-db';
-import {  BaseSmartDBEntityMongo, IBaseSmartDBEntity } from 'smart-db/backEnd';
-import { OTCEntity } from './OTC.Entity';
-import { VrfKeyHash, PolicyId,  } from '@lucid-evolution/lucid';
+import { MongoAppliedFor } from 'smart-db';
+import { BaseSmartDBEntityMongo, IBaseSmartDBEntity } from 'smart-db/backEnd';
+import { OTCDatum, OTCEntity } from './OTC.Entity';
 
 @MongoAppliedFor([OTCEntity])
-export class OTCEntityMongo extends  BaseSmartDBEntityMongo {
+export class OTCEntityMongo extends BaseSmartDBEntityMongo {
     protected static Entity = OTCEntity;
     protected static _mongoTableName: string = OTCEntity.className();
 
     // #region fields
-
-    // od_creator: VrfKeyHash 
-    // od_token_policy_id: PolicyId 
-    // od_token_tn: TN 
-    // od_token_amount: bigint 
-    // od_otc_nft_policy_id: PolicyId 
-    // od_otc_nft_tn: TN 
-    // od_mayz_policy_id: PolicyId 
-    // od_mayz_tn: TN 
-    // od_mayz_locked: bigint 
-    // od_min_ada: bigint 
 
     // #endregion fields
 
@@ -56,21 +43,19 @@ export class OTCEntityMongo extends  BaseSmartDBEntityMongo {
 
     // #region mongo db
 
-    public static MongoModel() {
-        interface Interface {
-            od_creator:  VrfKeyHash ;
-            od_token_policy_id:  PolicyId ;
-            od_token_tn:  TN ;
-            od_token_amount:  bigint ;
-            od_otc_nft_policy_id:  PolicyId ;
-            od_otc_nft_tn:  TN ;
-            od_mayz_policy_id:  PolicyId ;
-            od_mayz_tn:  TN ;
-            od_mayz_locked:  bigint ;
-            od_min_ada:  bigint ;
+    public static DBModel() {
+        interface InterfaceDB extends IBaseSmartDBEntity {
+            createdAt: Date;
+            updatedAt: Date;
         }
 
-        const schema = new Schema<Interface>({
+        interface Interface extends InterfaceDB, OTCDatum {}
+
+        const schemaDB = {
+            ...BaseSmartDBEntityMongo.smartDBSchema,
+        };
+
+        const schemaDatum = {
             od_creator: { type: String, required: true },
             od_token_policy_id: { type: String, required: true },
             od_token_tn: { type: String, required: true },
@@ -81,7 +66,15 @@ export class OTCEntityMongo extends  BaseSmartDBEntityMongo {
             od_mayz_tn: { type: String, required: true },
             od_mayz_locked: { type: String, required: true },
             od_min_ada: { type: String, required: true },
-        });
+        };
+
+        const schema = new Schema<Interface>(
+            {
+                ...schemaDB,
+                ...schemaDatum,
+            },
+            { timestamps: true }
+        );
 
         const ModelDB = models[this._mongoTableName] || model<Interface>(this._mongoTableName, schema);
         return ModelDB;
@@ -89,4 +82,3 @@ export class OTCEntityMongo extends  BaseSmartDBEntityMongo {
 
     // #endregion mongo db
 }
-

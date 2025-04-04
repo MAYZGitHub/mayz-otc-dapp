@@ -1,4 +1,4 @@
-import { Drawer, DrawerContent } from '@/components/UI/drawer';
+import { Drawer, DrawerContent } from '@/components/UI/Drawer/drawer';
 //import { useResponsiveContext } from '@/contexts/ResponsiveContext';
 import React from 'react';
 import Modal from 'react-modal';
@@ -8,6 +8,12 @@ interface ModalProps {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
     children: React.ReactNode;
+}
+
+
+// 🔹 Fix: Define the app root for accessibility
+if (typeof window !== "undefined") {
+    Modal.setAppElement("#__next"); // Ensure it only runs on the client
 }
 
 const ModalTemplate: React.FC<ModalProps> = ({ isOpen, setIsOpen, children }) => {

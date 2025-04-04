@@ -1,11 +1,11 @@
 import { type Script } from '@lucid-evolution/lucid';
-import { type CS, PostgreSQLAppliedFor} from 'smart-db';
+import { type CS, PostgreSQLAppliedFor } from 'smart-db';
 import { BaseSmartDBEntityPostgreSQL, PostgreSQLDatabaseService } from 'smart-db/backEnd';
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, Index } from 'typeorm';
-import { CampaignFactory, ProtocolEntity } from './Protocol.Entity';
+import { ProtocolEntity } from './Protocol.Entity';
 
 @PostgreSQLAppliedFor([ProtocolEntity])
-@Index(['pd_mayz_policy_id', ]) // Add indices as needed
+@Index(['pd_mayz_policy_id']) // Add indices as needed
 @Entity({ name: PostgreSQLDatabaseService.getTableName(ProtocolEntity.className()) })
 export class ProtocolEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     protected static Entity = ProtocolEntity;
@@ -18,74 +18,64 @@ export class ProtocolEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     @Column({ type: 'varchar', length: 255 })
     name!: string;
 
-    @Column({ type: 'integer' })
-    fdpProtocolVersion!: number;
+    @Column({ type: 'jsonb' })
+    fProtocolScript!: Script;
 
-    @Column({ type: 'integer' })
-    fdpScriptVersion!: number;
+    @Column({ type: 'jsonb' })
+    fProtocolScript_Params!: object;
+
 
     @Column({ type: 'varchar', length: 255, unique: true })
-    fdpProtocolPolicyID_CS!: CS;
-
-    @Column({ type: 'jsonb' })
-    fdpProtocolPolicyID_Script!: Script;
-
-    @Column({ type: 'jsonb' })
-    fdpProtocolPolicyID_Params!: object;
+    fProtocolPolicyID_CS!: CS;
+    
+    @Column({ type: 'varchar', length: 255 })
+    fProtocolValidator_AddressMainnet!: string;
 
     @Column({ type: 'varchar', length: 255 })
-    fdpProtocolValidator_AddressMainnet!: string;
-
-    @Column({ type: 'varchar', length: 255 })
-    fdpProtocolValidator_AddressTestnet!: string;
-
-    @Column({ type: 'jsonb' })
-    fdpProtocolValidator_Script!: Script;
+    fProtocolValidator_AddressTestnet!: string;
 
     @Column({ type: 'varchar', length: 255, unique: true })
-    fdpProtocolValidator_Hash!: string;
+    fProtocolValidator_Hash!: string;
+
 
     @Column({ type: 'jsonb' })
-    fdpProtocolValidator_Params!: object;
+    fOTCScript!: Script;
+
+    @Column({ type: 'jsonb' })
+    fOTCScript_Params!: object;
 
     @Column({ type: 'varchar', length: 255 })
-    fdpScriptPolicyID_CS!: CS;
-
-    @Column({ type: 'jsonb' })
-    fdpScriptPolicyID_Script!: Script;
-
-    @Column({ type: 'jsonb' })
-    fdpScriptPolicyID_Params!: object;
+    fOTCPolicyID_CS!: CS;
 
     @Column({ type: 'varchar', length: 255 })
-    fdpScriptValidator_AddressMainnet!: string;
+    fOTCValidator_AddressMainnet!: string;
 
     @Column({ type: 'varchar', length: 255 })
-    fdpScriptValidator_AddressTestnet!: string;
-
-    @Column({ type: 'jsonb' })
-    fdpScriptValidator_Script!: Script;
+    fOTCValidator_AddressTestnet!: string;
 
     @Column({ type: 'varchar', length: 255 })
-    fdpScriptValidator_Hash!: string;
+    fOTCValidator_Hash!: string;
 
     @Column({ type: 'jsonb' })
-    fdpScriptValidator_Params!: object;
+    fOTC_NFT_PRE_Script!: object;
 
-    @Column({ type: 'jsonb' })
-    fdpCampaignFactories!: CampaignFactory[];
-    @Column({ type: "varchar", length: 255  })
-    pd_admins!: String[] ;
-    @Column({ type: "varchar", length: 255  })
-    pd_token_admin_policy_id!: string ;
-    @Column({ type: "varchar", length: 255  })
-    pd_mayz_policy_id!: string ;
-    @Column({ type: "varchar", length: 255  })
-    pd_mayz_tn!: string ;
-    @Column({ type: "varchar", length: 255  })
-    pd_mayz_deposit_requirement!: bigint ;
-    @Column({ type: "varchar", length: 255  })
-    pd_min_ada!: bigint ;
+    @CreateDateColumn()
+    createdAt!: Date;
+    @UpdateDateColumn()
+    updatedAt!: Date;
+
+    @Column({ type: 'varchar', length: 255, array: true, nullable: true })
+    pd_admins!: String[];
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    pd_token_admin_policy_id!: string;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    pd_mayz_policy_id!: string;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    pd_mayz_tn!: string;
+    @Column({ type: 'bigint', nullable: true })
+    pd_mayz_deposit_requirement!: bigint;
+    @Column({ type: 'bigint', nullable: true })
+    pd_min_ada!: bigint;
 
     // #endregion fields
 
@@ -117,11 +107,4 @@ export class ProtocolEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
 
     // #endregion internal class methods
 
-    // #region posgresql db
-
-    public static PostgreSQLModel() {
-        return this;
-    }
-
-    // #endregion posgresql db
 }

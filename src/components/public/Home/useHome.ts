@@ -1,8 +1,8 @@
 
-import { otcScriptPreScriptCBORHEX, PROTOCOL_ID_TN, protocolIdTn } from "@root/src/utils/constants/on-chain";
-import { OTCEntity } from "@root/src/lib/SmartDB/Entities";
-import { OTCApi } from "@root/src/lib/SmartDB/FrontEnd";
-import { AppStateContext } from "@root/src/pages/_app";
+import { OTC_SCRIPT_PRE_CBORHEX, PROTOCOL_ID_TN } from "@/utils/constants/on-chain";
+import { OTCEntity } from "@/lib/SmartDB/Entities";
+import { OTCApi } from "@/lib/SmartDB/FrontEnd";
+import { AppStateContext } from '@/contexts/AppState';
 import { Lucid } from "@lucid-evolution/lucid";
 import { useContext, useEffect, useState } from "react";
 import { BaseSmartDBFrontEndApiCalls, getAssetOfUTxOs, pushSucessNotification, pushWarningNotification, strToHex, TokenMetadataEntity, TokenMetadataFrontEndApiCalls, TokensWithMetadataAndAmount, useDetails, useList, useWalletStore } from "smart-db";
@@ -35,7 +35,7 @@ export const useHome = () => {
    //     `marketAddress`, and the minting policy configurations across components.
    //   */
    const { appState, setAppState } = useContext(AppStateContext);
-   const { sidebarState, protocolCS, protocolScript, otcSmartContractAddress } = appState;
+   const { sidebarState, protocolCS, protocolScript, otcAddress: otcSmartContractAddress } = appState;
    //   //----------------------------------------------------------------------------
    const [isTxModalOpen, setIsTxModalOpen] = useState(false); // State for showing transaction modal
    const [txHash, setTxHash] = useState<string>(); // Transaction hash state

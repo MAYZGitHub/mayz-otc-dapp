@@ -1,9 +1,7 @@
 import { useModal } from '@/contexts/ModalContext';
-import { formatAddress } from '@/utils/formats';
-import { ADA, CONNECTED_WALLET_ICON } from '@/utils/images';
-import Image from 'next/image';
+import { CONNECTED_WALLET_ICON, DISCONNECTED_WALLET_ICON } from '@/utils/constants/images';
 import { useState } from 'react';
-import { useWalletActions } from 'smart-db';
+import { formatAddress, useWalletActions } from 'smart-db';
 import styles from './BtnConnectWallet.module.scss';
 
 interface BtnConnectProps {
@@ -40,6 +38,7 @@ const BtnConnectMobile: React.FC<SubComponentProps> = () => {
             <svg width="20" height="20" className={styles.icon}>
                 <use href={CONNECTED_WALLET_ICON}></use>
             </svg>
+            
             {showDisconnect && (
                 <p className={styles.btnDisconnect} onClick={() => walletDisconnect()}>
                     Disconnect
@@ -72,7 +71,9 @@ const BtnConnectPrimary: React.FC<SubComponentProps> = ({ width }) => {
                 <p className={styles.text}>Connect wallet</p>
             ) : (
                 <>
-                    <Image width={22} height={22} src={ADA} alt="ada-logo" />
+                    <svg width="20" height="20" className={styles.icon}>
+                        <use href={DISCONNECTED_WALLET_ICON}></use>
+                    </svg>
                     <p className={styles.text}>{formatAddress(walletStore.info?.address || '')}</p>
                 </>
             )}
@@ -105,7 +106,9 @@ const BtnConnectSecondary: React.FC<SecondarySubComponentProps> = ({ width }) =>
                 <p className={styles.text}>Connect wallet</p>
             ) : (
                 <>
-                    <Image width={22} height={22} src={ADA} alt="ada-logo" />
+                    <svg width="20" height="20" className={styles.icon}>
+                        <use href={CONNECTED_WALLET_ICON}></use>
+                    </svg>
                     <p className={styles.text}>{formatAddress(walletStore.info?.address || '')}</p>
                 </>
             )}

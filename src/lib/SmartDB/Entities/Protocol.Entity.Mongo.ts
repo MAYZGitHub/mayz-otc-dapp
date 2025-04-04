@@ -46,28 +46,22 @@ export class ProtocolEntityMongo extends BaseSmartDBEntityMongo {
     public static DBModel() {
         interface InterfaceDB extends IBaseSmartDBEntity {
             name: string;
-            fdpProtocolVersion: number;
-            fdpScriptVersion: number;
 
-            fdpProtocolPolicyID_CS: string;
-            fdpProtocolPolicyID_Script: { [key: string]: any };
-            fdpProtocolPolicyID_Params: { [key: string]: any };
-            fdpProtocolValidator_AddressMainnet: string;
-            fdpProtocolValidator_AddressTestnet: string;
-            fdpProtocolValidator_Script: { [key: string]: any };
-            fdpProtocolValidator_Hash: string;
-            fdpProtocolValidator_Params: { [key: string]: any };
+            fProtocolScript: { [key: string]: any };
+            fProtocolScript_Params: { [key: string]: any };
+            fProtocolPolicyID_CS: string;
+            fProtocolValidator_AddressMainnet: string;
+            fProtocolValidator_AddressTestnet: string;
+            fProtocolValidator_Hash: string;
 
-            fdpScriptPolicyID_CS: string;
-            fdpScriptPolicyID_Script: { [key: string]: any };
-            fdpScriptPolicyID_Params: { [key: string]: any };
-            fdpScriptValidator_AddressMainnet: string;
-            fdpScriptValidator_AddressTestnet: string;
-            fdpScriptValidator_Script: { [key: string]: any };
-            fdpScriptValidator_Hash: string;
-            fdpScriptValidator_Params: { [key: string]: any };
+            fOTCScript: { [key: string]: any };
+            fOTCScript_Params: { [key: string]: any };
+            fOTCPolicyID_CS: string;
+            fOTCValidator_AddressMainnet: string;
+            fOTCValidator_AddressTestnet: string;
+            fOTCValidator_Hash: string;
 
-            fdpCampaignFactories: { [key: string]: any }[];
+            fOTC_NFT_PRE_Script: { [key: string]: any };
 
             createdAt: Date;
             updatedAt: Date;
@@ -79,27 +73,22 @@ export class ProtocolEntityMongo extends BaseSmartDBEntityMongo {
         const schemaDB = {
             ...BaseSmartDBEntityMongo.smartDBSchema,
             name: { type: String, required: true },
-            fdpProtocolVersion: { type: Number, required: true },
-            fdpScriptVersion: { type: Number, required: true },
 
-            fdpProtocolPolicyID_CS: { type: String, required: true },
-            fdpProtocolPolicyID_Script: { type: Object, required: true },
-            fdpProtocolPolicyID_Params: { type: Object, required: true },
-            fdpProtocolValidator_AddressMainnet: { type: String, required: true },
-            fdpProtocolValidator_AddressTestnet: { type: String, required: true },
-            fdpProtocolValidator_Script: { type: Object, required: true },
-            fdpProtocolValidator_Hash: { type: String, required: true },
-            fdpProtocolValidator_Params: { type: Object, required: true },
-            fdpScriptPolicyID_CS: { type: String, required: true },
-            fdpScriptPolicyID_Script: { type: Object, required: true },
-            fdpScriptPolicyID_Params: { type: Object, required: true },
-            fdpScriptValidator_AddressMainnet: { type: String, required: true },
-            fdpScriptValidator_AddressTestnet: { type: String, required: true },
-            fdpScriptValidator_Script: { type: Object, required: true },
-            fdpScriptValidator_Hash: { type: String, required: true },
-            fdpScriptValidator_Params: { type: Object, required: true },
+            fProtocolScript: { type: Object, required: true },
+            fProtocolPolicyID_CS: { type: String, required: true },
+            fProtocolScript_Params: { type: Object, required: true },
+            fProtocolValidator_AddressMainnet: { type: String, required: true },
+            fProtocolValidator_AddressTestnet: { type: String, required: true },
+            fProtocolValidator_Hash: { type: String, required: true },
 
-            fdpCampaignFactories: { type: [Object], required: true },
+            fOTCScript: { type: Object, required: true },
+            fOTCPolicyID_CS: { type: String, required: true },
+            fOTCScript_Params: { type: Object, required: true },
+            fOTCValidator_AddressMainnet: { type: String, required: true },
+            fOTCValidator_AddressTestnet: { type: String, required: true },
+            fOTCValidator_Hash: { type: String, required: true },
+
+            fOTC_NFT_PRE_Script: { type: Object, required: true },
         };
         const schemaDatum = {
             pd_admins: { type: [String], required: true },

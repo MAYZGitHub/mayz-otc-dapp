@@ -1,13 +1,13 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { OTCEntity } from './OTC.Entity';
-import { PostgreSQLAppliedFor,type TN } from 'smart-db';
-import {  BaseSmartDBEntityPostgreSQL, PostgreSQLDatabaseService } from 'smart-db/backEnd';
-import { type VrfKeyHash, type PolicyId,  } from '@lucid-evolution/lucid';
+import { PostgreSQLAppliedFor, type TN } from 'smart-db';
+import { BaseSmartDBEntityPostgreSQL, PostgreSQLDatabaseService } from 'smart-db/backEnd';
+import { type VrfKeyHash, type PolicyId } from '@lucid-evolution/lucid';
 
 @PostgreSQLAppliedFor([OTCEntity])
 @Entity({ name: PostgreSQLDatabaseService.getTableName(OTCEntity.className()) })
-@Index(['od_creator', 'od_token_policy_id', ]) // Add indices as needed
-export class OTCEntityPostgreSQL extends  BaseSmartDBEntityPostgreSQL {
+@Index(['od_creator', 'od_token_policy_id']) // Add indices as needed
+export class OTCEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     protected static Entity = OTCEntity;
 
     // #region fields
@@ -15,26 +15,31 @@ export class OTCEntityPostgreSQL extends  BaseSmartDBEntityPostgreSQL {
     @PrimaryGeneratedColumn()
     _id!: number; // Auto-generated primary key
 
-    @Column({ type: "varchar", length: 255  })
-    od_creator!: VrfKeyHash ;
-    @Column({ type: "varchar", length: 255  })
-    od_token_policy_id!: PolicyId ;
-    @Column({ type: "varchar", length: 255  })
-    od_token_tn!: TN ;
-    @Column({ type: "varchar", length: 255  })
-    od_token_amount!: bigint ;
-    @Column({ type: "varchar", length: 255  })
-    od_otc_nft_policy_id!: PolicyId ;
-    @Column({ type: "varchar", length: 255  })
-    od_otc_nft_tn!: TN ;
-    @Column({ type: "varchar", length: 255  })
-    od_mayz_policy_id!: PolicyId ;
-    @Column({ type: "varchar", length: 255  })
-    od_mayz_tn!: TN ;
-    @Column({ type: "varchar", length: 255  })
-    od_mayz_locked!: bigint ;
-    @Column({ type: "varchar", length: 255  })
-    od_min_ada!: bigint ;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_creator!: VrfKeyHash;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_token_policy_id!: PolicyId;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_token_tn!: TN;
+    @Column({ type: 'bigint', nullable: true })
+    od_token_amount!: bigint;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_otc_nft_policy_id!: PolicyId;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_otc_nft_tn!: TN;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_mayz_policy_id!: PolicyId;
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    od_mayz_tn!: TN;
+    @Column({ type: 'bigint', nullable: true })
+    od_mayz_locked!: bigint;
+    @Column({ type: 'bigint', nullable: true })
+    od_min_ada!: bigint;
+
+    @CreateDateColumn()
+    createdAt!: Date;
+    @UpdateDateColumn()
+    updatedAt!: Date;
 
     // #endregion fields
 
@@ -66,11 +71,4 @@ export class OTCEntityPostgreSQL extends  BaseSmartDBEntityPostgreSQL {
 
     // #endregion internal class methods
 
-    // #region posgresql db
-
-    public static PostgreSQLModel() {
-        return this;
-    }
-
-    // #endregion posgresql db
 }
