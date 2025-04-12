@@ -92,9 +92,7 @@ export default function ProtocolArea(onSubmit: any) {
                 // Protocol Script
                 //--------------------------------------
                 const oRef = new Constr(0, [String(pp_protocol_TxHash), BigInt(pp_protocol_TxOutputIndex)]);
-                // const protocolParams = new Constr(0, [oRef, String(strToHex(PROTOCOL_ID_TN))]);
-
-                const protocolParams = oRef;
+                const protocolParams = new Constr(0, [oRef, String(strToHex(PROTOCOL_ID_TN))]);
 
                 const fProtocolScript_Params = {
                     pp_protocol_policy_id_tx_out_ref: { txid: pp_protocol_TxHash, tx_index: pp_protocol_TxOutputIndex },
@@ -192,6 +190,10 @@ export default function ProtocolArea(onSubmit: any) {
             }
         }
     };
+
+    const handleDeleteProtocol= async () => {
+        await ProtocolApi.deleteByIdApi_(appState.protocol!._DB_id);
+    }
 
     const handleAddTokens = async () => {
         if (appStore.isProcessingTx === true) {
@@ -396,6 +398,10 @@ export default function ProtocolArea(onSubmit: any) {
                         {isEmulator ? <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
                             Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
                         </BlueButton>:<></>}
+
+                        <BlueButton style={styles.btnAction} onClick={handleDeleteProtocol}>
+                           Delete
+                        </BlueButton>
                     </div>
                 </section>
             ) : (

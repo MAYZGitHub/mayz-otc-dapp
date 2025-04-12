@@ -17,7 +17,7 @@ export class ProtocolEntity extends BaseSmartDBEntity {
     protected static _apiRoute: string = 'protocol';
     protected static _className: string = 'Protocol';
 
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 
     protected static _isOnlyDatum = false;
 

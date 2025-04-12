@@ -139,10 +139,10 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 );
                 //--------------------------------------
                 const uTxOsAtWallet = walletTxParams.utxos; // await lucid.utxosAt(params.address);
-                const protocolID_UTxO = find_TxOutRef_In_UTxOs(protocolID_TxOutRef, uTxOsAtWallet);
-                if (protocolID_UTxO === undefined) {
-                    throw "Can't find UTxO (" + toJson(protocolID_TxOutRef) + ') for Mint ProtocolID';
-                }
+                // const protocolID_UTxO = find_TxOutRef_In_UTxOs(protocolID_TxOutRef, uTxOsAtWallet);
+                // if (protocolID_UTxO === undefined) {
+                //     throw "Can't find UTxO (" + toJson(protocolID_TxOutRef) + ') for Mint ProtocolID';
+                // }
                 //--------------------------------------
                 const valueFor_Mint_ProtocolID: Assets = { [protocolPolicyID_AC_Lucid]: 1n };
                 console_log(0, this._Entity.className(), `Deploy Tx - valueFor_Mint_ProtocolID: ${showData(valueFor_Mint_ProtocolID)}`);
@@ -164,24 +164,6 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const createProtocol = new CreateProtocol();
                 console_log(0, this._Entity.className(), `Deploy Tx - createProtocol: ${showData(createProtocol, false)}`);
                 const createProtocol_Hex = objToCborHex(createProtocol);
-
-                // const createProtocol_Hex = Data.to(new Constr(1, []));
-
-                // // Define el tipo de los redeemers
-                // type ProtocolRedeemer =
-                //     | { constructor: 0; fields: [] } // CreateProtocols
-                //     | { constructor: 1; fields: [] } // UpdateProtocolParams
-                //     | { constructor: 2; fields: [bigint] }; // UpdateProtocolMinADA
-
-                // // Crea el redeemer usando la sintaxis de constr
-                // const createProtocolRedeemer = new Constr(0, []);
-                // // O alternativamente:
-
-                // // Luego conviértelo a hex para debug si lo necesitas
-                // const createProtocol_Hex = Data.to(createProtocolRedeemer);
-
-                // console.log('CreateProtocol redeemer hex:', createProtocol_Hex);
-
                 console_log(0, this._Entity.className(), `Deploy Tx - createProtocol_Hex: ${showData(createProtocol_Hex, false)}`);
                 //--------------------------------------
                 let { from, until } = await TimeBackEnd.getTxTimeRange();
@@ -220,7 +202,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     let tx: TxBuilder = lucid.newTx();
                     //--------------------------------------
                     tx = tx
-                        .collectFrom([protocolID_UTxO])
+                        // .collectFrom([protocolID_UTxO])
                         .attach.MintingPolicy(protocolPolicyID_Script)
                         .mintAssets(valueFor_Mint_ProtocolID, createProtocol_Hex)
                         .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out)
@@ -257,7 +239,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         redeemers: { createProtocol: transactionCreateProtocol },
                         datums: { protocolDatum_Out: transactionProtocolDatum_Out },
                         reading_UTxOs: [],
-                        consuming_UTxOs: [protocolID_UTxO],
+                        // consuming_UTxOs: [protocolID_UTxO],
                         unit_mem: resources.tx[0]?.MEM,
                         unit_steps: resources.tx[0]?.CPU,
                         fee: resources.tx[0]?.FEE,

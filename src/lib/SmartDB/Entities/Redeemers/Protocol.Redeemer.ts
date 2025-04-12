@@ -7,7 +7,7 @@ export class CreateProtocol extends BaseTxRedeemer {
     protected static _plutusDataIndex = 0;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 export class UpdateProtocolParams extends BaseTxRedeemer {
