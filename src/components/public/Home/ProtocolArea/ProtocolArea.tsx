@@ -88,13 +88,10 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 // Protocol Script
                 //--------------------------------------
-                // const oRef = new Constr(0, [String(pp_protocol_TxHash), BigInt(pp_protocol_TxOutputIndex)]);
+                const oRef = new Constr(0, [String(pp_protocol_TxHash), BigInt(pp_protocol_TxOutputIndex)]);
                 // const protocolParams = new Constr(0, [oRef, String(strToHex(PROTOCOL_ID_TN))]);
 
-                const protocolParams = new Constr(0, [
-                    new Constr(0, [pp_protocol_TxHash, BigInt(pp_protocol_TxOutputIndex)]),
-                    Buffer.from(PROTOCOL_ID_TN, 'utf8').toString('hex')
-                  ]);
+                const protocolParams = oRef;
 
                 const fProtocolScript_Params = {
                     pp_protocol_policy_id_tx_out_ref: { txid: pp_protocol_TxHash, tx_index: pp_protocol_TxOutputIndex },

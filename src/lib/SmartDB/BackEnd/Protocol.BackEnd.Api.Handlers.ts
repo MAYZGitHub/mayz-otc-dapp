@@ -165,7 +165,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 console_log(0, this._Entity.className(), `Deploy Tx - createProtocol: ${showData(createProtocol, false)}`);
                 // const createProtocols_Hex = objToCborHex(createProtocol);
 
-                const createProtocol_Hex = Data.to(new Constr(0, []));
+                const createProtocol_Hex = Data.to(new Constr(1, []));
 
                 // // Define el tipo de los redeemers
                 // type ProtocolRedeemer =
