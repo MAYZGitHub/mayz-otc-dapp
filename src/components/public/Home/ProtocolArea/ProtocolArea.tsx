@@ -29,6 +29,7 @@ import {
     strToHex,
     useTransactions,
     useWalletStore,
+    isEmulator
 } from 'smart-db';
 import styles from './ProtocolArea.module.scss';
 import { useProtocolArea } from './useProtocolArea';
@@ -231,7 +232,7 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 const amount = 1111;
                 //--------------------------------------
-                const valueOf_ADA: Assets = { ['lovelace']: BigInt(amount), "0xFA": 1n };
+                const valueOf_ADA: Assets = { ['lovelace']: BigInt(amount), ['Love is love']: 1n };
                 console.log(`[User] - Get ADA Tx - valueOf_ADA: ${showData(valueOf_ADA)}`);
                 //--------------------------------------
                 const assets: Assets = ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets as Assets;
@@ -392,6 +393,9 @@ export default function ProtocolArea(onSubmit: any) {
                         <BlueButton style={styles.btnAction} onClick={handleDeployProtocol}>
                             Deploy {appStore.isProcessingTx === true && <LoaderButton />}
                         </BlueButton>
+                        {isEmulator ? <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
+                            Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                        </BlueButton>:<></>}
                     </div>
                 </section>
             ) : (

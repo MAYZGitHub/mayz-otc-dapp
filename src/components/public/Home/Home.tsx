@@ -5,6 +5,7 @@ import { useHome } from './useHome';
 // import MyArea from "./MyArea/MyArea";
 import BtnConnectWallet from '@/components/Common/Buttons/ConnectWallet/BtnConnectWallet';
 import ProtocolArea from './ProtocolArea/ProtocolArea';
+import MyArea from './MyArea/MyArea';
 export default function Home() {
     const {
         appState,
@@ -35,13 +36,12 @@ export default function Home() {
             //   // />
             // );
             case 'My Area':
-            // return (
-            //   // <MyArea
-            //   //   settersModalTx={settersModalTx}
-            //   //   walletTokens={walletTokens}
-            //   //   listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
-            //   // />
-            // );
+            return (
+              <MyArea
+                walletTokens={walletTokens}
+                listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
+              />
+            );
 
             default:
                 return null;
