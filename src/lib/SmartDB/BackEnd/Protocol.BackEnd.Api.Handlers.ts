@@ -1,5 +1,5 @@
 import { PROTOCOL_CREATE, ProtocolDeployTxParams } from '@/utils/constants/on-chain';
-import { Address, Assets, PaymentKeyHash, TxBuilder } from '@lucid-evolution/lucid';
+import { Address, Assets, Constr, Data, PaymentKeyHash, TxBuilder } from '@lucid-evolution/lucid';
 import { NextApiResponse } from 'next';
 import { TRANSACTION_STATUS_CREATED, TxOutRef, convertMillisToTime, find_TxOutRef_In_UTxOs, fixUTxOList, getTxRedeemersDetailsAndResources, toJson } from 'smart-db';
 import {
@@ -65,7 +65,7 @@ export class ProtocolBackEndApplied extends BaseSmartDBBackEndApplied {
 export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
     protected static _Entity = ProtocolEntity;
     protected static _BackEndApplied = ProtocolBackEndApplied;
-    
+
     // #region custom api handlers
 
     protected static _ApiHandlers: string[] = ['tx'];
@@ -134,8 +134,8 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const protocolValidator_Address: Address = protocol.getNet_Address();
                 //--------------------------------------
                 const protocolID_TxOutRef = new TxOutRef(
-                    (protocol.fProtocolScript_Params as any).pp_protocol_txout_ref.pp_protocol_txid,
-                    Number((protocol.fProtocolScript_Params as any).pp_protocol_txout_ref.pp_protocol_txout_index)
+                    (protocol.fProtocolScript_Params as any).pp_protocol_policy_id_tx_out_ref.txid,
+                    Number((protocol.fProtocolScript_Params as any).pp_protocol_policy_id_tx_out_ref.tx_index)
                 );
                 //--------------------------------------
                 const uTxOsAtWallet = walletTxParams.utxos; // await lucid.utxosAt(params.address);
@@ -163,7 +163,25 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 const createProtocol = new CreateProtocol();
                 console_log(0, this._Entity.className(), `Deploy Tx - createProtocol: ${showData(createProtocol, false)}`);
-                const createProtocol_Hex = objToCborHex(createProtocol);
+                // const createProtocols_Hex = objToCborHex(createProtocol);
+
+                const createProtocol_Hex = Data.to(new Constr(0, []));
+
+                // // Define el tipo de los redeemers
+                // type ProtocolRedeemer =
+                //     | { constructor: 0; fields: [] } // CreateProtocols
+                //     | { constructor: 1; fields: [] } // UpdateProtocolParams
+                //     | { constructor: 2; fields: [bigint] }; // UpdateProtocolMinADA
+
+                // // Crea el redeemer usando la sintaxis de constr
+                // const createProtocolRedeemer = new Constr(0, []);
+                // // O alternativamente:
+
+                // // Luego conviértelo a hex para debug si lo necesitas
+                // const createProtocol_Hex = Data.to(createProtocolRedeemer);
+
+                // console.log('CreateProtocol redeemer hex:', createProtocol_Hex);
+
                 console_log(0, this._Entity.className(), `Deploy Tx - createProtocol_Hex: ${showData(createProtocol_Hex, false)}`);
                 //--------------------------------------
                 let { from, until } = await TimeBackEnd.getTxTimeRange();

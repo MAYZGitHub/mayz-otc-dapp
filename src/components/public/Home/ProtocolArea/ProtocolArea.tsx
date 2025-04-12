@@ -88,39 +88,22 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 // Protocol Script
                 //--------------------------------------
-                const OutputRefSchema = Data.Tuple([Data.Bytes(), Data.Integer()], { hasConstr: true });
-                const ParamsSchemaProtocolScript = Data.Tuple([OutputRefSchema, Data.Bytes()], { hasConstr: true });
-                type ParamsProtocolScript = Data.Static<typeof ParamsSchemaProtocolScript>;
-                //--------------------------------------
-                // Para OutputReference
-                const txOutRef = new Constr(0, [
-                    pp_protocol_TxHash, // transaction_id como ByteArray
-                    BigInt(pp_protocol_TxOutputIndex), // output_index como Int
-                ]);
-                // Convertir el string "ProtocolID" a bytes correctamente
-                const tokenNameBytes = new TextEncoder().encode(PROTOCOL_ID_TN);
-                // Conviértelo a formato hexadecimal si es necesario
-                const protocolIdTokenName = Buffer.from(tokenNameBytes).toString('hex');
-                // Parámetros completos para el validator
-                const protocolParams = [
-                    txOutRef, // Primera parte: OutputReference
-                    protocolIdTokenName, // Segunda parte: ByteArray
-                ];
+                // const oRef = new Constr(0, [String(pp_protocol_TxHash), BigInt(pp_protocol_TxOutputIndex)]);
+                // const protocolParams = new Constr(0, [oRef, String(strToHex(PROTOCOL_ID_TN))]);
+
+                const protocolParams = new Constr(0, [
+                    new Constr(0, [pp_protocol_TxHash, BigInt(pp_protocol_TxOutputIndex)]),
+                    Buffer.from(PROTOCOL_ID_TN, 'utf8').toString('hex')
+                  ]);
+
                 const fProtocolScript_Params = {
-                    pp_protocol_txout_ref: {
-                        pp_protocol_txid: pp_protocol_TxHash,
-                        pp_protocol_txout_index: pp_protocol_TxOutputIndex,
-                    },
+                    pp_protocol_policy_id_tx_out_ref: { txid: pp_protocol_TxHash, tx_index: pp_protocol_TxOutputIndex },
                     pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
                 };
-                //--------------------------------------
-                // Aplicando los parámetros al script
+
                 const fProtocolScript: Script = {
                     type: 'PlutusV3',
-                    script: applyParamsToScript(
-                        PROTOCOL_SCRIPT_PRE_CBORHEX,
-                        protocolParams // Pasando el array de parámetros
-                    ),
+                    script: applyParamsToScript(PROTOCOL_SCRIPT_PRE_CBORHEX, [protocolParams]),
                 };
                 //--------------------------------------
                 const fProtocolPolicyID_CS = mintingPolicyToId(fProtocolScript);
@@ -142,7 +125,7 @@ export default function ProtocolArea(onSubmit: any) {
                 // Parámetros para el validator OTC
                 const otcParams = [
                     fProtocolPolicyID_CS, // PolicyId del protocolo
-                    protocolIdTokenName, // ByteArray para el token name del protocolo
+                    strToHex(PROTOCOL_ID_TN), // ByteArray para el token name del protocolo
                     otcIdTokenName, // ByteArray para el token name del OTC
                 ];
                 const fOTCScript_Params = {
