@@ -54,8 +54,10 @@ export default function Home() {
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
                         <h4 className={styles.cardCaption}> $MAYZ - Over The Counter</h4>
-                        <p>{appState.protocol === undefined ? 'Please Create Protocol' : `Protocol: ${appState.protocol.name}`}</p>
                         <BtnConnectWallet />
+                    </div>
+                    <div className={styles.protocolMessage}>
+                        <p>{appState.protocol === undefined ? 'Please Create Protocol' : `Protocol: ${appState.protocol.name}`}</p>
                     </div>
                     {renderHome()}
                 </div>

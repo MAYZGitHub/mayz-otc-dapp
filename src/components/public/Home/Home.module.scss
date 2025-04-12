@@ -27,6 +27,17 @@
     border-radius: 0.3rem;
 }
 
+.protocolMessage{
+    justify-items: center;
+    
+    padding-left: 5rem;
+
+    line-height: 1.2;
+    p{
+        padding-right: 10%;
+    }
+}
+
 .cardHeader{
     display:flex;
     justify-content: space-between;
