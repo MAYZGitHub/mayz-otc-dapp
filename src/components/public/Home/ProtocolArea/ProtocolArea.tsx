@@ -13,9 +13,10 @@ import {
     PROTOCOL_SCRIPT_PRE_CBORHEX,
     ProtocolDeployTxParams,
 } from '@/utils/constants/on-chain';
-import { applyParamsToScript, Constr, Data, mintingPolicyToId, Script, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
+import { applyParamsToScript, Assets, Constr, Data, mintingPolicyToId, Script, UTxO, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
 import { useContext } from 'react';
 import {
+    addAssets,
     BaseSmartDBFrontEndBtnHandlers,
     formatUTxO,
     LUCID_NETWORK_MAINNET_NAME,
@@ -24,6 +25,7 @@ import {
     PROYECT_NAME,
     pushSucessNotification,
     pushWarningNotification,
+    showData,
     strToHex,
     useTransactions,
     useWalletStore,
@@ -178,6 +180,68 @@ export default function ProtocolArea(onSubmit: any) {
                 appStore.setIsConfirmedTx(true);
                 //--------------------------------------
                 return protocol_._DB_id;
+            } catch (error) {
+                console.log(`[${PROYECT_NAME}] - handleBtnProtocolCreate - Error: ${error}`);
+                pushWarningNotification(`${PROYECT_NAME}`, `Error creating protocol: ${error}`);
+                appStore.setIsFaildedTx(true);
+                return undefined;
+            } finally {
+                appStore.setIsProcessingTx(false);
+                appStore.setProcessingTxMessage('');
+            }
+        }
+    };
+
+    const handleAddTokens = async () => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TASK);
+            return;
+        }
+
+        if (confirm('Are you sure you want to create the protocol?')) {
+            //--------------------------------------
+            appStore.setIsProcessingTx(true);
+            appStore.setIsConfirmedTx(false);
+            appStore.setIsFaildedTx(false);
+            //--------------------------------------
+            appStore.setProcessingTxMessage('Creating Protocol...');
+            openModal(ModalsEnums.PROCESSING_TASK);
+            //--------------------------------------
+            const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
+            try {
+                //--------------------------------------
+                const lucid = await walletStore.getLucid();
+                if (lucid === undefined) {
+                    throw 'Please connect your wallet';
+                }
+                //--------------------------------------
+                if (walletStore.isWalletDataLoaded !== true) {
+                    throw 'Wallet Data is not ready';
+                }
+                if (walletStore.getUTxOsAtWallet().length === 0) {
+                    throw 'You need at least one utxo to be used to mint Protocol ID';
+                }
+                //--------------------------------------
+                const walletUTxOs = walletStore.getUTxOsAtWallet();
+                if (walletUTxOs.length === 0) {
+                    throw 'You need at least one utxo to be used to mint Protocol ID';
+                }
+                const uTxO = walletUTxOs[0];
+                console.log(`uTxO for creating Protocol ID: ${formatUTxO(uTxO.txHash, uTxO.outputIndex)}`);
+                //--------------------------------------
+                const amount = 1111;
+                //--------------------------------------
+                const valueOf_ADA: Assets = { ['lovelace']: BigInt(amount), "0xFA": 1n };
+                console.log(`[User] - Get ADA Tx - valueOf_ADA: ${showData(valueOf_ADA)}`);
+                //--------------------------------------
+                const assets: Assets = ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets as Assets;
+                ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets = addAssets(assets, valueOf_ADA);
+                //--------------------------------------
+                pushSucessNotification(`${PROYECT_NAME}`, `Protocol created successfully`, false);
+                //--------------------------------------
+                appStore.setIsConfirmedTx(true);
+                //--------------------------------------
+                return true;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleBtnProtocolCreate - Error: ${error}`);
                 pushWarningNotification(`${PROYECT_NAME}`, `Error creating protocol: ${error}`);
