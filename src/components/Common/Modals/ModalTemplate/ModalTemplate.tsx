@@ -5,6 +5,7 @@ import { ModalsEnums } from '@/utils/constants/constants';
 import { useModal } from '@/contexts/ModalContext';
 import { useResponsive } from '@/contexts/ResponsiveContext';
 import { Drawer, DrawerContent } from '../Drawer/Drawer';
+import RedButton from '../../Buttons/RedButton/RedButton';
 
 interface ModalProps {
     active: ModalsEnums | null;
@@ -27,9 +28,9 @@ const ModalTemplate: React.FC<ModalProps> = ({ active, children }) => {
             <Drawer open={activeModal === active} onClose={() => closeModal()}>
                 <DrawerContent>
                     <div className={styles.drawerContent}>
-                        <button className={styles.closeButton} onClick={() => closeModal()}>
+                        <RedButton style={styles.closeButton} onClick={() => closeModal()}>
                             <span>x</span>
-                        </button>
+                        </RedButton>
                         {children}
                     </div>
                 </DrawerContent>
@@ -39,9 +40,9 @@ const ModalTemplate: React.FC<ModalProps> = ({ active, children }) => {
     return (
         <Modal isOpen={activeModal === active} onRequestClose={() => closeModal()} overlayClassName={styles.overlay} className={styles.modal}>
             <div className={styles.modalContent}>
-                <button className={styles.closeButton} onClick={() => closeModal()}>
+                <RedButton style={styles.closeButton} onClick={() => closeModal()}>
                     <span>x</span>
-                </button>
+                </RedButton>
                 {children}
             </div>
         </Modal>

@@ -1,0 +1,18 @@
+@use '@/styles/settings/fonts';
+@use '@/styles/settings/colors';
+
+.RedButton {
+    font-size: fonts.$font-size-base;
+    font-weight: fonts.$font-weight-bold;
+    font-family: fonts.$primary-font;
+    color: colors.$white;
+    background-color: colors.$error;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+        background-color: colors.$error-hover;
+    }
+}

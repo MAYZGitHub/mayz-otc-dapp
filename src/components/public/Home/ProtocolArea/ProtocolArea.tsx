@@ -33,6 +33,7 @@ import { useProtocolArea } from './useProtocolArea';
 import { useModal } from '@/contexts/ModalContext';
 import { ModalsEnums } from '@/utils/constants/constants';
 import LoaderButton from '@/components/Common/LoaderButton/LoaderButton';
+import BlueButton from '@/components/Common/Buttons/BlueButton/BlueButton';
 
 interface FormularioProps {
     onSubmit: (pd_mayz_deposit_requirement: number) => void;
@@ -326,9 +327,9 @@ export default function ProtocolArea(onSubmit: any) {
     return (
         <>
             {appState.protocol === undefined ? (
-                <button className={styles.btnAction} onClick={handleCreateProtocol}>
+                <BlueButton style={styles.btnAction} onClick={handleCreateProtocol}>
                     Create Protocol {appStore.isProcessingTx === true && <LoaderButton />}
-                </button>
+                </BlueButton>
             ) : appState.protocol._isDeployed === false ? (
                 <section className={styles.protocolAreaSection}>
                     <div className={styles.formulario}>
@@ -344,9 +345,9 @@ export default function ProtocolArea(onSubmit: any) {
                             />
                         </div>
                         {error && <div className={styles.error_message}>{error}</div>}
-                        <button className={styles.btnAction} onClick={handleDeployProtocol}>
+                        <BlueButton style={styles.btnAction} onClick={handleDeployProtocol}>
                             Deploy {appStore.isProcessingTx === true && <LoaderButton />}
-                        </button>
+                        </BlueButton>
                     </div>
                 </section>
             ) : (

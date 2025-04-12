@@ -1,0 +1,15 @@
+@use '@/styles/settings/colors';
+.BlueButton {
+    margin-top: 1rem;
+    padding: 10px 15px;
+    background-color: colors.$blue-button;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 48px;
+  
+    &:hover {
+        background-color: colors.$blue-button-hover;
+    }
+  }

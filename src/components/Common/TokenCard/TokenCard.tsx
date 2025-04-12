@@ -1,6 +1,7 @@
 // TokenCard.tsx
 import { useTokenCard } from './useTokenCard';
 import styles from './TokenCard.module.scss'
+import BlueButton from '../Buttons/BlueButton/BlueButton';
 
 export default function TokenCard(prop: any) {
     const { handleInputChange, amount } = useTokenCard();
@@ -16,7 +17,7 @@ export default function TokenCard(prop: any) {
                     Amount:
                 </text>
                 <input className={styles.tokenAmountInput} onChange={(e)=>handleInputChange(e) } type='number' name='amount'/>
-                <button className={styles.deployButton} type='button' onClick={() => console.log(prop.btnHandler(amount))}> Deploy </button>
+                <BlueButton style={styles.deployButton} onClick={() => console.log(prop.btnHandler(amount))}> Deploy </BlueButton>
             </form>
         </section>
     );

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { CARDANO_WALLETS, COPY, useWalletActions } from 'smart-db';
 import styles from './WalletInformationModal.module.scss';
 import Toggle from '@/components/Common/Buttons/Toggle/Toggle';
+import RedButton from '@/components/Common/Buttons/RedButton/RedButton';
 
 interface WalletInformationModalProps {
     // Define props here
@@ -96,13 +97,14 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
                     </div>
                 </div>
                 <div className={styles.buttonDisconectContainer}>
-                    <button
+                    <RedButton
                         onClick={() => {
                             walletDisconnect(closeModal);
                         }}
+                        style=''
                     >
                         Disconect Wallet
-                    </button>
+                    </RedButton>
                 </div>
             </div>
         </article>

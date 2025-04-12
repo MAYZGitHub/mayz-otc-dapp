@@ -8,6 +8,7 @@
 
 .mainSection{
     padding-top: 60px;
+    
 
     flex-grow: 1;
 }
@@ -41,6 +42,9 @@
     border-bottom: 1px solid #475059;
     margin-top: 0;
     line-height: 1.2;
+    p{
+        padding-right: 10%;
+    }
 }
 .walletBtn{
     opacity: 0.65;

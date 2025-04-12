@@ -1,5 +1,5 @@
 .btnConnectWallet {
-
+    background-color: inherit;
     display: flex;
     gap: 8px;
     padding: 0.5rem 1rem;
@@ -7,4 +7,8 @@
     height: 48px;
     flex-direction: row;
     align-items: center;
+    &:hover{
+        background-color: inherit;
+    }
+
 }
