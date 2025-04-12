@@ -134,8 +134,8 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const protocolValidator_Address: Address = protocol.getNet_Address();
                 //--------------------------------------
                 const protocolID_TxOutRef = new TxOutRef(
-                    (protocol.fProtocolScript_Params as any).pp_protocol_TxHash,
-                    Number((protocol.fProtocolScript_Params as any).pp_protocol_TxOutputIndex)
+                    (protocol.fProtocolScript_Params as any).pp_protocol_txout_ref.pp_protocol_txid,
+                    Number((protocol.fProtocolScript_Params as any).pp_protocol_txout_ref.pp_protocol_txout_index)
                 );
                 //--------------------------------------
                 const uTxOsAtWallet = walletTxParams.utxos; // await lucid.utxosAt(params.address);

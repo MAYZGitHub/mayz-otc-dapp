@@ -1,9 +1,9 @@
 import Layout from '@/components/UI/Layout/Layout';
 import { ModalProvider } from '@/contexts/ModalProvider';
+import { ResponsiveProvider } from '@/contexts/ResponsiveProvider';
 import { ProtocolEntity } from '@/lib/SmartDB/Entities';
 import { ProtocolApi } from '@/lib/SmartDB/FrontEnd';
-import { Address, PolicyId, Script } from '@lucid-evolution/lucid';
-import '@styles/global.scss';
+import '@/styles/global.scss';
 import { StoreProvider } from 'easy-peasy';
 import { Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
@@ -11,9 +11,9 @@ import type { AppProps } from 'next/app';
 import { useEffect, useState } from 'react';
 import { ReactNotifications } from 'react-notifications-component';
 import 'react-notifications-component/dist/theme.css';
-import { AppGeneral, CS, globalStore } from 'smart-db';
+import { AppGeneral, globalStore } from 'smart-db';
 import 'smart-db/dist/styles.css';
-import { AppState, initialAppState, AppStateContext } from '../contexts/AppState';
+import { AppState, AppStateContext, initialAppState } from '../contexts/AppState';
 
 export type SidebarMenu = 'Claim' | 'My Area' | 'Protocol Area';
 
@@ -56,13 +56,15 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
                         {/* Run the general app component from SmartDB for init procedures */}
                         <AppGeneral loader={<></>} onLoadComplete={() => setIsLoadingApp(false)}>
                             {!isLoadingProtocol && (
-                                <ModalProvider>
-                                    {/* Wrap the app content with the Layout component */}
-                                    <Layout>
-                                        {/* Render the current page component */}
-                                        <Component {...pageProps} />
-                                    </Layout>
-                                </ModalProvider>
+                                <ResponsiveProvider>
+                                    <ModalProvider>
+                                        {/* Wrap the app content with the Layout component */}
+                                        <Layout>
+                                            {/* Render the current page component */}
+                                            <Component {...pageProps} />
+                                        </Layout>
+                                    </ModalProvider>
+                                </ResponsiveProvider>
                             )}
                         </AppGeneral>
                     </StoreProvider>

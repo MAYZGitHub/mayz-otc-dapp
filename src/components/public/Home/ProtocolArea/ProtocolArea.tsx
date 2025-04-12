@@ -13,10 +13,11 @@ import {
     PROTOCOL_SCRIPT_PRE_CBORHEX,
     ProtocolDeployTxParams,
 } from '@/utils/constants/on-chain';
-import { applyParamsToScript, Data, mintingPolicyToId, Script, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
+import { applyParamsToScript, Constr, Data, mintingPolicyToId, Script, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
 import { useContext } from 'react';
 import {
     BaseSmartDBFrontEndBtnHandlers,
+    formatUTxO,
     LUCID_NETWORK_MAINNET_NAME,
     LUCID_NETWORK_PREVIEW_NAME,
     LucidToolsFrontEnd,
@@ -29,6 +30,9 @@ import {
 } from 'smart-db';
 import styles from './ProtocolArea.module.scss';
 import { useProtocolArea } from './useProtocolArea';
+import { useModal } from '@/contexts/ModalContext';
+import { ModalsEnums } from '@/utils/constants/constants';
+import LoaderButton from '@/components/Common/LoaderButton/LoaderButton';
 
 interface FormularioProps {
     onSubmit: (pd_mayz_deposit_requirement: number) => void;
@@ -39,9 +43,23 @@ export default function ProtocolArea(onSubmit: any) {
 
     const walletStore = useWalletStore();
     const { appState, setAppState } = useContext(AppStateContext);
+    const { openModal } = useModal();
 
     const handleCreateProtocol = async () => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TASK);
+            return;
+        }
+
         if (confirm('Are you sure you want to create the protocol?')) {
+            //--------------------------------------
+            appStore.setIsProcessingTx(true);
+            appStore.setIsConfirmedTx(false);
+            appStore.setIsFaildedTx(false);
+            //--------------------------------------
+            appStore.setProcessingTxMessage('Creating Protocol...');
+            openModal(ModalsEnums.PROCESSING_TASK);
+            //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             try {
                 //--------------------------------------
@@ -62,28 +80,45 @@ export default function ProtocolArea(onSubmit: any) {
                     throw 'You need at least one utxo to be used to mint Protocol ID';
                 }
                 const uTxO = walletUTxOs[0];
-                console.log(`uTxO for creating Protocol ID: ${uTxO}`);
+                console.log(`uTxO for creating Protocol ID: ${formatUTxO(uTxO.txHash, uTxO.outputIndex)}`);
                 //--------------------------------------
                 const pp_protocol_TxHash = uTxO.txHash;
                 const pp_protocol_TxOutputIndex = uTxO.outputIndex;
                 //--------------------------------------
                 // Protocol Script
                 //--------------------------------------
-                const ParamsSchemaProtocolScript = Data.Tuple([Data.Bytes(), Data.Integer(), Data.Bytes()]);
+                const OutputRefSchema = Data.Tuple([Data.Bytes(), Data.Integer()], { hasConstr: true });
+                const ParamsSchemaProtocolScript = Data.Tuple([OutputRefSchema, Data.Bytes()], { hasConstr: true });
                 type ParamsProtocolScript = Data.Static<typeof ParamsSchemaProtocolScript>;
                 //--------------------------------------
+                // Para OutputReference
+                const txOutRef = new Constr(0, [
+                    pp_protocol_TxHash, // transaction_id como ByteArray
+                    BigInt(pp_protocol_TxOutputIndex), // output_index como Int
+                ]);
+                // Convertir el string "ProtocolID" a bytes correctamente
+                const tokenNameBytes = new TextEncoder().encode(PROTOCOL_ID_TN);
+                // Conviértelo a formato hexadecimal si es necesario
+                const protocolIdTokenName = Buffer.from(tokenNameBytes).toString('hex');
+                // Parámetros completos para el validator
+                const protocolParams = [
+                    txOutRef, // Primera parte: OutputReference
+                    protocolIdTokenName, // Segunda parte: ByteArray
+                ];
                 const fProtocolScript_Params = {
-                    pp_protocol_TxHash: pp_protocol_TxHash,
-                    pp_protocol_TxOutputIndex: BigInt(pp_protocol_TxOutputIndex),
+                    pp_protocol_txout_ref: {
+                        pp_protocol_txid: pp_protocol_TxHash,
+                        pp_protocol_txout_index: pp_protocol_TxOutputIndex,
+                    },
                     pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
                 };
                 //--------------------------------------
+                // Aplicando los parámetros al script
                 const fProtocolScript: Script = {
                     type: 'PlutusV3',
-                    script: applyParamsToScript<ParamsProtocolScript>(
+                    script: applyParamsToScript(
                         PROTOCOL_SCRIPT_PRE_CBORHEX,
-                        [fProtocolScript_Params.pp_protocol_TxHash, fProtocolScript_Params.pp_protocol_TxOutputIndex, fProtocolScript_Params.pp_protocol_id_tn],
-                        ParamsSchemaProtocolScript as unknown as ParamsProtocolScript
+                        protocolParams // Pasando el array de parámetros
                     ),
                 };
                 //--------------------------------------
@@ -100,9 +135,15 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 // OTC Script
                 //--------------------------------------
-                const ParamsSchemaOTCScript = Data.Tuple([Data.Bytes(), Data.Bytes(), Data.Bytes()]);
-                type ParamsOTCScript = Data.Static<typeof ParamsSchemaOTCScript>;
-                //--------------------------------------
+                // Convertir los strings a representación de bytes correcta
+                const otcIdTokenNameBytes = new TextEncoder().encode(OTC_ID_TN);
+                const otcIdTokenName = Buffer.from(otcIdTokenNameBytes).toString('hex');
+                // Parámetros para el validator OTC
+                const otcParams = [
+                    fProtocolPolicyID_CS, // PolicyId del protocolo
+                    protocolIdTokenName, // ByteArray para el token name del protocolo
+                    otcIdTokenName, // ByteArray para el token name del OTC
+                ];
                 const fOTCScript_Params = {
                     pp_protocol_policy_id: fProtocolPolicyID_CS,
                     pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
@@ -111,11 +152,7 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 const fOTCScript: Script = {
                     type: 'PlutusV3',
-                    script: applyParamsToScript<ParamsOTCScript>(
-                        OTC_SCRIPT_PRE_CBORHEX,
-                        [fOTCScript_Params.pp_protocol_policy_id, fOTCScript_Params.pp_protocol_id_tn, fOTCScript_Params.pp_otc_id_tn],
-                        ParamsSchemaOTCScript as unknown as ParamsOTCScript
-                    ),
+                    script: applyParamsToScript(OTC_SCRIPT_PRE_CBORHEX, otcParams),
                 };
                 //--------------------------------------
                 const fOTCPolicyID_CS = mintingPolicyToId(fOTCScript);
@@ -153,14 +190,21 @@ export default function ProtocolArea(onSubmit: any) {
                 await ProtocolApi.createHookApi(OTCEntity, protocol.getOTC_Net_Address(), protocol_.fOTCPolicyID_CS);
                 //--------------------------------------
                 // Update the context
-                setAppState((prev) => ({ ...prev, protocol }));
+                setAppState((prev) => ({ ...prev, protocol: protocol_ }));
                 //--------------------------------------
                 pushSucessNotification(`${PROYECT_NAME}`, `Protocol created successfully`, false);
+                //--------------------------------------
+                appStore.setIsConfirmedTx(true);
+                //--------------------------------------
                 return protocol_._DB_id;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleBtnProtocolCreate - Error: ${error}`);
                 pushWarningNotification(`${PROYECT_NAME}`, `Error creating protocol: ${error}`);
+                appStore.setIsFaildedTx(true);
                 return undefined;
+            } finally {
+                appStore.setIsProcessingTx(false);
+                appStore.setProcessingTxMessage('');
             }
         }
     };
@@ -224,6 +268,10 @@ export default function ProtocolArea(onSubmit: any) {
     //--------------------------------------
 
     const handleDeployProtocol = async () => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
 
         if (!pd_mayz_deposit_requirement) {
             setError('Por favor, ingresa un valor.');
@@ -263,6 +311,8 @@ export default function ProtocolArea(onSubmit: any) {
             };
         };
         //--------------------------------------
+        openModal(ModalsEnums.PROCESSING_TX);
+        //--------------------------------------
         const txApiCall = ProtocolApi.callGenericTxApi.bind(ProtocolApi);
         const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
         //--------------------------------------
@@ -276,7 +326,9 @@ export default function ProtocolArea(onSubmit: any) {
     return (
         <>
             {appState.protocol === undefined ? (
-                <button onClick={handleCreateProtocol}>Create Protocol</button>
+                <button className={styles.btnAction} onClick={handleCreateProtocol}>
+                    Create Protocol {appStore.isProcessingTx === true && <LoaderButton />}
+                </button>
             ) : appState.protocol._isDeployed === false ? (
                 <section className={styles.protocolAreaSection}>
                     <div className={styles.formulario}>
@@ -290,9 +342,11 @@ export default function ProtocolArea(onSubmit: any) {
                                 onChange={(e) => set_pd_mayz_deposit_requirement(e.target.value)}
                                 min="0"
                             />
-                            {error && <div className={styles.error_message}>{error}</div>}
                         </div>
-                        <button onClick={handleDeployProtocol}>Deploy</button>
+                        {error && <div className={styles.error_message}>{error}</div>}
+                        <button className={styles.btnAction} onClick={handleDeployProtocol}>
+                            Deploy {appStore.isProcessingTx === true && <LoaderButton />}
+                        </button>
                     </div>
                 </section>
             ) : (

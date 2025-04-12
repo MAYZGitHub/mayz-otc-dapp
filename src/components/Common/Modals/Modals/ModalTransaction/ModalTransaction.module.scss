@@ -1,0 +1,99 @@
+@use '@/styles/settings/fonts';
+@use '@/styles/settings/colors';
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-width: 25dvw;
+    min-height: 25dvh;
+    align-items: center;
+    background-color: colors.$background-dark;
+    color: colors.$text-primary;
+    font-family: fonts.$primary-font;
+    font-size: fonts.$font-size-base;
+    font-weight: fonts.$font-weight-regular;
+    padding: 2rem;
+}
+
+.layout {
+    width: 90%;
+    max-width: 580px;
+    background-color: colors.$background-dark;
+    border-radius: 1rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.textarea {
+    background-color: #1f2937;
+    color: white;
+    width: 100%;
+    height: 6rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    resize: none;
+    font-family: inherit;
+}
+
+.txHashContainer {
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+
+    &.copied {
+        background-color: #27353d;
+    }
+    &.copiedError {
+        background-color: #78414c;
+    }
+}
+
+.copiedText {
+    color: #10b981;
+    font-weight: 600;
+    margin-left: 0.5rem;
+}
+
+.transDiv {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem;
+    .transText {
+        font-weight: 700;
+        margin-right: 1rem;
+    }
+}
+
+.status {
+    font-weight: 600;
+    &.confirmed {
+        color: #10b981;
+    }
+    &.error {
+        color: #ef4444;
+    }
+    &.waiting {
+        color: #fbbf24;
+    }
+}
+
+.closeButton {
+    background-color: #d62246;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    margin-top: 1rem;
+    transition: background-color 0.2s ease-in-out;
+    &:hover {
+        background-color: #9f1934;
+    }
+}

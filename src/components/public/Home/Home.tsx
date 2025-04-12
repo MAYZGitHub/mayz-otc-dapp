@@ -1,32 +1,22 @@
 // Home.tsx
-import Sidebar from '../Sidebar/Sidebar';
-import { useHome } from './useHome';
 import styles from './Home.module.scss';
+import { useHome } from './useHome';
 // import Claim from "./Claim/Claim";
 // import MyArea from "./MyArea/MyArea";
-import BtnConnectWallet from '@/components/UI/Buttons/ConnectWallet/BtnConnectWallet';
+import BtnConnectWallet from '@/components/Common/Buttons/ConnectWallet/BtnConnectWallet';
 import ProtocolArea from './ProtocolArea/ProtocolArea';
-import ModalTransaction from '../../Common/ModalTransaction/ModalTransaction';
-import { AppStateContext } from '@/contexts/AppState';
-import { useContext } from 'react';
 export default function Home() {
     const {
+        appState,
         sidebarState,
         isWalletConnectorModalOpen,
         setIsWalletConnectorModalOpen,
         isWalletConnected,
-        isTxModalOpen,
-        txHash,
-        isTxError,
-        txMessage,
-        txConfirmed,
         settersModalTx,
         listOfOtcEntityWithTokens,
         walletTokens,
         handleBtnSync,
     } = useHome();
-
-    const { appState, setAppState } = useContext(AppStateContext);
 
     function renderHome() {
         if (!isWalletConnected) {
@@ -35,7 +25,7 @@ export default function Home() {
 
         switch (sidebarState) {
             case 'Protocol Area':
-                return <ProtocolArea settersModalTx={settersModalTx} />;
+                return <ProtocolArea />;
             case 'Claim':
             // return (
             //   // <Claim
@@ -60,7 +50,7 @@ export default function Home() {
 
     return (
         <section className={styles.mainSection}>
-            <BtnConnectWallet type="primary" />
+            <BtnConnectWallet />
             <div className={styles.mainContainer}>
                 <div className={styles.card}>
                     <div className={styles.cardHeader}>
@@ -70,15 +60,6 @@ export default function Home() {
                     {renderHome()}
                 </div>
             </div>
-            {/* Modal displaying transaction status */}
-            <ModalTransaction
-                isOpen={isTxModalOpen}
-                onRequestClose={() => settersModalTx.setIsTxModalOpen(false)}
-                txMessage={txMessage}
-                txHash={txHash!}
-                txConfirmed={txConfirmed}
-                isTxError={isTxError}
-            />
         </section>
     );
 }

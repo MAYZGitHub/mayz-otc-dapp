@@ -1,0 +1,62 @@
+// Global Styles
+
+@import './settings/colors';
+@import './settings/fonts';
+@import url('https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700&display=swap');
+
+body {
+  margin: 0;
+  width: 100%;
+  background: $background-dark;
+  font-family: $primary-font;
+  color: $text-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-base;
+  font-weight: $font-weight-light;
+  font-style: normal;
+  font-optical-sizing: auto;
+}
+
+button {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  background-color: $background-light;
+  color: $text-dark;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: $accent-primary;
+  }
+}
+
+h1 {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+}
+
+h2 {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+}
+
+h3 {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+}
+
+h4,
+h5,
+h6 {
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+}
+
+a {
+  color: $accent-primary;
+  text-decoration: none;
+  font-size: $font-size-base;
+}

@@ -1,0 +1,88 @@
+@use '@/styles/settings/fonts';
+@use '@/styles/settings/colors';
+
+.toggleController {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+.toggleContainer {
+  position: relative;
+}
+
+.symbol,
+.symbolblack {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  color: colors.$text-primary;
+  pointer-events: none;
+}
+
+.symbolAda,
+.symbolAdablack {
+  position: absolute;
+  top: 5px;
+  left: 10px;
+  color: colors.$text-primary;
+  pointer-events: none;
+}
+
+.symbolAdablack,
+.symbolblack {
+  color: colors.$text-dark;
+}
+
+.toggle {
+  width: 50px;
+  height: 30px;
+  border-radius: 100px;
+  background-color: colors.$background-light; // previously white-color
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .point {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 22px;
+    background-color: colors.$text-dark; // use dark color for contrast
+    left: 5px;
+    transition: all 0.5s;
+
+    &.active {
+      left: 25px;
+      background-color: colors.$accent-primary; // green = "active"
+    }
+  }
+
+  &.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.transparent {
+  background-color: transparent;
+  border: 1px solid colors.$border-color;
+  height: 13px;
+  width: 25px;
+
+  .point {
+    background-color: colors.$text-dark;
+    left: 0;
+    width: 13px;
+    height: 13px;
+    border-radius: 22px;
+    transition: all 0.5s;
+
+    &.active {
+      left: 12px;
+      background-color: colors.$accent-primary;
+    }
+  }
+}

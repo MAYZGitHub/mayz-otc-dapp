@@ -1,0 +1,104 @@
+@use '@/styles/settings/colors';
+@use '@/styles/settings/fonts';
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-width: 25dvw;
+    min-height: 25dvh;
+    align-items: center;
+    background-color: colors.$background-dark;
+    color: colors.$text-primary;
+    font-family: fonts.$primary-font;
+    font-size: fonts.$font-size-base;
+    font-weight: fonts.$font-weight-regular;
+    padding: 2rem;
+}
+
+.layout {
+    width: 90%;
+    max-width: 580px;
+    background-color: colors.$background-dark;
+    border-radius: 1rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+}
+
+.title {
+    text-align: center;
+    color: colors.$text-primary;
+    font-weight: fonts.$font-weight-bold;
+    font-size: fonts.$font-size-lg;
+}
+
+.toogleIcon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.bodyModal {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    align-items: center;
+
+}
+
+.walletList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    width: 100%;
+}
+
+.walletItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    
+
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    background-color: colors.$background-light;
+    color: colors.$text-dark;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: fonts.$font-size-sm;
+    font-weight: fonts.$font-weight-regular;
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+        background-color: colors.$accent-primary;
+    }
+
+    &.unAvailable {
+        background-color: colors.$error-hover;
+        color: colors.$white;
+    }
+}
+
+.walletIcon {
+    height: 40px;
+    width: auto;
+}
+
+.walletLine {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.walletName {
+    color: colors.$text-dark;
+}

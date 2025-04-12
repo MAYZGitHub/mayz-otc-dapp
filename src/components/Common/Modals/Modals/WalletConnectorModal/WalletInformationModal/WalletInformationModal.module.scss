@@ -1,0 +1,137 @@
+@use '@/styles/settings/fonts';
+@use '@/styles/settings/colors';
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-width: 25dvw;
+    min-height: 25dvh;
+    align-items: center;
+    background-color: colors.$background-dark;
+    color: colors.$text-primary;
+    font-family: fonts.$primary-font;
+    font-size: fonts.$font-size-base;
+    font-weight: fonts.$font-weight-regular;
+    padding: 2rem;
+    border-radius: 1rem;
+}
+
+.layout {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.title {
+    text-align: center;
+    color: colors.$text-primary;
+    font-weight: fonts.$font-weight-bold;
+    font-size: fonts.$font-size-lg;
+}
+
+.header {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 1rem;
+    gap: 1rem;
+}
+
+.headerIcon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    color: colors.$text-primary;
+    font-size: fonts.$font-size-sm;
+
+    svg {
+        fill: currentColor;
+        stroke: currentColor;
+    }
+
+    &:hover {
+        color: colors.$accent-primary;
+    }
+}
+
+.toogleIcon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    span {
+        font-size: fonts.$font-size-sm;
+        color: colors.$text-primary;
+    }
+}
+
+.inputInformatiopn {
+    display: flex;
+    flex-direction: column;
+    background-color: colors.$background-light;
+    padding: 1rem;
+    border-radius: 1rem;
+    width: 100%;
+    color: colors.$text-dark;
+
+    label {
+        font-size: fonts.$font-size-sm;
+        margin-bottom: 0.5rem;
+        color: colors.$text-dark;
+    }
+}
+
+.addressContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.iconInput {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dataContainer {
+    display: flex;
+}
+
+.wallet_address {
+    color: colors.$text-dark;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 310px;
+}
+
+.buttonDisconectContainer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+
+    button {
+        width: 250px;
+        height: 48px;
+
+        font-size: fonts.$font-size-base;
+        font-weight: fonts.$font-weight-bold;
+        font-family: fonts.$primary-font;
+        color: colors.$white;
+        background-color: colors.$error;
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+            background-color: colors.$error-hover;
+        }
+    }
+}

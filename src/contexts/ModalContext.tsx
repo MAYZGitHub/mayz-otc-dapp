@@ -1,19 +1,20 @@
-import { createContext, useContext } from 'react';
+import { HandlesEnums, ModalsEnums } from '@/utils/constants/constants';
+import { createContext, ReactNode, useContext } from 'react';
 
-export interface ModalState {
-    isOpen: boolean;
-    modalType?: string;
-    campaign_id?: number;
-    submission?: string;
-}
-
-interface ModalContextType extends ModalState {
-    openModal: (modalType: string, options?: Partial<Omit<ModalState, 'modalType'>>) => void;
+export interface IModalContext {
+    activeModal: ModalsEnums | null;
+    modalData?: Record<string, any>;
+    handles?: Partial<Record<HandlesEnums, (data?: Record<string, any>) => Promise<string | undefined | void>>>;
+    openModal: (
+        modal: ModalsEnums,
+        data?: Record<string, any>,
+        handles?: Partial<Record<HandlesEnums, (data?: Record<string, any>) => Promise<string | undefined | void>>>,
+        component?: ReactNode
+    ) => void;
     closeModal: () => void;
-    setIsOpen: (isOpen: boolean) => void;
 }
 
-export const ModalContext = createContext<ModalContextType | undefined>(undefined);
+export const ModalContext = createContext<IModalContext | undefined>(undefined);
 
 export const useModal = () => {
     const context = useContext(ModalContext);
