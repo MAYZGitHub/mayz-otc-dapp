@@ -1,7 +1,24 @@
-import { DeployProtocolTxParamsSchema, PROTOCOL_CREATE, ProtocolDeployTxParams, ProtocolUpdateTxParams, UpdateProtocolTxParamsSchema } from '@/utils/constants/on-chain';
-import { Address, Assets, Constr, Data, PaymentKeyHash, TxBuilder } from '@lucid-evolution/lucid';
+import {
+    DeployProtocolTxParamsSchema,
+    PROTOCOL_CREATE,
+    PROTOCOL_UPDATE,
+    ProtocolDeployTxParams,
+    ProtocolUpdateTxParams,
+    UpdateProtocolTxParamsSchema,
+} from '@/utils/constants/on-chain';
+import { Address, Assets, Constr, Data, PaymentKeyHash, slotToUnixTime, TxBuilder } from '@lucid-evolution/lucid';
 import { NextApiResponse } from 'next';
-import { TRANSACTION_STATUS_CREATED, TxOutRef, convertMillisToTime, find_TxOutRef_In_UTxOs, fixUTxOList, getTxRedeemersDetailsAndResources, toJson, yup } from 'smart-db';
+import {
+    TRANSACTION_STATUS_CREATED,
+    TxOutRef,
+    convertMillisToTime,
+    find_TxOutRef_In_UTxOs,
+    fixUTxOList,
+    getTxRedeemersDetailsAndResources,
+    optionsGetMinimalWithSmartUTxOCompleteFields,
+    toJson,
+    yup,
+} from 'smart-db';
 import {
     BackEndApiHandlersFor,
     BackEndAppliedFor,
@@ -26,7 +43,7 @@ import {
     showData,
 } from 'smart-db/backEnd';
 import { ProtocolDatum, ProtocolEntity } from '../Entities/Protocol.Entity';
-import { CreateProtocol } from '../Entities/Redeemers/Protocol.Redeemer';
+import { CreateProtocol, UpdateProtocolParams } from '../Entities/Redeemers/Protocol.Redeemer';
 
 @BackEndAppliedFor(ProtocolEntity)
 export class ProtocolBackEndApplied extends BaseSmartDBBackEndApplied {
@@ -52,11 +69,20 @@ export class ProtocolBackEndApplied extends BaseSmartDBBackEndApplied {
             pd_mayz_deposit_requirement: txParams.pd_mayz_deposit_requirement,
             pd_min_ada: mindAda,
         };
-
         let datum: ProtocolDatum = ProtocolEntity.mkDatumFromPlainObject(datumPlainObject) as ProtocolDatum;
-
         this.sortDatum(datum);
+        return datum;
+    }
 
+    public static mkUpdated_ProtocolDatum_With_NormalChanges(protocolDatum_In: ProtocolDatum, txParams: ProtocolUpdateTxParams): ProtocolDatum {
+        const datumPlainObject: ProtocolDatum = {
+            ...JSON.parse(toJson(protocolDatum_In)),
+            pd_admins: txParams.pd_admins,
+            pd_token_admin_policy_id: txParams.pd_token_admin_policy_id,
+            pd_mayz_deposit_requirement: txParams.pd_mayz_deposit_requirement,
+        };
+        let datum: any = ProtocolEntity.mkDatumFromPlainObject(datumPlainObject) as ProtocolDatum;
+        this.sortDatum(datum);
         return datum;
     }
 }
@@ -113,14 +139,11 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //-------------------------
                 const { walletTxParams, txParams }: { walletTxParams: WalletTxParams; txParams: ProtocolDeployTxParams } = sanitizedBody;
                 //--------------------------------------
-                console_log(0, this._Entity.className(), `Deploy Tx - txParams: ${showData(txParams)}`);
-                //--------------------------------------
                 try {
                     const validTxParams = await DeployProtocolTxParamsSchema.validate(txParams, { abortEarly: false });
-                    console_log(0, this._Entity.className(), `✅ Validated txParams: ${showData(validTxParams)}`);
+                    console_log(0, this._Entity.className(), `Deploy Tx - txParams: ${showData(validTxParams)}`);
                 } catch (error) {
                     if (error instanceof yup.ValidationError) {
-                        console.error('❌ Validation errors:', error.errors);
                         throw new Error(`Validation failed: ${error.errors.join(', ')}`);
                     }
                     throw error;
@@ -130,7 +153,9 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 walletTxParams.utxos = fixUTxOList(walletTxParams?.utxos ?? []);
                 //--------------------------------------
-                const protocol = await this._BackEndApplied.getById_<ProtocolEntity>(txParams.protocol_id, { fieldsForSelect: {} });
+                const protocol = await this._BackEndApplied.getById_<ProtocolEntity>(txParams.protocol_id, {
+                    fieldsForSelect: {},
+                });
                 if (protocol === undefined) {
                     throw `Invalid protocol id`;
                 }
@@ -169,10 +194,14 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const protocolDatum_Out_Hex = ProtocolEntity.datumToCborHex(protocolDatum_Out);
                 console_log(0, this._Entity.className(), `Deploy Tx - protocolDatum_Out_Hex: ${showData(protocolDatum_Out_Hex, false)}`);
                 //--------------------------------------
-                const createProtocol = new CreateProtocol();
-                console_log(0, this._Entity.className(), `Deploy Tx - createProtocol: ${showData(createProtocol, false)}`);
-                const createProtocol_Hex = objToCborHex(createProtocol);
-                console_log(0, this._Entity.className(), `Deploy Tx - createProtocol_Hex: ${showData(createProtocol_Hex, false)}`);
+                const protocolValidatorRedeemerCreateProtocol = new CreateProtocol();
+                console_log(0, this._Entity.className(), `Deploy Tx - protocolValidatorRedeemerCreateProtocol: ${showData(protocolValidatorRedeemerCreateProtocol, false)}`);
+                const protocolValidatorRedeemerCreateProtocol_Hex = objToCborHex(protocolValidatorRedeemerCreateProtocol);
+                console_log(
+                    0,
+                    this._Entity.className(),
+                    `Deploy Tx - protocolValidatorRedeemerCreateProtocol_Hex: ${showData(protocolValidatorRedeemerCreateProtocol_Hex, false)}`
+                );
                 //--------------------------------------
                 let { from, until } = await TimeBackEnd.getTxTimeRange();
                 //--------------------------------------
@@ -180,7 +209,8 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const untilSlot = lucid.unixTimeToSlot(until);
                 //--------------------------------------
                 if (flomSlot < 0) {
-                    from = until - 1000 * 10;
+                    from = lucid.currentSlot()
+                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
                 }
                 //--------------------------------------
                 console_log(
@@ -212,7 +242,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     tx = tx
                         .collectFrom([protocolID_UTxO])
                         .attach.MintingPolicy(protocolPolicyID_Script)
-                        .mintAssets(valueFor_Mint_ProtocolID, createProtocol_Hex)
+                        .mintAssets(valueFor_Mint_ProtocolID, protocolValidatorRedeemerCreateProtocol_Hex)
                         .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
@@ -231,7 +261,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const transactionCreateProtocol: TransactionRedeemer = {
                         tx_index: 0,
                         purpose: 'mint',
-                        redeemerObj: createProtocol,
+                        redeemerObj: protocolValidatorRedeemerCreateProtocol,
                         unit_mem: resources.redeemers[0]?.MEM,
                         unit_steps: resources.redeemers[0]?.CPU,
                     };
@@ -244,7 +274,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     await TransactionBackEndApplied.setPendingTransaction(transaction, {
                         hash: txHash,
                         ids: { protocol_id: protocol._DB_id },
-                        redeemers: { createProtocol: transactionCreateProtocol },
+                        redeemers: { protocolValidatorRedeemerCreateProtocol: transactionCreateProtocol },
                         datums: { protocolDatum_Out: transactionProtocolDatum_Out },
                         reading_UTxOs: [],
                         consuming_UTxOs: [protocolID_UTxO],
@@ -283,14 +313,11 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //-------------------------
                 const { walletTxParams, txParams }: { walletTxParams: WalletTxParams; txParams: ProtocolUpdateTxParams } = sanitizedBody;
                 //--------------------------------------
-                console_log(0, this._Entity.className(), `Update Tx - txParams: ${showData(txParams)}`);
-                //--------------------------------------
                 try {
                     const validTxParams = await UpdateProtocolTxParamsSchema.validate(txParams, { abortEarly: false });
-                    console_log(0, this._Entity.className(), `✅ Validated txParams: ${showData(validTxParams)}`);
+                    console_log(0, this._Entity.className(), `Update Tx - txParams: ${showData(validTxParams)}`);
                 } catch (error) {
                     if (error instanceof yup.ValidationError) {
-                        console.error('❌ Validation errors:', error.errors);
                         throw new Error(`Validation failed: ${error.errors.join(', ')}`);
                     }
                     throw error;
@@ -300,40 +327,47 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 walletTxParams.utxos = fixUTxOList(walletTxParams?.utxos ?? []);
                 //--------------------------------------
-                const protocol = await this._BackEndApplied.getById_<ProtocolEntity>(txParams.protocol_id, { fieldsForSelect: {} });
+                const protocol = await this._BackEndApplied.getById_<ProtocolEntity>(txParams.protocol_id, {
+                    ...optionsGetMinimalWithSmartUTxOCompleteFields,
+                    fieldsForSelect: {},
+                });
                 if (protocol === undefined) {
                     throw `Invalid protocol id`;
                 }
                 //--------------------------------------
-                const protocolPolicyID_Script = protocol.fProtocolScript;
-                //--------------------------------------
-                const protocolPolicyID_AC_Lucid = protocol.getNet_id_AC_Lucid();
-                //--------------------------------------
                 const protocolValidator_Address: Address = protocol.getNet_Address();
+                const protocolValidator_Hash = protocol.fProtocolValidator_Hash;
+                const protocolValidator_Script = protocol.fProtocolScript;
                 //--------------------------------------
-                const uTxOsAtWallet = walletTxParams.utxos; // await lucid.utxosAt(params.address);
+                const protocol_SmartUTxO = protocol.smartUTxO;
+                if (protocol_SmartUTxO === undefined) {
+                    throw `Can't find Protocol UTxO`;
+                }
+                // if (protocol_SmartUTxO.isAvailableForReading() === false) {
+                //     throw `Protocol UTxO is being used, please wait and try again`;
+                // }
                 //--------------------------------------
-                const valueFor_Mint_ProtocolID: Assets = { [protocolPolicyID_AC_Lucid]: 1n };
-                console_log(0, this._Entity.className(), `Update Tx - valueFor_Mint_ProtocolID: ${showData(valueFor_Mint_ProtocolID)}`);
+                const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
-                const protocolDatum_Out_ForCalcMinADA = this._BackEndApplied.mkNew_ProtocolDatum(protocol, txParams, 0n);
-                const protocolDatum_Out_Hex_ForCalcMinADA = ProtocolEntity.datumToCborHex(protocolDatum_Out_ForCalcMinADA);
-                //--------------------------------------
-                let valueFor_ProtocolDatum_Out: Assets = valueFor_Mint_ProtocolID;
-                const minADA_For_ProtocolDatum = calculateMinAdaOfUTxO({ datum: protocolDatum_Out_Hex_ForCalcMinADA, assets: valueFor_ProtocolDatum_Out });
-                const value_MinAda_For_ProtocolDatum: Assets = { lovelace: minADA_For_ProtocolDatum };
-                valueFor_ProtocolDatum_Out = addAssetsList([value_MinAda_For_ProtocolDatum, valueFor_ProtocolDatum_Out]);
+                const value_Of_ProtocolDatum_In = protocol_SmartUTxO.assets;
+                console_log(0, this._Entity.className(), `Update Tx - valueFor_ProtocolDatum_Out: ${showData(value_Of_ProtocolDatum_In, false)}`);
+                const valueFor_ProtocolDatum_Out = value_Of_ProtocolDatum_In;
                 console_log(0, this._Entity.className(), `Update Tx - valueFor_ProtocolDatum_Out: ${showData(valueFor_ProtocolDatum_Out, false)}`);
                 //--------------------------------------
-                const protocolDatum_Out = this._BackEndApplied.mkNew_ProtocolDatum(protocol, txParams, minADA_For_ProtocolDatum);
+                const protocolDatum_In = protocol.getMyDatum() as ProtocolDatum;
+                console_log(0, this._Entity.className(), `Update Tx - protocolDatum_In: ${showData(protocolDatum_In, false)}`);
+                const protocolDatum_In_Hex = ProtocolEntity.datumToCborHex(protocolDatum_In);
+                console_log(0, this._Entity.className(), `Update Tx - protocolDatum_In_Hex: ${showData(protocolDatum_In_Hex, false)}`);
+                //--------------------------------------
+                const protocolDatum_Out = this._BackEndApplied.mkUpdated_ProtocolDatum_With_NormalChanges(protocolDatum_In, txParams);
                 console_log(0, this._Entity.className(), `Update Tx - protocolDatum_Out: ${showData(protocolDatum_Out, false)}`);
                 const protocolDatum_Out_Hex = ProtocolEntity.datumToCborHex(protocolDatum_Out);
                 console_log(0, this._Entity.className(), `Update Tx - protocolDatum_Out_Hex: ${showData(protocolDatum_Out_Hex, false)}`);
                 //--------------------------------------
-                const createProtocol = new CreateProtocol();
-                console_log(0, this._Entity.className(), `Update Tx - createProtocol: ${showData(createProtocol, false)}`);
-                const createProtocol_Hex = objToCborHex(createProtocol);
-                console_log(0, this._Entity.className(), `Update Tx - createProtocol_Hex: ${showData(createProtocol_Hex, false)}`);
+                const protocolValidatorRedeemerDatumUpdate = new UpdateProtocolParams();
+                console_log(0, this._Entity.className(), `Update Tx - protocolValidatorRedeemerDatumUpdate: ${showData(protocolValidatorRedeemerDatumUpdate, false)}`);
+                const protocolValidatorRedeemerDatumUpdate_Hex = protocolValidatorRedeemerDatumUpdate.toCborHex();
+                console_log(0, this._Entity.className(), `Update Tx - protocolValidatorRedeemerDatumUpdate_Hex: ${showData(protocolValidatorRedeemerDatumUpdate_Hex, false)}`);
                 //--------------------------------------
                 let { from, until } = await TimeBackEnd.getTxTimeRange();
                 //--------------------------------------
@@ -341,7 +375,8 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const untilSlot = lucid.unixTimeToSlot(until);
                 //--------------------------------------
                 if (flomSlot < 0) {
-                    from = until - 1000 * 10;
+                    from = lucid.currentSlot()
+                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
                 }
                 //--------------------------------------
                 console_log(
@@ -358,7 +393,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const transaction_ = new TransactionEntity({
                         paymentPKH: walletTxParams.pkh,
                         date: new Date(from),
-                        type: PROTOCOL_CREATE,
+                        type: PROTOCOL_UPDATE,
                         status: TRANSACTION_STATUS_CREATED,
                         reading_UTxOs: [],
                         consuming_UTxOs: [],
@@ -370,10 +405,10 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     let tx: TxBuilder = lucid.newTx();
                     //--------------------------------------
-                    tx = tx.attach // .collectFrom([protocolID_UTxO])
-                        .MintingPolicy(protocolPolicyID_Script)
-                        .mintAssets(valueFor_Mint_ProtocolID, createProtocol_Hex)
+                    tx = tx
+                        .collectFrom([protocol_UTxO], protocolValidatorRedeemerDatumUpdate_Hex)
                         .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out)
+                        .attach.SpendingValidator(protocolValidator_Script)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
@@ -388,12 +423,18 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     console_log(0, this._Entity.className(), `Update Tx - Tx Resources: ${showData({ redeemers: resources.redeemersLogs, tx: resources.tx })}`);
                     //--------------------------------------
-                    const transactionCreateProtocol: TransactionRedeemer = {
+                    const transactionProtocolValidatorRedeemerDatumUpdate: TransactionRedeemer = {
                         tx_index: 0,
-                        purpose: 'mint',
-                        redeemerObj: createProtocol,
+                        purpose: 'Spend',
+                        redeemerObj: protocolValidatorRedeemerDatumUpdate,
                         unit_mem: resources.redeemers[0]?.MEM,
                         unit_steps: resources.redeemers[0]?.CPU,
+                    };
+                    //--------------------------------------
+                    const transactionProtocolDatum_In: TransactionDatum = {
+                        address: protocolValidator_Address,
+                        datumType: ProtocolEntity.className(),
+                        datumObj: protocolDatum_In,
                     };
                     const transactionProtocolDatum_Out: TransactionDatum = {
                         address: protocolValidator_Address,
@@ -404,10 +445,10 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     await TransactionBackEndApplied.setPendingTransaction(transaction, {
                         hash: txHash,
                         ids: { protocol_id: protocol._DB_id },
-                        redeemers: { createProtocol: transactionCreateProtocol },
-                        datums: { protocolDatum_Out: transactionProtocolDatum_Out },
+                        redeemers: { protocolValidatorRedeemerDatumUpdate: transactionProtocolValidatorRedeemerDatumUpdate },
+                        datums: { protocolDatum_In: transactionProtocolDatum_In, protocolDatum_Out: transactionProtocolDatum_Out },
                         reading_UTxOs: [],
-                        consuming_UTxOs: [protocolID_UTxO],
+                        consuming_UTxOs: [protocol_UTxO],
                         unit_mem: resources.tx[0]?.MEM,
                         unit_steps: resources.tx[0]?.CPU,
                         fee: resources.tx[0]?.FEE,

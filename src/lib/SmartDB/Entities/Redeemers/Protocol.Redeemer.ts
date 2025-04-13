@@ -15,7 +15,7 @@ export class UpdateProtocolParams extends BaseTxRedeemer {
     protected static _plutusDataIndex = 1;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 export class UpdateProtocolMinADA extends BaseTxRedeemer {
@@ -23,5 +23,5 @@ export class UpdateProtocolMinADA extends BaseTxRedeemer {
     protected static _plutusDataIndex = 2;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }

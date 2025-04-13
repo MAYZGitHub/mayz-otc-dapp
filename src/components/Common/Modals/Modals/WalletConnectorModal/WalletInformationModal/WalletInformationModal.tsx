@@ -1,10 +1,11 @@
 import { HIDE, REFRESH, SHOW, STATUS_GREEM } from '@/utils/constants/images';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CARDANO_WALLETS, COPY, useWalletActions } from 'smart-db';
 import styles from './WalletInformationModal.module.scss';
 import Toggle from '@/components/Common/Buttons/Toggle/Toggle';
 import RedButton from '@/components/Common/Buttons/RedButton/RedButton';
+import { PaymentKeyHash } from '@lucid-evolution/lucid';
 
 interface WalletInformationModalProps {
     // Define props here
@@ -15,21 +16,25 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
     //  const { closeModal } = useModal();
     const closeModal = undefined;
     //--------------------------------------
-    const { session, walletStore, createSignedSession, walletRefresh, walletDisconnect, handleClickToggleAdminMode, handleClickToggleDontPromtForSigning } = useWalletActions();
+    const { session, walletStore, createSignedSession, walletRefresh, walletDisconnect, handleClickToggleAdminMode, handleClickToggleDontPromtForSigning, handleToggleIsHide } =
+        useWalletActions();
     //--------------------------------------
     const [copySuccess, setCopySuccess] = useState<boolean>(false);
+    const [icon, setIcon] = useState<string | undefined>(undefined);
+    //--------------------------------------
+    useEffect(() => {
+        if (walletStore.isConnected === true) {
+            const walletName = session?.user?.walletName;
+            const icon = CARDANO_WALLETS.find((wallet) => wallet.wallet === walletName)?.icon;
+            setIcon(icon?.href);
+        }
+    }, [walletStore.isConnected]);
+    //-------------------------
 
-    const [show, setShow] = useState<boolean>(true);
-    const walletName = session?.user?.walletName;
-    console.log('walletName', walletName);
-    const icon = CARDANO_WALLETS.find((wallet) => wallet.wallet === walletName)?.icon;
-    const address = session?.user?.address;
-    
-
-    const handleCopy = () => {
-        if (session?.user?.address) {
+    const handleCopy = (value: string) => {
+        if (value) {
             navigator.clipboard
-                .writeText(session.user.address)
+                .writeText(value)
                 .then(() => {
                     setCopySuccess(true);
                     setTimeout(() => {
@@ -61,13 +66,13 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
                     <div
                         className={styles.headerIcon}
                         onClick={() => {
-                            setShow(!show);
+                            handleToggleIsHide();
                         }}
                     >
                         <svg width="24" height="24" className={styles.icon}>
-                            <use href={show ? HIDE : SHOW}></use>
+                            <use href={walletStore.swHideBalance ? HIDE : SHOW}></use>
                         </svg>
-                        <span>{show ? 'Hide Balance' : 'Show Balance'}</span>
+                        <span>{walletStore.swHideBalance ? 'Hide Balance' : 'Show Balance'}</span>
                     </div>
                     {(walletStore.info?.isWalletFromSeed === true || walletStore.info?.isWalletFromKey === true) && (
                         <div className={styles.toogleIcon}>
@@ -100,10 +105,23 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
                         <div className={styles.iconInput}>
                             {icon && <Image src={icon.toString()} alt="icon" width={34} height={24} />}
                             <div className={styles.dataContainer}>
-                                <span className={styles.wallet_address}>{address}</span>
+                                <span className={styles.wallet_address}>{walletStore.info?.address}</span>
                             </div>
                         </div>
-                        <div onClick={handleCopy}>
+                        <div onClick={() => handleCopy(walletStore.info?.address || '')}>
+                            {copySuccess ? <Image src={STATUS_GREEM} alt="" height={12} width={15} /> : <Image src={COPY.href} alt="" height={12} width={15} />}
+                        </div>
+                    </div>
+                </div>
+                <div className={styles.inputInformatiopn}>
+                    <label htmlFor="">PaymentKeyHash</label>
+                    <div className={styles.addressContainer}>
+                        <div className={styles.iconInput}>
+                            <div className={styles.dataContainer}>
+                                <span className={styles.wallet_address}>{walletStore.info?.pkh}</span>
+                            </div>
+                        </div>
+                        <div onClick={() => handleCopy(walletStore.info?.pkh || '')}>
                             {copySuccess ? <Image src={STATUS_GREEM} alt="" height={12} width={15} /> : <Image src={COPY.href} alt="" height={12} width={15} />}
                         </div>
                     </div>

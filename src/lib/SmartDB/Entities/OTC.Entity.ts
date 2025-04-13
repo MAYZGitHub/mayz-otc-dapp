@@ -21,7 +21,7 @@ export class OTCEntity extends BaseSmartDBEntity {
     protected static _apiRoute: string = 'otc';
     protected static _className: string = 'OTC';
 
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 
     protected static _isOnlyDatum = true; // Indicates that this entity is only a datum and do nt have other fields to save in the db.
 

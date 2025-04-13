@@ -11,7 +11,7 @@ export class MintNFT extends BaseTxRedeemer {
     protected static _plutusDataIndex = 1;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 // Class for handling a Burning operation on a Policy ID.
@@ -21,7 +21,7 @@ export class BurnNFT extends BaseTxRedeemer {
     protected static _plutusDataIndex = 2;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 export type OTCRedeemer = CreateOTC | ClaimOTC | CloseOTC | CancelOTC | UpdateOTCMinAda;
@@ -31,7 +31,7 @@ export class CreateOTC extends BaseTxRedeemer {
     protected static _plutusDataIndex = 0;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 export class ClaimOTC extends BaseTxRedeemer {
@@ -39,7 +39,7 @@ export class ClaimOTC extends BaseTxRedeemer {
     protected static _plutusDataIndex = 1;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 // Class for handling a CloseOTC operation in the Market.
@@ -49,7 +49,7 @@ export class CloseOTC extends BaseTxRedeemer {
     protected static _plutusDataIndex = 2;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 export class CancelOTC extends BaseTxRedeemer {
@@ -57,7 +57,7 @@ export class CancelOTC extends BaseTxRedeemer {
     protected static _plutusDataIndex = 3;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }
 
 // Class for handling a CloseOTC operation in the Market.
@@ -67,5 +67,5 @@ export class UpdateOTCMinAda extends BaseTxRedeemer {
     protected static _plutusDataIndex = 4;
     
     // Indicates that this redeemer is a subtype of a more general type.
-    protected static _plutusDataIsSubType = true;
+    protected static _plutusDataIsSubType = false;
 }

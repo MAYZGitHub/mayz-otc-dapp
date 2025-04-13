@@ -49,9 +49,9 @@ export default function ProtocolArea(onSubmit: any) {
     const walletStore = useWalletStore();
     const { appState, setAppState } = useContext(AppStateContext);
     //-------------------------
-    const [pdAdmins, setPdAdmins] = useState(appState.protocol?.pd_admins.join(',') || '');
+    const [pdAdmins, setPdAdmins] = useState(appState.protocol?.pd_admins?.join(',') || '');
     const [pdTokenAdminPolicy_CS, setPdTokenAdminPolicy_CS] = useState(appState.protocol?.pd_mayz_policy_id ?? ADMIN_TOKEN_POLICY_CS);
-    const [pd_mayz_deposit_requirement, set_pd_mayz_deposit_requirement] = useState(appState.protocol?.pd_mayz_deposit_requirement.toString() ?? '');
+    const [pd_mayz_deposit_requirement, set_pd_mayz_deposit_requirement] = useState(appState.protocol?.pd_mayz_deposit_requirement?.toString() ?? '');
     //-------------------------
     const [error, setError] = useState<string | null>(null);
     //-------------------------
@@ -65,6 +65,20 @@ export default function ProtocolArea(onSubmit: any) {
         }
     }, [walletStore.isConnected]);
     //-------------------------
+    useEffect(() => {
+        if (appState.protocol !== undefined) {
+            if (walletStore.isConnected === true && walletStore.info !== undefined) {
+                if (pdAdmins === '') {
+                    setPdAdmins(walletStore.info.pkh);
+                }
+            } else {
+                setPdAdmins(appState.protocol?.pd_admins?.join(',') || '');
+            }
+            setPdTokenAdminPolicy_CS(appState.protocol?.pd_mayz_policy_id ?? ADMIN_TOKEN_POLICY_CS);
+            set_pd_mayz_deposit_requirement(appState.protocol?.pd_mayz_deposit_requirement?.toString() ?? '');
+        }
+    }, [appState.protocol]);
+    //-------------------------
     const fetchProtocol = async () => {
         // Example: fetch your protocol entity from SmartDB
         const protocol: ProtocolEntity | undefined = await ProtocolApi.getOneByParamsApi_(); // You must define this function
@@ -73,13 +87,11 @@ export default function ProtocolArea(onSubmit: any) {
     };
     //-------------------------
     const resetForm = async () => {
-        setPdAdmins(appState.protocol?.pd_admins.join(',') || '');
-        setPdTokenAdminPolicy_CS(appState.protocol?.pd_mayz_policy_id ?? ADMIN_TOKEN_POLICY_CS);
-        set_pd_mayz_deposit_requirement(appState.protocol?.pd_mayz_deposit_requirement.toString() ?? '');
         setError(null);
     };
     const onTx = async () => {
-        fetchProtocol();
+        await fetchProtocol();
+       
     };
     //--------------------------------------
     async function checkIsValidTx() {
@@ -162,14 +174,12 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 // Protocol Script
                 //--------------------------------------
-                const oRef = new Constr(0, [String(pp_protocol_TxHash), BigInt(pp_protocol_TxOutputIndex)]);
-                const protocolParams = new Constr(0, [oRef, String(strToHex(PROTOCOL_ID_TN))]);
-
+                const oRef = new Constr(0, [pp_protocol_TxHash, BigInt(pp_protocol_TxOutputIndex)]);
+                const protocolParams = new Constr(0, [oRef, strToHex(PROTOCOL_ID_TN)]);
                 const fProtocolScript_Params = {
                     pp_protocol_policy_id_tx_out_ref: { txid: pp_protocol_TxHash, tx_index: pp_protocol_TxOutputIndex },
                     pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
                 };
-
                 const fProtocolScript: Script = {
                     type: 'PlutusV3',
                     script: applyParamsToScript(PROTOCOL_SCRIPT_PRE_CBORHEX, [protocolParams]),
@@ -189,14 +199,10 @@ export default function ProtocolArea(onSubmit: any) {
                 // OTC Script
                 //--------------------------------------
                 // Convertir los strings a representación de bytes correcta
-                const otcIdTokenNameBytes = new TextEncoder().encode(OTC_ID_TN);
-                const otcIdTokenName = Buffer.from(otcIdTokenNameBytes).toString('hex');
                 // Parámetros para el validator OTC
-                const otcParams = [
-                    fProtocolPolicyID_CS, // PolicyId del protocolo
-                    strToHex(PROTOCOL_ID_TN), // ByteArray para el token name del protocolo
-                    otcIdTokenName, // ByteArray para el token name del OTC
-                ];
+                //--------------------------------------
+                const otcParams = new Constr(0, [fProtocolPolicyID_CS, strToHex(PROTOCOL_ID_TN), strToHex(OTC_ID_TN)]);
+                //--------------------------------------
                 const fOTCScript_Params = {
                     pp_protocol_policy_id: fProtocolPolicyID_CS,
                     pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
@@ -205,7 +211,7 @@ export default function ProtocolArea(onSubmit: any) {
                 //--------------------------------------
                 const fOTCScript: Script = {
                     type: 'PlutusV3',
-                    script: applyParamsToScript(OTC_SCRIPT_PRE_CBORHEX, otcParams),
+                    script: applyParamsToScript(OTC_SCRIPT_PRE_CBORHEX, [otcParams]),
                 };
                 //--------------------------------------
                 const fOTCPolicyID_CS = mintingPolicyToId(fOTCScript);
@@ -303,13 +309,13 @@ export default function ProtocolArea(onSubmit: any) {
             openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
-        if (confirm('Are you sure you want to create the protocol?')) {
+        if (confirm('Are you sure you want to Add Tokens?')) {
             //--------------------------------------
             appStore.setIsProcessingTx(true);
             appStore.setIsConfirmedTx(false);
             appStore.setIsFaildedTx(false);
             //--------------------------------------
-            appStore.setProcessingTxMessage('Creating Protocol...');
+            appStore.setProcessingTxMessage('Adding Tokens...');
             openModal(ModalsEnums.PROCESSING_TASK);
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
@@ -330,12 +336,19 @@ export default function ProtocolArea(onSubmit: any) {
                 }
                 const uTxO = walletUTxOs[0];
                 //--------------------------------------
-                const valueTokens: Assets = { ['TOKEN1']: BigInt(100) };
+                const valueTokens: Assets = { ['e0b33937400326885f7186e2725a84786266ec1eb06d397680233f80' + strToHex('TOKEN1')]: BigInt(100) };
                 //--------------------------------------
                 console.log(`[User] - Get Tokens Tx - valueTokens: ${showData(valueTokens)}`);
                 //--------------------------------------
                 const assets: Assets = ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets as Assets;
                 ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets = addAssets(assets, valueTokens);
+                //--------------------------------------
+                if (isEmulator && emulatorDB !== undefined) {
+                    // normalmente esto se hace en el submit, pero esta tx es mock y no hay submit
+                    await LucidToolsFrontEnd.syncEmulatorAfterTx(lucid, emulatorDB);
+                }
+                //--------------------------------------
+                await walletStore.loadWalletData();
                 //--------------------------------------
                 pushSucessNotification(`${PROYECT_NAME}`, `Added tokens successfully`, false);
                 //--------------------------------------
@@ -407,6 +420,7 @@ export default function ProtocolArea(onSubmit: any) {
         //--------------------------------------
         await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, `Deploy Tx`, 'Deploying FT...', 'deploy-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
+        await fetchProtocol();
     };
     //-------------------------
     const handleUpdateProtocol = async () => {
@@ -464,87 +478,126 @@ export default function ProtocolArea(onSubmit: any) {
         //--------------------------------------
     };
     //--------------------------------------
+    const handleSyncProtocol = async () => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (confirm('Are you sure you want to sync the protocol?')) {
+            //--------------------------------------
+            appStore.setIsProcessingTx(true);
+            appStore.setIsConfirmedTx(false);
+            appStore.setIsFaildedTx(false);
+            //--------------------------------------
+            appStore.setProcessingTxMessage('Syncing Protocol...');
+            openModal(ModalsEnums.PROCESSING_TASK);
+            //--------------------------------------
+            try {
+                //--------------------------------------
+                await ProtocolApi.syncWithAddressApi_(appState.protocol!.getNet_Address(), appState.protocol!.getNET_id_CS(), true);
+                await ProtocolApi.syncWithAddressApi_(appState.protocol!.getOTC_Net_Address(), appState.protocol!.getOTC_NET_id_CS(), true);
+                //--------------------------------------
+                await fetchProtocol();
+                //--------------------------------------
+                pushSucessNotification(`${PROYECT_NAME}`, `Protocol synced successfully`, false);
+                //--------------------------------------
+                appStore.setIsConfirmedTx(true);
+                //--------------------------------------
+                return true;
+            } catch (error) {
+                console.log(`[${PROYECT_NAME}] - handleSyncProtocol - Error: ${error}`);
+                pushWarningNotification(`${PROYECT_NAME}`, `Error syncing Protocol: ${error}`);
+                appStore.setIsFaildedTx(true);
+                return undefined;
+            } finally {
+                appStore.setIsProcessingTx(false);
+                appStore.setProcessingTxMessage('');
+            }
+        }
+    };
+    //--------------------------------------
     return (
         <>
-            {appState.protocol === undefined ? (
-                <BlueButton style={styles.btnAction} onClick={handleCreateProtocol}>
-                    Create Protocol {appStore.isProcessingTx === true && <LoaderButton />}
-                </BlueButton>
-            ) : appState.protocol._isDeployed === false ? (
-                <section className={styles.protocolAreaSection}>
-                    <div className={styles.form}>
-                        <div className={styles.formGroup}>
-                            <label>Admin Payment Key Hashes</label>
-                            <textarea value={pdAdmins} onChange={(e) => setPdAdmins(e.target.value)} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label>Admin Token Currency Symbol</label>
-                            <textarea value={pdTokenAdminPolicy_CS} onChange={(e) => setPdTokenAdminPolicy_CS(e.target.value)} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="pd_mayz_deposit_requirement">Mayz Required for OTC:</label>
-                            <input
-                                type="number"
-                                id="pd_mayz_deposit_requirement"
-                                name="pd_mayz_deposit_requirement"
-                                value={pd_mayz_deposit_requirement}
-                                onChange={(e) => set_pd_mayz_deposit_requirement(e.target.value)}
-                                min="0"
-                            />
-                        </div>
-                        {error && <div className={styles.errorMessage}>{error}</div>}
-                        <BlueButton style={styles.btnAction} onClick={handleDeployProtocol}>
-                            Deploy {appStore.isProcessingTx === true && <LoaderButton />}
+            <section className={styles.protocolAreaSection}>
+                <div className={styles.form}>
+                    {appState.protocol === undefined ? (
+                        <BlueButton style={styles.btnAction} onClick={handleCreateProtocol}>
+                            Create Protocol {appStore.isProcessingTx === true && <LoaderButton />}
                         </BlueButton>
-                        {isEmulator ? (
-                            <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
-                                Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                    ) : appState.protocol._isDeployed === false ? (
+                        <>
+                            <div className={styles.formGroup}>
+                                <label>Admin Payment Key Hashes</label>
+                                <input value={pdAdmins} onChange={(e) => setPdAdmins(e.target.value)} />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label>Admin Token Currency Symbol</label>
+                                <input value={pdTokenAdminPolicy_CS} onChange={(e) => setPdTokenAdminPolicy_CS(e.target.value)} />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="pd_mayz_deposit_requirement">Mayz Required for OTC:</label>
+                                <input
+                                    type="number"
+                                    id="pd_mayz_deposit_requirement"
+                                    name="pd_mayz_deposit_requirement"
+                                    value={pd_mayz_deposit_requirement}
+                                    onChange={(e) => set_pd_mayz_deposit_requirement(e.target.value)}
+                                    min="0"
+                                />
+                            </div>
+                            {!isNullOrBlank(error) && <div className={styles.errorMessage}>{error}</div>}
+                            <BlueButton style={styles.btnAction} onClick={handleDeployProtocol}>
+                                Deploy {appStore.isProcessingTx === true && <LoaderButton />}
                             </BlueButton>
-                        ) : (
-                            <></>
-                        )}
-
-                        <BlueButton style={styles.btnAction} onClick={handleDeleteProtocol}>
-                            Delete
-                        </BlueButton>
-                    </div>
-                </section>
-            ) : (
-                <section className={styles.protocolAreaSection}>
-                    <div className={styles.form}>
-                        <div className={styles.formGroup}>
-                            <label>Admin Payment Key Hashes</label>
-                            <input value={pdAdmins} onChange={(e) => setPdAdmins(e.target.value)} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label>Admin Token Currency Symbol</label>
-                            <input value={pdTokenAdminPolicy_CS} onChange={(e) => setPdTokenAdminPolicy_CS(e.target.value)} />
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label htmlFor="pd_mayz_deposit_requirement">Mayz Required for OTC:</label>
-                            <input
-                                type="number"
-                                id="pd_mayz_deposit_requirement"
-                                name="pd_mayz_deposit_requirement"
-                                value={pd_mayz_deposit_requirement}
-                                onChange={(e) => set_pd_mayz_deposit_requirement(e.target.value)}
-                                min="0"
-                            />
-                        </div>
-                        {error && <div className={styles.errorMessage}>{error}</div>}
-                        <BlueButton style={styles.btnAction} onClick={handleUpdateProtocol}>
-                            Update {appStore.isProcessingTx === true && <LoaderButton />}
-                        </BlueButton>
-                        {isEmulator ? (
-                            <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
-                                [TEST] Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                            <BlueButton style={styles.btnAction} onClick={handleSyncProtocol}>
+                                Sync {appStore.isProcessingTx === true && <LoaderButton />}
                             </BlueButton>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
-                </section>
-            )}
+                            {isEmulator && (
+                                <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
+                                    [TEST] Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                                </BlueButton>
+                            )}
+                            <BlueButton style={styles.btnAction} onClick={handleDeleteProtocol}>
+                                Delete
+                            </BlueButton>
+                        </>
+                    ) : (
+                        <>
+                            <div className={styles.formGroup}>
+                                <label>Admin Payment Key Hashes</label>
+                                <input value={pdAdmins} onChange={(e) => setPdAdmins(e.target.value)} />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label>Admin Token Currency Symbol</label>
+                                <input value={pdTokenAdminPolicy_CS} onChange={(e) => setPdTokenAdminPolicy_CS(e.target.value)} />
+                            </div>
+                            <div className={styles.formGroup}>
+                                <label htmlFor="pd_mayz_deposit_requirement">Mayz Required for OTC:</label>
+                                <input
+                                    type="number"
+                                    id="pd_mayz_deposit_requirement"
+                                    name="pd_mayz_deposit_requirement"
+                                    value={pd_mayz_deposit_requirement}
+                                    onChange={(e) => set_pd_mayz_deposit_requirement(e.target.value)}
+                                    min="0"
+                                />
+                            </div>
+                            {!isNullOrBlank(error) && <div className={styles.errorMessage}>{error}</div>}
+                            <BlueButton style={styles.btnAction} onClick={handleUpdateProtocol}>
+                                Update {appStore.isProcessingTx === true && <LoaderButton />}
+                            </BlueButton>
+                            <BlueButton style={styles.btnAction} onClick={handleSyncProtocol}>
+                                Sync {appStore.isProcessingTx === true && <LoaderButton />}
+                            </BlueButton>
+                            {isEmulator && (
+                                <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
+                                    [TEST] Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                                </BlueButton>
+                            )}
+                        </>
+                    )}
+                </div>
+            </section>
         </>
     );
 }

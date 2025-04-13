@@ -38,7 +38,7 @@ export const ADMIN_TOKEN_POLICY_CS = process.env.NEXT_PUBLIC_ADMIN_TOKEN_POLICY_
 //---------------------------------
 
 export const PROTOCOL_CREATE = 'Protocol - Create';
-export const PROTOCOL_UPDATE_PARAMS = 'Protocol - Update Params';
+export const PROTOCOL_UPDATE= 'Protocol - Update';
 export const PROTOCOL_UPDATE_MIN_ADA = 'Protocol - Update Min ADA';
 
 export const OTC_CREATE = 'OTC - Create';
@@ -87,24 +87,17 @@ export const UpdateProtocolTxParamsSchema = yup.object().shape({
 });
 
 export interface CreateOTCTxParams {
-    lockAmount: bigint;
-    otcSmartContract_CS: string;
-    lockTokenTN: string;
-    lockTokenCS: string;
-    tokenOwnerId: string;
-    tokenOwnerTN: string;
-    otcSmartContractAddress: string;
-    ownerNFT_Script: string;
+    protocol_id: string;
+    od_token_policy_id: string;
+    od_token_tn: string;
+    od_token_amount: bigint;
 }
 
 export const CreateOtcTxParamsSchema = yup.object().shape({
+    protocol_id: yup.string().required(),
     lockAmount: yup.mixed().required(),
-    otcSmartContract_CS: yup.string().required(),
     lockTokenTN: yup.string().required(),
     lockTokenCS: yup.string().required(),
-    otcNftPolicyId: yup.string().required(),
-    otcSmartContractAddress: yup.string().required(),
-    mintingOtcNFT: scriptSchema.required(),
 });
 
 export interface ClaimOTCTxParams {
