@@ -60,7 +60,30 @@ export interface ProtocolDeployTxParams {
 }
 
 export const DeployProtocolTxParamsSchema = yup.object().shape({
-    //TODO
+    protocol_id: yup.string().required(),
+    pd_admins: yup.array().of(yup.string()).required(),
+    pd_token_admin_policy_id: yup.string().required(),
+    pd_mayz_policy_id: yup.string().required(),
+    pd_mayz_tn: yup.string().required(),
+    pd_mayz_deposit_requirement: yup.mixed().required(),
+});
+
+export interface ProtocolUpdateTxParams {
+    protocol_id: string;
+    pd_admins: string[];
+    pd_token_admin_policy_id: string;
+    pd_mayz_policy_id: string;
+    pd_mayz_tn: string;
+    pd_mayz_deposit_requirement: bigint;
+}
+
+export const UpdateProtocolTxParamsSchema = yup.object().shape({
+    protocol_id: yup.string().required(),
+    pd_admins: yup.array().of(yup.string()).required(),
+    pd_token_admin_policy_id: yup.string().required(),
+    pd_mayz_policy_id: yup.string().required(),
+    pd_mayz_tn: yup.string().required(),
+    pd_mayz_deposit_requirement: yup.mixed().required(),
 });
 
 export interface CreateOTCTxParams {

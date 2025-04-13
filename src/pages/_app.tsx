@@ -25,6 +25,9 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
     const [isLoadingProtocol, setIsLoadingProtocol] = useState(true);
 
     const fetchProtocol = async () => {
+        
+        setIsLoadingProtocol(true); 
+
         // Example: fetch your protocol entity from SmartDB
         const protocol: ProtocolEntity | undefined = await ProtocolApi.getOneByParamsApi_(); // You must define this function
 

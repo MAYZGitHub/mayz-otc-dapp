@@ -15,7 +15,7 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
     //  const { closeModal } = useModal();
     const closeModal = undefined;
     //--------------------------------------
-    const { session, walletStore, createSignedSession, walletRefresh, walletDisconnect, handleClickToggleAdminMode } = useWalletActions();
+    const { session, walletStore, createSignedSession, walletRefresh, walletDisconnect, handleClickToggleAdminMode, handleClickToggleDontPromtForSigning } = useWalletActions();
     //--------------------------------------
     const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
@@ -24,8 +24,7 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
     console.log('walletName', walletName);
     const icon = CARDANO_WALLETS.find((wallet) => wallet.wallet === walletName)?.icon;
     const address = session?.user?.address;
-    /*     const start = address?.slice(0, 20);
-        const end = address?.slice(-1); */
+    
 
     const handleCopy = () => {
         if (session?.user?.address) {
@@ -46,7 +45,7 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
     return (
         <article className={styles.container}>
             <div className={styles.layout}>
-                <h2 className={styles.title}>Wallet Information</h2>
+                <h2 className={styles.title}>Wallet [{walletStore.info?.walletName}]</h2>
                 <section className={styles.header}>
                     <div
                         className={styles.headerIcon}
@@ -70,6 +69,19 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
                         </svg>
                         <span>{show ? 'Hide Balance' : 'Show Balance'}</span>
                     </div>
+                    {(walletStore.info?.isWalletFromSeed === true || walletStore.info?.isWalletFromKey === true) && (
+                        <div className={styles.toogleIcon}>
+                            <Toggle
+                                isActive={walletStore.swDoNotPromtForSigning || false}
+                                onClickToggle={() => {
+                                    handleClickToggleDontPromtForSigning();
+                                }}
+                                disabled={false}
+                                transparent={true}
+                            />
+                            <span>Auto</span>
+                        </div>
+                    )}
                     <div className={styles.toogleIcon}>
                         <Toggle
                             isActive={walletStore.info?.isWalletValidatedWithSignedToken || false}
@@ -101,7 +113,7 @@ const WalletInformationModal: React.FC<WalletInformationModalProps> = (props) =>
                         onClick={() => {
                             walletDisconnect(closeModal);
                         }}
-                        style=''
+                        style=""
                     >
                         Disconect Wallet
                     </RedButton>

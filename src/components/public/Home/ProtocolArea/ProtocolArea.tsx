@@ -12,9 +12,10 @@ import {
     PROTOCOL_ID_TN,
     PROTOCOL_SCRIPT_PRE_CBORHEX,
     ProtocolDeployTxParams,
+    ProtocolUpdateTxParams,
 } from '@/utils/constants/on-chain';
 import { applyParamsToScript, Assets, Constr, Data, mintingPolicyToId, Script, UTxO, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
-import { useContext } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
     addAssets,
     BaseSmartDBFrontEndBtnHandlers,
@@ -29,7 +30,8 @@ import {
     strToHex,
     useTransactions,
     useWalletStore,
-    isEmulator
+    isEmulator,
+    isNullOrBlank,
 } from 'smart-db';
 import styles from './ProtocolArea.module.scss';
 import { useProtocolArea } from './useProtocolArea';
@@ -43,18 +45,87 @@ interface FormularioProps {
 }
 
 export default function ProtocolArea(onSubmit: any) {
-    const { error, pd_mayz_deposit_requirement, set_pd_mayz_deposit_requirement, setError } = useProtocolArea();
-
+    //-------------------------
     const walletStore = useWalletStore();
     const { appState, setAppState } = useContext(AppStateContext);
+    //-------------------------
+    const [pdAdmins, setPdAdmins] = useState(appState.protocol?.pd_admins.join(',') || '');
+    const [pdTokenAdminPolicy_CS, setPdTokenAdminPolicy_CS] = useState(appState.protocol?.pd_mayz_policy_id ?? ADMIN_TOKEN_POLICY_CS);
+    const [pd_mayz_deposit_requirement, set_pd_mayz_deposit_requirement] = useState(appState.protocol?.pd_mayz_deposit_requirement.toString() ?? '');
+    //-------------------------
+    const [error, setError] = useState<string | null>(null);
+    //-------------------------
     const { openModal } = useModal();
-
+    //-------------------------
+    useEffect(() => {
+        if (walletStore.isConnected === true && walletStore.info !== undefined) {
+            if (pdAdmins === '') {
+                setPdAdmins(walletStore.info.pkh);
+            }
+        }
+    }, [walletStore.isConnected]);
+    //-------------------------
+    const fetchProtocol = async () => {
+        // Example: fetch your protocol entity from SmartDB
+        const protocol: ProtocolEntity | undefined = await ProtocolApi.getOneByParamsApi_(); // You must define this function
+        // Update the context
+        setAppState((prev) => ({ ...prev, protocol }));
+    };
+    //-------------------------
+    const resetForm = async () => {
+        setPdAdmins(appState.protocol?.pd_admins.join(',') || '');
+        setPdTokenAdminPolicy_CS(appState.protocol?.pd_mayz_policy_id ?? ADMIN_TOKEN_POLICY_CS);
+        set_pd_mayz_deposit_requirement(appState.protocol?.pd_mayz_deposit_requirement.toString() ?? '');
+        setError(null);
+    };
+    const onTx = async () => {
+        fetchProtocol();
+    };
+    //--------------------------------------
+    async function checkIsValidTx() {
+        const isValid = true;
+        return isValid;
+    }
+    //--------------------------------------
+    const dependenciesValidTx: any[] = [];
+    //--------------------------------------
+    const {
+        appStore,
+        tokensStore,
+        session,
+        status,
+        showUserConfirmation,
+        setShowUserConfirmation,
+        showProcessingTx,
+        setShowProcessingTx,
+        isProcessingTx,
+        setIsProcessingTx,
+        isFaildedTx,
+        setIsFaildedTx,
+        isConfirmedTx,
+        setIsConfirmedTx,
+        processingTxMessage,
+        setProcessingTxMessage,
+        processingTxHash,
+        setProcessingTxHash,
+        isValidTx,
+        setIsValidTx,
+        tokensGiveWithMetadata,
+        setTokensGiveWithMetadata,
+        tokensGetWithMetadata,
+        setTokensGetWithMetadata,
+        available_ADA_in_Wallet,
+        available_forSpend_ADA_in_Wallet,
+        isMaxAmountLoaded: isMaxAmountLoadedFromTxHook,
+        handleBtnShowUserConfirmation,
+        handleBtnDoTransaction_WithErrorControl,
+    } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx, resetForm });
+    //--------------------------------------
     const handleCreateProtocol = async () => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
-
         if (confirm('Are you sure you want to create the protocol?')) {
             //--------------------------------------
             appStore.setIsProcessingTx(true);
@@ -181,7 +252,7 @@ export default function ProtocolArea(onSubmit: any) {
                 return protocol_._DB_id;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleBtnProtocolCreate - Error: ${error}`);
-                pushWarningNotification(`${PROYECT_NAME}`, `Error creating protocol: ${error}`);
+                pushWarningNotification(`${PROYECT_NAME}`, `Error creating Protocol: ${error}`);
                 appStore.setIsFaildedTx(true);
                 return undefined;
             } finally {
@@ -190,17 +261,48 @@ export default function ProtocolArea(onSubmit: any) {
             }
         }
     };
-
-    const handleDeleteProtocol= async () => {
-        await ProtocolApi.deleteByIdApi_(appState.protocol!._DB_id);
-    }
-
+    //-------------------------
+    const handleDeleteProtocol = async () => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TASK);
+            return;
+        }
+        if (confirm('Are you sure you want to delete the protocol?')) {
+            //--------------------------------------
+            appStore.setIsProcessingTx(true);
+            appStore.setIsConfirmedTx(false);
+            appStore.setIsFaildedTx(false);
+            //--------------------------------------
+            appStore.setProcessingTxMessage('Deleting Protocol...');
+            openModal(ModalsEnums.PROCESSING_TASK);
+            //--------------------------------------
+            try {
+                await ProtocolApi.deleteByIdApi_(appState.protocol!._DB_id);
+                //--------------------------------------
+                pushSucessNotification(`${PROYECT_NAME}`, `Protocol deleted successfully`, false);
+                //--------------------------------------
+                await fetchProtocol();
+                //--------------------------------------
+                appStore.setIsConfirmedTx(true);
+                //--------------------------------------
+                return;
+            } catch (error) {
+                console.log(`[${PROYECT_NAME}] - handleDeleteProtocol - Error: ${error}`);
+                pushWarningNotification(`${PROYECT_NAME}`, `Error deleting Protocol: ${error}`);
+                appStore.setIsFaildedTx(true);
+                return undefined;
+            } finally {
+                appStore.setIsProcessingTx(false);
+                appStore.setProcessingTxMessage('');
+            }
+        }
+    };
+    //-------------------------
     const handleAddTokens = async () => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
-
         if (confirm('Are you sure you want to create the protocol?')) {
             //--------------------------------------
             appStore.setIsProcessingTx(true);
@@ -221,33 +323,28 @@ export default function ProtocolArea(onSubmit: any) {
                 if (walletStore.isWalletDataLoaded !== true) {
                     throw 'Wallet Data is not ready';
                 }
-                if (walletStore.getUTxOsAtWallet().length === 0) {
-                    throw 'You need at least one utxo to be used to mint Protocol ID';
-                }
                 //--------------------------------------
                 const walletUTxOs = walletStore.getUTxOsAtWallet();
                 if (walletUTxOs.length === 0) {
-                    throw 'You need at least one utxo to be used to mint Protocol ID';
+                    throw 'You need at least one utxo to add tokens';
                 }
                 const uTxO = walletUTxOs[0];
-                console.log(`uTxO for creating Protocol ID: ${formatUTxO(uTxO.txHash, uTxO.outputIndex)}`);
                 //--------------------------------------
-                const amount = 1111;
+                const valueTokens: Assets = { ['TOKEN1']: BigInt(100) };
                 //--------------------------------------
-                const valueOf_ADA: Assets = { ['lovelace']: BigInt(amount), ['Love is love']: 1n };
-                console.log(`[User] - Get ADA Tx - valueOf_ADA: ${showData(valueOf_ADA)}`);
+                console.log(`[User] - Get Tokens Tx - valueTokens: ${showData(valueTokens)}`);
                 //--------------------------------------
                 const assets: Assets = ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets as Assets;
-                ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets = addAssets(assets, valueOf_ADA);
+                ((lucid.config().provider as any).ledger[uTxO.txHash + uTxO.outputIndex].utxo as UTxO).assets = addAssets(assets, valueTokens);
                 //--------------------------------------
-                pushSucessNotification(`${PROYECT_NAME}`, `Protocol created successfully`, false);
+                pushSucessNotification(`${PROYECT_NAME}`, `Added tokens successfully`, false);
                 //--------------------------------------
                 appStore.setIsConfirmedTx(true);
                 //--------------------------------------
                 return true;
             } catch (error) {
-                console.log(`[${PROYECT_NAME}] - handleBtnProtocolCreate - Error: ${error}`);
-                pushWarningNotification(`${PROYECT_NAME}`, `Error creating protocol: ${error}`);
+                console.log(`[${PROYECT_NAME}] - handleAddTokens - Error: ${error}`);
+                pushWarningNotification(`${PROYECT_NAME}`, `Error Adding Tokens: ${error}`);
                 appStore.setIsFaildedTx(true);
                 return undefined;
             } finally {
@@ -256,88 +353,32 @@ export default function ProtocolArea(onSubmit: any) {
             }
         }
     };
-
-    const onTx = async () => {
-        // fetch();
-    };
-    const onTryAgainTx = async () => {
-        setIsFaildedTx(false);
-        setIsFaildedTx(false);
-        setShowProcessingTx(false);
-    };
-    const onFinishTx = async () => {
-        // si la tx paso, ya se reseto el form en onTx, pero por las dudas, si aprienta cuando falla
-        if (isFaildedTx === true) {
-            // fetch();
-        }
-        setIsConfirmedTx(false);
-        setIsFaildedTx(false);
-        setShowProcessingTx(false);
-    };
-    //--------------------------------------
-    async function checkIsValidTx() {
-        const isValid = true;
-        return isValid;
-    }
-    //--------------------------------------
-    const dependenciesValidTx: any[] = [];
-    //--------------------------------------
-    const {
-        appStore,
-        tokensStore,
-        session,
-        status,
-        showUserConfirmation,
-        setShowUserConfirmation,
-        showProcessingTx,
-        setShowProcessingTx,
-        isProcessingTx,
-        setIsProcessingTx,
-        isFaildedTx,
-        setIsFaildedTx,
-        isConfirmedTx,
-        setIsConfirmedTx,
-        processingTxMessage,
-        setProcessingTxMessage,
-        processingTxHash,
-        setProcessingTxHash,
-        isValidTx,
-        setIsValidTx,
-        tokensGiveWithMetadata,
-        setTokensGiveWithMetadata,
-        tokensGetWithMetadata,
-        setTokensGetWithMetadata,
-        available_ADA_in_Wallet,
-        available_forSpend_ADA_in_Wallet,
-        isMaxAmountLoaded: isMaxAmountLoadedFromTxHook,
-        handleBtnShowUserConfirmation,
-        handleBtnDoTransaction_WithErrorControl,
-    } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx });
-    //--------------------------------------
-
+    //-------------------------
     const handleDeployProtocol = async () => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
         }
-
+        if (pdAdmins.length === 0) {
+            setError('Please enter a valid Admin Payment Key Hashes.');
+            return;
+        }
+        if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
+            setError('Please enter a valid Admin Token Currency Symbol.');
+        }
         if (!pd_mayz_deposit_requirement) {
-            setError('Por favor, ingresa un valor.');
+            setError('Please enter a value.');
             return;
         }
-
         const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
-
         if (isNaN(pd_mayz_deposit_requirementNumber)) {
-            setError('Por favor, ingresa un número válido');
+            setError('Please enter a valid number.');
             return;
         }
-
         if (pd_mayz_deposit_requirementNumber < 0) {
-            setError('Por favor, ingresa un número positivo');
+            setError('Please enter a positive number.');
             return;
         }
-
         //--------------------------------------
         const fetchParams = async () => {
             //--------------------------------------
@@ -345,8 +386,8 @@ export default function ProtocolArea(onSubmit: any) {
             //--------------------------------------
             const txParams: ProtocolDeployTxParams = {
                 protocol_id: appState.protocol!._DB_id!,
-                pd_admins: [],
-                pd_token_admin_policy_id: ADMIN_TOKEN_POLICY_CS,
+                pd_admins: pdAdmins !== undefined && pdAdmins !== '' ? pdAdmins.split(',').map((admin) => admin.trim()) : [],
+                pd_token_admin_policy_id: pdTokenAdminPolicy_CS,
                 pd_mayz_policy_id: MAYZ_CS,
                 pd_mayz_tn: strToHex(MAYZ_TN),
                 pd_mayz_deposit_requirement: BigInt(pd_mayz_deposit_requirement),
@@ -366,11 +407,63 @@ export default function ProtocolArea(onSubmit: any) {
         //--------------------------------------
         await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, `Deploy Tx`, 'Deploying FT...', 'deploy-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
-
-        setError(null);
-        set_pd_mayz_deposit_requirement(''); // Limpia el input después del envío
     };
-
+    //-------------------------
+    const handleUpdateProtocol = async () => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (pdAdmins.length === 0) {
+            setError('Please enter a valid Admin Payment Key Hashes.');
+            return;
+        }
+        if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
+            setError('Please enter a valid Admin Token Currency Symbol.');
+        }
+        if (!pd_mayz_deposit_requirement) {
+            setError('Please enter a value.');
+            return;
+        }
+        const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
+        if (isNaN(pd_mayz_deposit_requirementNumber)) {
+            setError('Please enter a valid number.');
+            return;
+        }
+        if (pd_mayz_deposit_requirementNumber < 0) {
+            setError('Please enter a positive number.');
+            return;
+        }
+        //--------------------------------------
+        const fetchParams = async () => {
+            //--------------------------------------
+            const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
+            //--------------------------------------
+            const txParams: ProtocolUpdateTxParams = {
+                protocol_id: appState.protocol!._DB_id!,
+                pd_admins: pdAdmins !== undefined && pdAdmins !== '' ? pdAdmins.split(',').map((admin) => admin.trim()) : [],
+                pd_token_admin_policy_id: pdTokenAdminPolicy_CS,
+                pd_mayz_policy_id: MAYZ_CS,
+                pd_mayz_tn: strToHex(MAYZ_TN),
+                pd_mayz_deposit_requirement: BigInt(pd_mayz_deposit_requirement),
+            };
+            return {
+                lucid,
+                emulatorDB,
+                walletTxParams,
+                txParams,
+            };
+        };
+        //--------------------------------------
+        openModal(ModalsEnums.PROCESSING_TX);
+        //--------------------------------------
+        const txApiCall = ProtocolApi.callGenericTxApi.bind(ProtocolApi);
+        const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
+        //--------------------------------------
+        await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, `Update Tx`, 'Updating FT...', 'update-tx', fetchParams, txApiCall, handleBtnTx);
+        //--------------------------------------
+    };
+    //--------------------------------------
     return (
         <>
             {appState.protocol === undefined ? (
@@ -379,9 +472,17 @@ export default function ProtocolArea(onSubmit: any) {
                 </BlueButton>
             ) : appState.protocol._isDeployed === false ? (
                 <section className={styles.protocolAreaSection}>
-                    <div className={styles.formulario}>
-                        <div className={styles.form_group}>
-                            <label htmlFor="pd_mayz_deposit_requirement">Mayz mínimo:</label>
+                    <div className={styles.form}>
+                        <div className={styles.formGroup}>
+                            <label>Admin Payment Key Hashes</label>
+                            <textarea value={pdAdmins} onChange={(e) => setPdAdmins(e.target.value)} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Admin Token Currency Symbol</label>
+                            <textarea value={pdTokenAdminPolicy_CS} onChange={(e) => setPdTokenAdminPolicy_CS(e.target.value)} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pd_mayz_deposit_requirement">Mayz Required for OTC:</label>
                             <input
                                 type="number"
                                 id="pd_mayz_deposit_requirement"
@@ -391,21 +492,58 @@ export default function ProtocolArea(onSubmit: any) {
                                 min="0"
                             />
                         </div>
-                        {error && <div className={styles.error_message}>{error}</div>}
+                        {error && <div className={styles.errorMessage}>{error}</div>}
                         <BlueButton style={styles.btnAction} onClick={handleDeployProtocol}>
                             Deploy {appStore.isProcessingTx === true && <LoaderButton />}
                         </BlueButton>
-                        {isEmulator ? <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
-                            Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
-                        </BlueButton>:<></>}
+                        {isEmulator ? (
+                            <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
+                                Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                            </BlueButton>
+                        ) : (
+                            <></>
+                        )}
 
                         <BlueButton style={styles.btnAction} onClick={handleDeleteProtocol}>
-                           Delete
+                            Delete
                         </BlueButton>
                     </div>
                 </section>
             ) : (
-                `Update Transaction `
+                <section className={styles.protocolAreaSection}>
+                    <div className={styles.form}>
+                        <div className={styles.formGroup}>
+                            <label>Admin Payment Key Hashes</label>
+                            <input value={pdAdmins} onChange={(e) => setPdAdmins(e.target.value)} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Admin Token Currency Symbol</label>
+                            <input value={pdTokenAdminPolicy_CS} onChange={(e) => setPdTokenAdminPolicy_CS(e.target.value)} />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label htmlFor="pd_mayz_deposit_requirement">Mayz Required for OTC:</label>
+                            <input
+                                type="number"
+                                id="pd_mayz_deposit_requirement"
+                                name="pd_mayz_deposit_requirement"
+                                value={pd_mayz_deposit_requirement}
+                                onChange={(e) => set_pd_mayz_deposit_requirement(e.target.value)}
+                                min="0"
+                            />
+                        </div>
+                        {error && <div className={styles.errorMessage}>{error}</div>}
+                        <BlueButton style={styles.btnAction} onClick={handleUpdateProtocol}>
+                            Update {appStore.isProcessingTx === true && <LoaderButton />}
+                        </BlueButton>
+                        {isEmulator ? (
+                            <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
+                                [TEST] Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                            </BlueButton>
+                        ) : (
+                            <></>
+                        )}
+                    </div>
+                </section>
             )}
         </>
     );

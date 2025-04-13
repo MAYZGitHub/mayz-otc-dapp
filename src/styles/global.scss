@@ -33,6 +33,21 @@ button {
   }
 }
 
+input {
+  padding: 0.5rem;
+  border: 1px solid $border-color;
+  border-radius: 0.5rem;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-regular;
+  color: $text-dark;
+  background-color: $background-light;
+  &:focus {
+    outline: none;
+    border-color: $accent-primary;
+    box-shadow: 0 0 0.25rem rgba($accent-primary, 0.5);
+  }
+}
+
 h1 {
   font-size: $font-size-xl;
   font-weight: $font-weight-bold;

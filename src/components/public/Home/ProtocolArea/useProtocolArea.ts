@@ -1,12 +1,9 @@
 import { AppStateContext } from '@/contexts/AppState';
-import { Lucid } from "@lucid-evolution/lucid";
-import { useContext, useState } from "react";
-import { useWalletStore } from "smart-db";
+import { ADMIN_TOKEN_POLICY_CS } from '@/utils/constants/on-chain';
+import { Lucid } from '@lucid-evolution/lucid';
+import { useContext, useState } from 'react';
+import { useWalletStore } from 'smart-db';
 
 export const useProtocolArea = () => {
-   const [pd_mayz_deposit_requirement, set_pd_mayz_deposit_requirement] = useState('');
-   const [error, setError] = useState<string | null>(null);
-
-   
-   return {  error, pd_mayz_deposit_requirement, set_pd_mayz_deposit_requirement , setError};
+    return {};
 };

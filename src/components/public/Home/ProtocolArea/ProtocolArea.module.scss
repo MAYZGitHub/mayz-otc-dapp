@@ -1,4 +1,4 @@
-.formulario {
+.form {
     display: flex;
     flex-direction: column;
     width: 300px;
@@ -7,43 +7,40 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+    gap: 8px ;
 
-    .form-group {
+    .formGroup {
         margin-bottom: 10px;
         display: flex;
         flex-direction: column;
 
         label {
-            margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: normal;
         }
 
         input {
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
+            width: 280px;
         }
     }
 
-   
-
-    .error-message {
+    .errorMessage {
         color: red;
         margin-top: 5px;
     }
 }
 
 .btnAction {
-  margin-top: 1rem;
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  height: 48px;
+    margin-top: 1rem;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 48px;
 
-  &:hover {
-      background-color: #0056b3;
-  }
+    &:hover {
+        background-color: #0056b3;
+    }
 }
+
