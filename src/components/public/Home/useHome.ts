@@ -6,6 +6,7 @@ import { ModalsEnums } from '@/utils/constants/constants';
 import { useContext, useEffect, useState } from 'react';
 import {
     getAssetOfUTxOs,
+    isTokenADA,
     PROYECT_NAME,
     pushSucessNotification,
     pushWarningNotification,
@@ -47,7 +48,8 @@ export const useHome = () => {
         if (walletStore.isWalletDataLoaded === true && walletStore.getUTxOsAtWallet().length > 0) {
             const totalAssets = getAssetOfUTxOs(walletStore.getUTxOsAtWallet()); // Fetch wallet's UTxOs
             const assetDetails = await TokenMetadataFrontEndApiCalls.getAssetsWithDetailsApi(totalAssets); // Get metadata details for each asset
-            return assetDetails;
+            const notADATokens = assetDetails.filter((item) => !isTokenADA(item.CS,item.TN_Hex));
+            return notADATokens;
         } else {
             return undefined; // Return undefined if wallet data isn't loaded
         }
@@ -64,7 +66,7 @@ export const useHome = () => {
         dependencies: [walletStore.isWalletDataLoaded], // Dependency on wallet data being loaded
     });
     //--------------------------------------
-    // Function to load a list of MarketNFTs with metadata
+    // Function to load a list of OTC Tokens with metadata
     const loadListOTCTokens = async () => {
         // Fetch all MarketNFT entities with specific fields and relations
         const listEntities: OTCEntity[] = await OTCApi.getAllApi_({

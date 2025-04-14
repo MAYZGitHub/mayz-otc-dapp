@@ -12,7 +12,7 @@ export default function Otc(prop: any) {
 
     return (
         <section className={styles.OtcContainer}>
-            <text className={styles.seccionCaption}> {prop.seccionCaption}</text>
+            <div className={styles.seccionCaption}> {prop.seccionCaption}</div>
             <div className={styles.separator}> </div>
 
             {otcElems}

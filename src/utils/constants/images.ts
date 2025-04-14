@@ -8,6 +8,8 @@ export const SHOW = '/img/icons/modal/show.svg#icon';
 
 export const STATUS_GREEM = '/img/icons/status/green.svg'
 
-export const ADA = '/img/asset/ada.png';
+export const ADA = '/img/tokens/ada.png';
+export const GENERIC = '/img/tokens/generic.png';
+
 export const WALLET = 'public/img/icons/wallet.svg';
 

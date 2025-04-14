@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Convertible, BaseSmartDBEntity, asSmartDBEntity, type TN } from 'smart-db';
 import { type VrfKeyHash, type PolicyId } from '@lucid-evolution/lucid';
-import { OTC_ID_TN } from '@/utils/constants/on-chain';
+import { OTC_ID_TN_Str } from '@/utils/constants/on-chain';
 
 export interface OTCDatum {
     od_creator: VrfKeyHash;
@@ -28,7 +28,7 @@ export class OTCEntity extends BaseSmartDBEntity {
     // The _is_NET_id_Unique flag indicates whether the NFT ID is unique in the datum (for NFTs) or if it's a fungible token (FT).
     protected static _is_NET_id_Unique = false;
 
-    _NET_id_TN_str: string = OTC_ID_TN;
+    _NET_id_TN_str: string = OTC_ID_TN_Str;
 
     // #region fields
     @Convertible({ isForDatum: true })

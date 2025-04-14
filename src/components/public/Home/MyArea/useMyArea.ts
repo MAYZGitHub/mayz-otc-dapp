@@ -1,25 +1,24 @@
 import { AppStateContext } from '@/contexts/AppState';
 import { useModal } from '@/contexts/ModalContext';
 import { ModalsEnums } from '@/utils/constants/constants';
-import { CreateOTCTxParams } from '@/utils/constants/on-chain';
 import { useContext, useEffect, useState } from 'react';
-import {
-    BaseSmartDBFrontEndBtnHandlers,
-    getUrlForImage,
-    hexToStr,
-    LucidToolsFrontEnd,
-    Token_With_Metadata,
-    Token_With_Metadata_And_Amount,
-    useTransactions,
-    useWalletStore,
-} from 'smart-db';
+import { BaseSmartDBFrontEndBtnHandlers, LucidToolsFrontEnd, Token_With_Metadata, Token_With_Metadata_And_Amount, TokensWithMetadataAndAmount, useTransactions, useWalletStore } from 'smart-db';
 import { OTCEntityWithMetadata } from '../useHome';
+import { CreateOTCTxParams } from '@/utils/constants/on-chain';
+import { OTCApi } from '@/lib/SmartDB/FrontEnd';
+import { OTCEntity } from '@/lib/SmartDB/Entities';
 
 interface TokensInterface {
     token: Token_With_Metadata;
     btnHandler: () => void;
 }
-export const useMyArea = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], walletTokens: Token_With_Metadata_And_Amount[]) => {
+export interface MyAreaProps {
+    walletTokens: TokensWithMetadataAndAmount | undefined;
+    listOfOtcEntityWithTokens: OTCEntityWithMetadata[];
+}
+export const useMyArea = (props: MyAreaProps) => {
+    //----------------------------------------------------------------------------
+    const { walletTokens, listOfOtcEntityWithTokens } = props;
     //----------------------------------------------------------------------------
     const walletStore = useWalletStore();
     //----------------------------------------------------------------------------
@@ -80,8 +79,8 @@ export const useMyArea = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], wa
     useEffect(() => {
         const tokens = listOfOtcEntityWithTokens.filter((otcEntity) => otcEntity.entity.od_creator === walletStore.info?.pkh);
         setTokensOTCsOfUser(tokens);
-        const otcToCancel = tokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
-        const otcToClose = tokens.filter((otcEntity) => !walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
+        const otcToCancel = walletTokens !== undefined ? tokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)) : [];
+        const otcToClose = walletTokens !== undefined ? tokens.filter((otcEntity) => !walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)) : [];
         setTokensOTCsToCancel(otcToCancel);
         setTokensOTCsToClose(otcToClose);
         const mapTokenToInterface = (token: OTCEntityWithMetadata, handler: (id: string) => void) => ({
@@ -94,7 +93,7 @@ export const useMyArea = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], wa
         const otcToCloseInterface = tokensOTCToClose.map((token) => mapTokenToInterface(token, closeBtnHandler));
         setTokensOTCsToCancelInterface(otcToCancelInterface);
         setTokensOTCsToCloseInterface(otcToCloseInterface);
-    }, [listOfOtcEntityWithTokens]);
+    }, [listOfOtcEntityWithTokens, walletTokens]);
     //--------------------------------------
     async function cancelBtnHandler(id: string) {
         //   if (walletStore.isConnected !== true) return; // Ensure the wallet is connected
@@ -166,8 +165,9 @@ export const useMyArea = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], wa
         //      settersModalTx.setIsTxError(true);
         //   }
     }
-
-    const handleDeployProtocol = async () => {
+    //-------------------------
+    // Function to handle the sell transaction for a specific asset
+    const createOTCBtnHandler = async (token: Token_With_Metadata_And_Amount) => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
@@ -193,92 +193,38 @@ export const useMyArea = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], wa
         //       return;
         //   }
         //--------------------------------------
-        // const fetchParams = async () => {
-        //     //--------------------------------------
-        //     const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
-        //     //--------------------------------------
-        //     const txParams: CreateOTCTxParams = {
-        //         protocol_id: appState.protocol!._DB_id!,
-        //         pd_admins: pdAdmins !== undefined && pdAdmins !== '' ? pdAdmins.split(',').map((admin) => admin.trim()) : [],
-        //         pd_token_admin_policy_id: pdTokenAdminPolicy_CS,
-        //         pd_mayz_policy_id: MAYZ_CS,
-        //         pd_mayz_tn: strToHex(MAYZ_TN),
-        //         pd_mayz_deposit_requirement: BigInt(pd_mayz_deposit_requirement),
-        //     };
-        //     return {
-        //         lucid,
-        //         emulatorDB,
-        //         walletTxParams,
-        //         txParams,
-        //     };
-        // };
-        // //--------------------------------------
-        // openModal(ModalsEnums.PROCESSING_TX);
-        // //--------------------------------------
-        // const txApiCall = ProtocolApi.callGenericTxApi.bind(ProtocolApi);
-        // const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
-        // //--------------------------------------
-        // await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, `Deploy Tx`, 'Deploying FT...', 'deploy-tx', fetchParams, txApiCall, handleBtnTx);
-        // //--------------------------------------
+        const fetchParams = async () => {
+            //--------------------------------------
+            const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
+            //--------------------------------------
+            const txParams: CreateOTCTxParams = {
+                protocol_id: appState.protocol!._DB_id!,
+                od_token_policy_id: token.CS,
+                od_token_tn: token.TN_Hex,
+                od_token_amount: token.amount,
+            };
+            return {
+                lucid,
+                emulatorDB,
+                walletTxParams,
+                txParams,
+            };
+        };
+        //--------------------------------------
+        openModal(ModalsEnums.PROCESSING_TX);
+        //--------------------------------------
+        const txApiCall = OTCApi.callGenericTxApi.bind(OTCApi);
+        const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
+        //--------------------------------------
+        await handleBtnDoTransaction_WithErrorControl(OTCEntity, `Create OTC Tx`, 'Creating OTC FT...', 'create-otc-tx', fetchParams, txApiCall, handleBtnTx);
+        //--------------------------------------
         // await fetchProtocol();
-    };
-    //-------------------------
-    // Function to handle the sell transaction for a specific asset
-    const deployBtnHandler = async ( token: Token_With_Metadata_And_Amount) => {
-        //       if (walletStore.isConnected !== true) return; // Ensure wallet is connected
-        //       if (otcSmartContractAddress === undefined || otcSmartContractScript === undefined || otcSmartContractCS === undefined || protocolCS === undefined) {
-        //          return; // Ensure all required values are available before proceeding
-        //       }
-        //       const utxos = walletStore.getUTxOsAtWallet(); // Get the wallet's UTxOs
-        //       const formattedAmount = amount > 1_000_000 ? `${(amount / 1_000_000).toFixed(2)}M` : amount.toString(); // Format the amount
-        //       const ownerTokenTN = `OTC-${hexToStr(token.TN_Hex)}-${formattedAmount}`; // Create the token name for the owner
-        //     //   const { scriptCbor: ownerTokenScriptHash } =
-        //     //      getScript(OTC_NFT_POLICY_PRE_CBORHEX, [utxos[0].txHash, otcSmartContractScript, protocolCS, strToHex(protocolIdTn), strToHex(ownerTokenTN)], 'V3');
-        //     //   const ownerTokenCs = resolveScriptHash(ownerTokenScriptHash);
-        //       settersModalTx.setIsTxModalOpen(true); // Open transaction modal
-        //       settersModalTx.setTxConfirmed(false);
-        //       try {
-        //          settersModalTx.setTxHash("");
-        //          settersModalTx.setIsTxError(false);
-        //          settersModalTx.setTxMessage('Creating Transaction...'); // Show loading message
-        //          // Set up parameters for the transaction
-        //          const txParams: CreateOTCTxParams = {
-        //             lockAmount: BigInt(amount), // Lock the amount of the asset
-        //             otcSmartContract_CS: otcSmartContractCS,
-        //             lockTokenTN: token.TN_Hex,
-        //             lockTokenCS: token.CS,
-        //             tokenOwnerId: ownerTokenCs,
-        //             tokenOwnerTN: ownerTokenTN,
-        //             validatorAddress: otcSmartContractAddress,
-        //             ownerNFT_Script: ownerTokenScriptHash // TODO: CHECK THIS
-        //          };
-        //          // Call the transaction handler to process the transaction
-        //          const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V1(
-        //             OTCEntity,
-        //             'Creating OTC...',
-        //             'Create Tx',
-        //             settersModalTx.setTxMessage,
-        //             settersModalTx.setTxHash,
-        //             walletStore,
-        //             txParams,
-        //             OTCApi.callGenericTxApi_.bind(OTCApi, 'create-tx')
-        //          );
-        //          if (result === false) {
-        //             throw 'There was an error in the transaction'; // Handle failure
-        //          }
-        //          settersModalTx.setTxMessage('Transaction has been confirmed. Refreshing data...');
-        //          settersModalTx.setTxConfirmed(result); // Set transaction as confirmed
-        //       } catch (e) {
-        //          console.error(e);
-        //          settersModalTx.setTxHash(undefined);
-        //          settersModalTx.setIsTxError(true); // Set error flag if transaction fails
-        //       }
     };
 
     return {
         tokensOTCsOfUser,
         tokensOTCToCancelInterface,
         tokensOTCToCloseInterface,
-        deployBtnHandler,
+        createOTCBtnHandler,
     };
 };

@@ -161,6 +161,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 }
                 //--------------------------------------
                 const protocolPolicyID_Script = protocol.fProtocolScript;
+                const otcScript = protocol.fOTCScript;
                 //--------------------------------------
                 const protocolPolicyID_AC_Lucid = protocol.getNet_id_AC_Lucid();
                 //--------------------------------------
@@ -243,14 +244,14 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         .collectFrom([protocolID_UTxO])
                         .attach.MintingPolicy(protocolPolicyID_Script)
                         .mintAssets(valueFor_Mint_ProtocolID, protocolValidatorRedeemerCreateProtocol_Hex)
-                        .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out)
+                        .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out, otcScript)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
                     //--------------------------------------
                     const txComplete = await tx.complete();
                     //--------------------------------------
-                    const txCborHex = txComplete.toCBOR();
+                    const txCborHex = txComplete.toCBOR();s
                     //--------------------------------------
                     const txHash = txComplete.toHash();
                     //--------------------------------------

@@ -5,14 +5,16 @@ import { ProtocolApi } from '@/lib/SmartDB/FrontEnd';
 import {
     ADMIN_TOKEN_POLICY_CS,
     MAYZ_CS,
-    MAYZ_TN,
-    OTC_ID_TN,
+    MAYZ_TN_Str,
+    OTC_ID_TN_Str,
     OTC_NFT_POLICY_PRE_CBORHEX,
     OTC_SCRIPT_PRE_CBORHEX,
-    PROTOCOL_ID_TN,
+    PROTOCOL_ID_TN_Str,
     PROTOCOL_SCRIPT_PRE_CBORHEX,
     ProtocolDeployTxParams,
     ProtocolUpdateTxParams,
+    TEST_TOKEN_POLICY_CS,
+    TEST_TOKEN_TN_Str,
 } from '@/utils/constants/on-chain';
 import { applyParamsToScript, Assets, Constr, Data, mintingPolicyToId, Script, UTxO, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
 import { useContext, useEffect, useState } from 'react';
@@ -86,7 +88,6 @@ export default function ProtocolArea() {
     };
     const onTx = async () => {
         await fetchProtocol();
-       
     };
     //--------------------------------------
     async function checkIsValidTx() {
@@ -170,10 +171,10 @@ export default function ProtocolArea() {
                 // Protocol Script
                 //--------------------------------------
                 const oRef = new Constr(0, [pp_protocol_TxHash, BigInt(pp_protocol_TxOutputIndex)]);
-                const protocolParams = new Constr(0, [oRef, strToHex(PROTOCOL_ID_TN)]);
+                const protocolParams = new Constr(0, [oRef, strToHex(PROTOCOL_ID_TN_Str)]);
                 const fProtocolScript_Params = {
                     pp_protocol_policy_id_tx_out_ref: { txid: pp_protocol_TxHash, tx_index: pp_protocol_TxOutputIndex },
-                    pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
+                    pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN_Str),
                 };
                 const fProtocolScript: Script = {
                     type: 'PlutusV3',
@@ -196,12 +197,12 @@ export default function ProtocolArea() {
                 // Convertir los strings a representación de bytes correcta
                 // Parámetros para el validator OTC
                 //--------------------------------------
-                const otcParams = new Constr(0, [fProtocolPolicyID_CS, strToHex(PROTOCOL_ID_TN), strToHex(OTC_ID_TN)]);
+                const otcParams = new Constr(0, [fProtocolPolicyID_CS, strToHex(PROTOCOL_ID_TN_Str), strToHex(OTC_ID_TN_Str)]);
                 //--------------------------------------
                 const fOTCScript_Params = {
                     pp_protocol_policy_id: fProtocolPolicyID_CS,
-                    pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN),
-                    pp_otc_id_tn: strToHex(OTC_ID_TN),
+                    pp_protocol_id_tn: strToHex(PROTOCOL_ID_TN_Str),
+                    pp_otc_id_tn: strToHex(OTC_ID_TN_Str),
                 };
                 //--------------------------------------
                 const fOTCScript: Script = {
@@ -220,6 +221,11 @@ export default function ProtocolArea() {
                 const fOTCValidator_AddressMainnet = validatorToAddress(LUCID_NETWORK_MAINNET_NAME, fOTCScript);
                 console.log(`fOTCValidator_AddressMainnet ${fOTCValidator_AddressMainnet}`);
                 //--------------------------------------
+                const fOTC_NFT_PRE_Script: Script = {
+                    type: 'PlutusV3',
+                    script: OTC_NFT_POLICY_PRE_CBORHEX,
+                };
+                //--------------------------------------
                 const protocol: ProtocolEntity = new ProtocolEntity({
                     name: PROYECT_NAME,
                     fProtocolScript,
@@ -234,7 +240,7 @@ export default function ProtocolArea() {
                     fOTCValidator_AddressMainnet,
                     fOTCValidator_AddressTestnet,
                     fOTCValidator_Hash,
-                    fOTC_NFT_PRE_Script: OTC_NFT_POLICY_PRE_CBORHEX,
+                    fOTC_NFT_PRE_Script,
                     _isDeployed: false,
                 });
                 //--------------------------------------
@@ -331,7 +337,9 @@ export default function ProtocolArea() {
                 }
                 const uTxO = walletUTxOs[0];
                 //--------------------------------------
-                const valueTokens: Assets = { ['e0b33937400326885f7186e2725a84786266ec1eb06d397680233f80' + strToHex('TOKEN1')]: BigInt(100) };
+                const valueTokens1: Assets = { [TEST_TOKEN_POLICY_CS + strToHex(TEST_TOKEN_TN_Str)]: BigInt(100) };
+                const valueTokenMAYZ: Assets = { [appState.protocol!.pd_mayz_policy_id + appState.protocol!.pd_mayz_tn]: BigInt(100) };
+                const valueTokens = addAssets(valueTokens1, valueTokenMAYZ);
                 //--------------------------------------
                 console.log(`[User] - Get Tokens Tx - valueTokens: ${showData(valueTokens)}`);
                 //--------------------------------------
@@ -397,7 +405,7 @@ export default function ProtocolArea() {
                 pd_admins: pdAdmins !== undefined && pdAdmins !== '' ? pdAdmins.split(',').map((admin) => admin.trim()) : [],
                 pd_token_admin_policy_id: pdTokenAdminPolicy_CS,
                 pd_mayz_policy_id: MAYZ_CS,
-                pd_mayz_tn: strToHex(MAYZ_TN),
+                pd_mayz_tn: strToHex(MAYZ_TN_Str),
                 pd_mayz_deposit_requirement: BigInt(pd_mayz_deposit_requirement),
             };
             return {
@@ -453,7 +461,7 @@ export default function ProtocolArea() {
                 pd_admins: pdAdmins !== undefined && pdAdmins !== '' ? pdAdmins.split(',').map((admin) => admin.trim()) : [],
                 pd_token_admin_policy_id: pdTokenAdminPolicy_CS,
                 pd_mayz_policy_id: MAYZ_CS,
-                pd_mayz_tn: strToHex(MAYZ_TN),
+                pd_mayz_tn: strToHex(MAYZ_TN_Str),
                 pd_mayz_deposit_requirement: BigInt(pd_mayz_deposit_requirement),
             };
             return {

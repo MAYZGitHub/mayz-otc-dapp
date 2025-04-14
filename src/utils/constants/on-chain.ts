@@ -23,15 +23,18 @@ export const OTC_NFT_POLICY_PRE_CBORHEX = blueprint.validators.find((v) => v.tit
 // ON CHAIN CONSTANTS
 //---------------------------------
 
-export const PROTOCOL_ID_TN = 'ProtocolID';
+export const PROTOCOL_ID_TN_Str = 'ProtocolID';
 
-export const OTC_ID_TN = 'OTCID';
+export const OTC_ID_TN_Str = 'OTCID';
 
-export const MAYZ_TN = 'MAYZ';
-export const MAYZ_CS = 'e0b33937400326885f7186e2725a84786266ec1eb06d397680233f80';
+export const MAYZ_CS = process.env.NEXT_PUBLIC_MAYZ_TOKEN_POLICY_CS!;
+export const MAYZ_TN_Str = process.env.NEXT_PUBLIC_MAYZ_TOKEN_NAME!;
 export const MAYZ_LOCK_AMOUNT = 0n;
 
 export const ADMIN_TOKEN_POLICY_CS = process.env.NEXT_PUBLIC_ADMIN_TOKEN_POLICY_CS!;
+
+export const TEST_TOKEN_POLICY_CS = process.env.NEXT_PUBLIC_TEST_TOKEN_POLICY_CS!;
+export const TEST_TOKEN_TN_Str = process.env.NEXT_PUBLIC_TEST_TOKEN_TN_Str!;
 
 //---------------------------------
 // TRANSACTION CONSTANTS
@@ -95,9 +98,9 @@ export interface CreateOTCTxParams {
 
 export const CreateOtcTxParamsSchema = yup.object().shape({
     protocol_id: yup.string().required(),
-    lockAmount: yup.mixed().required(),
-    lockTokenTN: yup.string().required(),
-    lockTokenCS: yup.string().required(),
+    od_token_policy_id: yup.string().required(),
+    od_token_tn: yup.string().required(),
+    od_token_amount: yup.mixed().required(),
 });
 
 export interface ClaimOTCTxParams {

@@ -1,4 +1,4 @@
-import { PROTOCOL_ID_TN } from '@/utils/constants/on-chain';
+import { PROTOCOL_ID_TN_Str } from '@/utils/constants/on-chain';
 import { type Script } from '@lucid-evolution/lucid';
 import 'reflect-metadata';
 import { BaseSmartDBEntity, type CS, Convertible, LUCID_NETWORK_MAINNET_NAME, asSmartDBEntity } from 'smart-db';
@@ -21,7 +21,7 @@ export class ProtocolEntity extends BaseSmartDBEntity {
 
     protected static _isOnlyDatum = false;
 
-    _NET_id_TN_Str: string = PROTOCOL_ID_TN;
+    _NET_id_TN_Str: string = PROTOCOL_ID_TN_Str;
 
     // #region fields
 

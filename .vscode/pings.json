@@ -1,0 +1,12 @@
+{
+    "pings.commands": [
+        {
+            "id": "2rfxSVppk2etYHBbNRnpxS",
+            "label": "pings.json",
+            "path": "/home/manuelpadilla/sources/reposUbuntu/MAYZ/mayz-protocol-dapp-v1.0.5-mainnet-release-2024/.vscode/pings.json",
+            "icon": "file",
+            "description": "pings.json",
+            "command": "openFile"
+        }
+    ]
+}
