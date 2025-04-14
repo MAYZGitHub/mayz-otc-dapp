@@ -362,7 +362,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         .attach.MintingPolicy(otcNFTScript)
                         .mintAssets(valueFor_Mint_OTC_ID, otcValidatorRedeemerCreateOTC_Hex)
                         .mintAssets(valueFor_Mint_OTC_NFT, otcNFTPolicyRedeemerMint_Hex)
-                        .pay.ToAddressWithData(otcValidator_Address, { kind: 'inline', value: otcDatum_Out_Hex }, valueFor_OtcDatum_Out)
+                        .pay.ToAddressWithData(otcValidator_Address, { kind: 'inline', value: otcDatum_Out_Hex }, valueFor_OtcDatum_Out, otcNFTScript)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);

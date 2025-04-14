@@ -18,7 +18,7 @@ export default function Home() {
         walletTokens,
         handleBtnSync,
     } = useHome();
-
+    //--------------------------------------
     function renderHome() {
         if (!isWalletConnected) {
             return <p>Please connect, your wallet</p>;
@@ -47,7 +47,7 @@ export default function Home() {
                 return null;
         }
     }
-
+    //--------------------------------------
     return (
         <section className={styles.mainSection}>
             <div className={styles.mainContainer}>

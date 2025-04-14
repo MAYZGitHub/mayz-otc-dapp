@@ -34,17 +34,12 @@ import {
     isNullOrBlank,
 } from 'smart-db';
 import styles from './ProtocolArea.module.scss';
-import { useProtocolArea } from './useProtocolArea';
 import { useModal } from '@/contexts/ModalContext';
 import { ModalsEnums } from '@/utils/constants/constants';
 import LoaderButton from '@/components/Common/LoaderButton/LoaderButton';
 import BlueButton from '@/components/Common/Buttons/BlueButton/BlueButton';
 
-interface FormularioProps {
-    onSubmit: (pd_mayz_deposit_requirement: number) => void;
-}
-
-export default function ProtocolArea(onSubmit: any) {
+export default function ProtocolArea() {
     //-------------------------
     const walletStore = useWalletStore();
     const { appState, setAppState } = useContext(AppStateContext);
