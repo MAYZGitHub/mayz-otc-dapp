@@ -185,7 +185,8 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const protocolDatum_Out_Hex_ForCalcMinADA = ProtocolEntity.datumToCborHex(protocolDatum_Out_ForCalcMinADA);
                 //--------------------------------------
                 let valueFor_ProtocolDatum_Out: Assets = valueFor_Mint_ProtocolID;
-                const minADA_For_ProtocolDatum = calculateMinAdaOfUTxO({ datum: protocolDatum_Out_Hex_ForCalcMinADA, assets: valueFor_ProtocolDatum_Out });
+                // const minADA_For_ProtocolDatum = calculateMinAdaOfUTxO({ datum: protocolDatum_Out_Hex_ForCalcMinADA, assets: valueFor_ProtocolDatum_Out });
+                const minADA_For_ProtocolDatum = 100_000_000n
                 const value_MinAda_For_ProtocolDatum: Assets = { lovelace: minADA_For_ProtocolDatum };
                 valueFor_ProtocolDatum_Out = addAssetsList([value_MinAda_For_ProtocolDatum, valueFor_ProtocolDatum_Out]);
                 console_log(0, this._Entity.className(), `Deploy Tx - valueFor_ProtocolDatum_Out: ${showData(valueFor_ProtocolDatum_Out, false)}`);
@@ -251,7 +252,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     const txComplete = await tx.complete();
                     //--------------------------------------
-                    const txCborHex = txComplete.toCBOR();s
+                    const txCborHex = txComplete.toCBOR();
                     //--------------------------------------
                     const txHash = txComplete.toHash();
                     //--------------------------------------
@@ -408,7 +409,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     tx = tx
                         .collectFrom([protocol_UTxO], protocolValidatorRedeemerDatumUpdate_Hex)
-                        .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out)
+                        .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out, protocol_UTxO.scriptRef !== null && protocol_UTxO.scriptRef !== undefined ? protocol_UTxO.scriptRef : protocol_SmartUTxO.scriptRef)
                         .attach.SpendingValidator(protocolValidator_Script)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)

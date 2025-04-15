@@ -17,6 +17,7 @@
         "smartDBInstall": "npm run kill && npm install ./smart-db.tgz --force",
         "watchSmartDBAndInstall": "chokidar \"./smart-db.tgz\" -c \"npm run smartDBInstall\"",
         "watchOriginSmartDBAndInstall": "chokidar \"/home/manuelpadilla/sources/reposUbuntu/PROTOFIRE/Cardano-SmartDB-v1.1.0/smart-db.tgz\" -c \"cp /home/manuelpadilla/sources/reposUbuntu/PROTOFIRE/Cardano-SmartDB-v1.1.0/smart-db.tgz ./ && npm run smartDBInstall\"",
+        "watchOriginSC": "chokidar \"/home/manuelpadilla/sources/reposUbuntu/MAYZ/mayz-otc-contracts/smart-contracts/plutus.json\" -c \"cp /home/manuelpadilla/sources/reposUbuntu/MAYZ/mayz-otc-contracts/smart-contracts/plutus.json ./src/utils/constants/plutus.json \" && npm run kill ",
         "swagger-dev": "ts-node -P tsconfig.swagger.json ./_swagger/server.ts",
         "swagger-start": "NODE_ENV=production ts-node -P tsconfig.swagger.json ./_swagger/server.ts"
     },

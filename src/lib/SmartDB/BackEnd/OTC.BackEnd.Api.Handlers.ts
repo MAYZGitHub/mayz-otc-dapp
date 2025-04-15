@@ -2,6 +2,7 @@ import { CreateOTCTxParams, CreateOtcTxParamsSchema, OTC_CREATE, OTC_ID_TN_Str }
 import { Address, applyParamsToScript, Assets, Constr, mintingPolicyToId, PolicyId, Script, slotToUnixTime, TxBuilder } from '@lucid-evolution/lucid';
 import { NextApiResponse } from 'next';
 import {
+    ADA_THRESHOLD,
     addAssetsList,
     addressToPubKeyHash,
     BackEndApiHandlersFor,
@@ -9,6 +10,7 @@ import {
     BaseSmartDBBackEndApiHandlers,
     BaseSmartDBBackEndApplied,
     BaseSmartDBBackEndMethods,
+    bigIntMax,
     calculateMinAdaOfUTxO,
     console_error,
     console_log,
@@ -273,9 +275,15 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const mayz_AC_Lucid = protocol.pd_mayz_policy_id + protocol.pd_mayz_tn;
                 const mayzValue: Assets = { [mayz_AC_Lucid]: BigInt(protocol.pd_mayz_deposit_requirement) };
                 //--------------------------------------
-                // let valueFor_OtcDatum_Out: Assets = addAssetsList([lockTokenValue, valueFor_Mint_OTC_ID, mayzValue]);
-                let valueFor_OtcDatum_Out: Assets = addAssetsList([valueFor_Mint_OTC_ID]);
-                const minADA_For_OtcDatum = calculateMinAdaOfUTxO({ datum: otcDatum_Out_Hex_ForCalcMinADA, assets: valueFor_OtcDatum_Out });
+                let valueFor_User_Out: Assets = valueFor_Mint_OTC_NFT;
+                const minADA_For_User_Out = bigIntMax(calculateMinAdaOfUTxO({ assets: valueFor_User_Out }), ADA_THRESHOLD);
+                const value_MinADA_For_User_Out: Assets = { lovelace: minADA_For_User_Out };
+                valueFor_User_Out = addAssetsList([value_MinADA_For_User_Out, valueFor_User_Out]);
+                console_log(0, this._Entity.className(), `Create OTC - valueFor_User_Out: ${showData(valueFor_User_Out, false)}`);
+                //--------------------------------------
+                let valueFor_OtcDatum_Out: Assets = addAssetsList([lockTokenValue, valueFor_Mint_OTC_ID, mayzValue]);
+                // const minADA_For_OtcDatum = calculateMinAdaOfUTxO({ datum: otcDatum_Out_Hex_ForCalcMinADA, assets: valueFor_OtcDatum_Out });
+                const minADA_For_OtcDatum = 100_000_000n
                 const value_MinAda_For_OtcDatum: Assets = { lovelace: minADA_For_OtcDatum };
                 valueFor_OtcDatum_Out = addAssetsList([value_MinAda_For_OtcDatum, valueFor_OtcDatum_Out]);
                 console_log(0, this._Entity.className(), `Create OTC Tx - valueFor_OtcDatum_Out: ${showData(valueFor_OtcDatum_Out, false)}`);
@@ -339,6 +347,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         .mintAssets(valueFor_Mint_OTC_ID, otcValidatorRedeemerCreateOTC_Hex)
                         .mintAssets(valueFor_Mint_OTC_NFT, otcNFTPolicyRedeemerMint_Hex)
                         .pay.ToAddressWithData(otcValidator_Address, { kind: 'inline', value: otcDatum_Out_Hex }, valueFor_OtcDatum_Out, otcNFTScript)
+                        .pay.ToAddress(walletTxParams.address, valueFor_User_Out)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);

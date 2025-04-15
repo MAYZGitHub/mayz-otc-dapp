@@ -25,10 +25,10 @@ export class OTCEntity extends BaseSmartDBEntity {
 
     protected static _isOnlyDatum = true; // Indicates that this entity is only a datum and do nt have other fields to save in the db.
 
-    // The _is_NET_id_Unique flag indicates whether the NFT ID is unique in the datum (for NFTs) or if it's a fungible token (FT).
+    // The _is_NET_id_Unique flag indicates whether the Token ID is unique in the datum (for NFTs) or if it's a fungible token (FT).
     protected static _is_NET_id_Unique = false;
 
-    _NET_id_TN_str: string = OTC_ID_TN_Str;
+    _NET_id_TN_Str: string = OTC_ID_TN_Str;
 
     // #region fields
     @Convertible({ isForDatum: true })

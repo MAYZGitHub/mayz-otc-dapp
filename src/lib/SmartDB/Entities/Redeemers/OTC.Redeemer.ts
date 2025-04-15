@@ -8,7 +8,7 @@ export type PolicyIdRedeemer = MintNFT | BurnNFT;
 // It extends from BaseTxRedeemer to inherit common functionality for a transaction redeemer.
 export class MintNFT extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
-    protected static _plutusDataIndex = 1;
+    protected static _plutusDataIndex = 0;
     
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
@@ -18,7 +18,7 @@ export class MintNFT extends BaseTxRedeemer {
 // It extends from BaseTxRedeemer to inherit common functionality for a transaction redeemer.
 export class BurnNFT extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
-    protected static _plutusDataIndex = 2;
+    protected static _plutusDataIndex = 1;
     
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
