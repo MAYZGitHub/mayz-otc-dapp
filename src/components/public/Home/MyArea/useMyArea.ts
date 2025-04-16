@@ -2,9 +2,17 @@ import { AppStateContext } from '@/contexts/AppState';
 import { useModal } from '@/contexts/ModalContext';
 import { ModalsEnums } from '@/utils/constants/constants';
 import { useContext, useEffect, useState } from 'react';
-import { BaseSmartDBFrontEndBtnHandlers, LucidToolsFrontEnd, Token_With_Metadata, Token_With_Metadata_And_Amount, TokensWithMetadataAndAmount, useTransactions, useWalletStore } from 'smart-db';
+import {
+    BaseSmartDBFrontEndBtnHandlers,
+    LucidToolsFrontEnd,
+    Token_With_Metadata,
+    Token_With_Metadata_And_Amount,
+    TokensWithMetadataAndAmount,
+    useTransactions,
+    useWalletStore,
+} from 'smart-db';
 import { OTCEntityWithMetadata } from '../useHome';
-import { CreateOTCTxParams } from '@/utils/constants/on-chain';
+import { CreateOTCTxParams, TxEnums } from '@/utils/constants/on-chain';
 import { OTCApi } from '@/lib/SmartDB/FrontEnd';
 import { OTCEntity } from '@/lib/SmartDB/Entities';
 
@@ -216,7 +224,7 @@ export const useMyArea = (props: MyAreaProps) => {
         const txApiCall = OTCApi.callGenericTxApi.bind(OTCApi);
         const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
         //--------------------------------------
-        await handleBtnDoTransaction_WithErrorControl(OTCEntity, `Create OTC Tx`, 'Creating OTC FT...', 'create-otc-tx', fetchParams, txApiCall, handleBtnTx);
+        await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CREATE, 'Creating OTC FT...', 'create-otc-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
         // await fetchProtocol();
     };

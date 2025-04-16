@@ -40,14 +40,15 @@ export const TEST_TOKEN_TN_Str = process.env.NEXT_PUBLIC_TEST_TOKEN_TN_Str!;
 // TRANSACTION CONSTANTS
 //---------------------------------
 
-export const PROTOCOL_CREATE = 'Protocol - Create';
-export const PROTOCOL_UPDATE= 'Protocol - Update';
-export const PROTOCOL_UPDATE_MIN_ADA = 'Protocol - Update Min ADA';
-
-export const OTC_CREATE = 'OTC - Create';
-export const OTC_CLAIM = 'OTC - Claim';
-export const OTC_CLOSE = 'OTC - Close';
-export const OTC_CANCEL = 'OTC - Cancel';
+export enum TxEnums {
+    PROTOCOL_DEPLOY = 'Protocol - Deploy',
+    PROTOCOL_UPDATE = 'Protocol - Update',
+    PROTOCOL_UPDATE_MIN_ADA = 'Protocol - Update Min ADA',
+    OTC_CREATE = 'OTC - Create',
+    OTC_CLAIM = 'OTC - Claim',
+    OTC_CLOSE = 'OTC - Close',
+    OTC_CANCEL = 'OTC - Cancel',
+}
 
 //---------------------------------
 // TRANSACTION PARAMS

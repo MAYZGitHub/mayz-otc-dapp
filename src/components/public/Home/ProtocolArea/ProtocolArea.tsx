@@ -15,6 +15,7 @@ import {
     ProtocolUpdateTxParams,
     TEST_TOKEN_POLICY_CS,
     TEST_TOKEN_TN_Str,
+    TxEnums,
 } from '@/utils/constants/on-chain';
 import { applyParamsToScript, Assets, Constr, Data, mintingPolicyToId, Script, UTxO, validatorToAddress, validatorToScriptHash } from '@lucid-evolution/lucid';
 import { useContext, useEffect, useState } from 'react';
@@ -37,7 +38,7 @@ import {
 } from 'smart-db';
 import styles from './ProtocolArea.module.scss';
 import { useModal } from '@/contexts/ModalContext';
-import { ModalsEnums } from '@/utils/constants/constants';
+import { ModalsEnums, TaskEnums } from '@/utils/constants/constants';
 import LoaderButton from '@/components/Common/LoaderButton/LoaderButton';
 import BlueButton from '@/components/Common/Buttons/BlueButton/BlueButton';
 
@@ -131,34 +132,27 @@ export default function ProtocolArea() {
     //--------------------------------------
     const handleCreateProtocol = async () => {
         if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (appStore.isProcessingTask === true) {
             openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
         if (confirm('Are you sure you want to create the protocol?')) {
             //--------------------------------------
-            appStore.setIsProcessingTx(true);
-            appStore.setIsConfirmedTx(false);
-            appStore.setIsFaildedTx(false);
+            appStore.setProcessingTaskName(TaskEnums.CREATE_PROTOCOL);
+            appStore.setIsProcessingTask(true);
+            appStore.setIsConfirmedTask(false);
+            appStore.setIsFaildedTask(false);
             //--------------------------------------
-            appStore.setProcessingTxMessage('Creating Protocol...');
+            appStore.setProcessingTaskMessage('Creating Protocol...');
             openModal(ModalsEnums.PROCESSING_TASK);
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             try {
                 //--------------------------------------
-                const lucid = await walletStore.getLucid();
-                if (lucid === undefined) {
-                    throw 'Please connect your wallet';
-                }
-                //--------------------------------------
-                if (walletStore.isWalletDataLoaded !== true) {
-                    throw 'Wallet Data is not ready';
-                }
-                if (walletStore.getUTxOsAtWallet().length === 0) {
-                    throw 'You need at least one utxo to be used to mint Protocol ID';
-                }
-                //--------------------------------------
-                const walletUTxOs = walletStore.getUTxOsAtWallet();
+                const walletUTxOs = walletTxParams.utxos;
                 if (walletUTxOs.length === 0) {
                     throw 'You need at least one utxo to be used to mint Protocol ID';
                 }
@@ -254,33 +248,38 @@ export default function ProtocolArea() {
                 //--------------------------------------
                 pushSucessNotification(`${PROYECT_NAME}`, `Protocol created successfully`, false);
                 //--------------------------------------
-                appStore.setIsConfirmedTx(true);
+                appStore.setIsConfirmedTask(true);
                 //--------------------------------------
                 return protocol_._DB_id;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleBtnProtocolCreate - Error: ${error}`);
                 pushWarningNotification(`${PROYECT_NAME}`, `Error creating Protocol: ${error}`);
-                appStore.setIsFaildedTx(true);
+                appStore.setIsFaildedTask(true);
                 return undefined;
             } finally {
-                appStore.setIsProcessingTx(false);
-                appStore.setProcessingTxMessage('');
+                appStore.setIsProcessingTask(false);
+                appStore.setProcessingTaskMessage('');
             }
         }
     };
     //-------------------------
     const handleDeleteProtocol = async () => {
         if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (appStore.isProcessingTask === true) {
             openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
         if (confirm('Are you sure you want to delete the protocol?')) {
             //--------------------------------------
-            appStore.setIsProcessingTx(true);
-            appStore.setIsConfirmedTx(false);
-            appStore.setIsFaildedTx(false);
+            appStore.setProcessingTaskName(TaskEnums.DELETE_PROTOCOL);
+            appStore.setIsProcessingTask(true);
+            appStore.setIsConfirmedTask(false);
+            appStore.setIsFaildedTask(false);
             //--------------------------------------
-            appStore.setProcessingTxMessage('Deleting Protocol...');
+            appStore.setProcessingTaskMessage('Deleting Protocol...');
             openModal(ModalsEnums.PROCESSING_TASK);
             //--------------------------------------
             try {
@@ -290,48 +289,45 @@ export default function ProtocolArea() {
                 //--------------------------------------
                 await fetchProtocol();
                 //--------------------------------------
-                appStore.setIsConfirmedTx(true);
+                appStore.setIsConfirmedTask(true);
                 //--------------------------------------
                 return;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleDeleteProtocol - Error: ${error}`);
                 pushWarningNotification(`${PROYECT_NAME}`, `Error deleting Protocol: ${error}`);
-                appStore.setIsFaildedTx(true);
+                appStore.setIsFaildedTask(true);
                 return undefined;
             } finally {
-                appStore.setIsProcessingTx(false);
-                appStore.setProcessingTxMessage('');
+                appStore.setIsProcessingTask(false);
+                appStore.setProcessingTaskMessage('');
             }
         }
     };
     //-------------------------
     const handleAddTokens = async () => {
         if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (appStore.isProcessingTask === true) {
             openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
         if (confirm('Are you sure you want to Add Tokens?')) {
             //--------------------------------------
-            appStore.setIsProcessingTx(true);
-            appStore.setIsConfirmedTx(false);
-            appStore.setIsFaildedTx(false);
+            appStore.setProcessingTaskName(TaskEnums.ADD_TEST_TOKENS);
+            appStore.setIsProcessingTask(true);
+            appStore.setIsConfirmedTask(false);
+            appStore.setIsFaildedTask(false);
             //--------------------------------------
-            appStore.setProcessingTxMessage('Adding Tokens...');
+            appStore.setProcessingTaskMessage('Adding Tokens...');
             openModal(ModalsEnums.PROCESSING_TASK);
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             try {
                 //--------------------------------------
-                const lucid = await walletStore.getLucid();
-                if (lucid === undefined) {
-                    throw 'Please connect your wallet';
-                }
                 //--------------------------------------
-                if (walletStore.isWalletDataLoaded !== true) {
-                    throw 'Wallet Data is not ready';
-                }
-                //--------------------------------------
-                const walletUTxOs = walletStore.getUTxOsAtWallet();
+                const walletUTxOs = walletTxParams.utxos;
                 if (walletUTxOs.length === 0) {
                     throw 'You need at least one utxo to add tokens';
                 }
@@ -355,17 +351,17 @@ export default function ProtocolArea() {
                 //--------------------------------------
                 pushSucessNotification(`${PROYECT_NAME}`, `Added tokens successfully`, false);
                 //--------------------------------------
-                appStore.setIsConfirmedTx(true);
+                appStore.setIsConfirmedTask(true);
                 //--------------------------------------
                 return true;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleAddTokens - Error: ${error}`);
                 pushWarningNotification(`${PROYECT_NAME}`, `Error Adding Tokens: ${error}`);
-                appStore.setIsFaildedTx(true);
+                appStore.setIsFaildedTask(true);
                 return undefined;
             } finally {
-                appStore.setIsProcessingTx(false);
-                appStore.setProcessingTxMessage('');
+                appStore.setIsProcessingTask(false);
+                appStore.setProcessingTaskMessage('');
             }
         }
     };
@@ -373,6 +369,10 @@ export default function ProtocolArea() {
     const handleDeployProtocol = async () => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (appStore.isProcessingTask === true) {
+            openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
         if (pdAdmins.length === 0) {
@@ -421,7 +421,7 @@ export default function ProtocolArea() {
         const txApiCall = ProtocolApi.callGenericTxApi.bind(ProtocolApi);
         const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
         //--------------------------------------
-        await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, `Deploy Tx`, 'Deploying FT...', 'deploy-tx', fetchParams, txApiCall, handleBtnTx);
+        await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, TxEnums.PROTOCOL_DEPLOY, 'Deploying Protocol...', 'deploy-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
         await fetchProtocol();
     };
@@ -429,6 +429,10 @@ export default function ProtocolArea() {
     const handleUpdateProtocol = async () => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }
+        if (appStore.isProcessingTask === true) {
+            openModal(ModalsEnums.PROCESSING_TASK);
             return;
         }
         if (pdAdmins.length === 0) {
@@ -477,7 +481,7 @@ export default function ProtocolArea() {
         const txApiCall = ProtocolApi.callGenericTxApi.bind(ProtocolApi);
         const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
         //--------------------------------------
-        await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, `Update Tx`, 'Updating FT...', 'update-tx', fetchParams, txApiCall, handleBtnTx);
+        await handleBtnDoTransaction_WithErrorControl(ProtocolEntity, TxEnums.PROTOCOL_UPDATE, 'Updating Protocol...', 'update-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
     };
     //--------------------------------------
@@ -486,13 +490,18 @@ export default function ProtocolArea() {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
         }
+        if (appStore.isProcessingTask === true) {
+            openModal(ModalsEnums.PROCESSING_TASK);
+            return;
+        }
         if (confirm('Are you sure you want to sync the protocol?')) {
             //--------------------------------------
-            appStore.setIsProcessingTx(true);
-            appStore.setIsConfirmedTx(false);
-            appStore.setIsFaildedTx(false);
+            appStore.setProcessingTaskName(TaskEnums.SYNC_PROTOCOL);
+            appStore.setIsProcessingTask(true);
+            appStore.setIsConfirmedTask(false);
+            appStore.setIsFaildedTask(false);
             //--------------------------------------
-            appStore.setProcessingTxMessage('Syncing Protocol...');
+            appStore.setProcessingTaskMessage('Syncing Protocol...');
             openModal(ModalsEnums.PROCESSING_TASK);
             //--------------------------------------
             try {
@@ -504,17 +513,17 @@ export default function ProtocolArea() {
                 //--------------------------------------
                 pushSucessNotification(`${PROYECT_NAME}`, `Protocol synced successfully`, false);
                 //--------------------------------------
-                appStore.setIsConfirmedTx(true);
+                appStore.setIsConfirmedTask(true);
                 //--------------------------------------
                 return true;
             } catch (error) {
                 console.log(`[${PROYECT_NAME}] - handleSyncProtocol - Error: ${error}`);
                 pushWarningNotification(`${PROYECT_NAME}`, `Error syncing Protocol: ${error}`);
-                appStore.setIsFaildedTx(true);
+                appStore.setIsFaildedTask(true);
                 return undefined;
             } finally {
-                appStore.setIsProcessingTx(false);
-                appStore.setProcessingTxMessage('');
+                appStore.setIsProcessingTask(false);
+                appStore.setProcessingTaskMessage('');
             }
         }
     };
@@ -525,7 +534,7 @@ export default function ProtocolArea() {
                 <div className={styles.form}>
                     {appState.protocol === undefined ? (
                         <BlueButton style={styles.btnAction} onClick={handleCreateProtocol}>
-                            Create Protocol {appStore.isProcessingTx === true && <LoaderButton />}
+                            Create Protocol {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.CREATE_PROTOCOL && <LoaderButton />}
                         </BlueButton>
                     ) : appState.protocol._isDeployed === false ? (
                         <>
@@ -550,18 +559,18 @@ export default function ProtocolArea() {
                             </div>
                             {!isNullOrBlank(error) && <div className={styles.errorMessage}>{error}</div>}
                             <BlueButton style={styles.btnAction} onClick={handleDeployProtocol}>
-                                Deploy {appStore.isProcessingTx === true && <LoaderButton />}
+                                Deploy {appStore.isProcessingTx === true && appStore.processingTxName === TxEnums.PROTOCOL_DEPLOY && <LoaderButton />}
                             </BlueButton>
                             <BlueButton style={styles.btnAction} onClick={handleSyncProtocol}>
-                                Sync {appStore.isProcessingTx === true && <LoaderButton />}
+                                Sync {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.SYNC_PROTOCOL && <LoaderButton />}
                             </BlueButton>
                             {isEmulator && (
                                 <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
-                                    [TEST] Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                                    [TEST] Add Tokens {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.ADD_TEST_TOKENS && <LoaderButton />}
                                 </BlueButton>
                             )}
                             <BlueButton style={styles.btnAction} onClick={handleDeleteProtocol}>
-                                Delete
+                                Delete {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.DELETE_PROTOCOL && <LoaderButton />}
                             </BlueButton>
                         </>
                     ) : (
@@ -587,14 +596,14 @@ export default function ProtocolArea() {
                             </div>
                             {!isNullOrBlank(error) && <div className={styles.errorMessage}>{error}</div>}
                             <BlueButton style={styles.btnAction} onClick={handleUpdateProtocol}>
-                                Update {appStore.isProcessingTx === true && <LoaderButton />}
+                                Update {appStore.isProcessingTx === true && appStore.processingTxName === TxEnums.PROTOCOL_UPDATE && <LoaderButton />}
                             </BlueButton>
                             <BlueButton style={styles.btnAction} onClick={handleSyncProtocol}>
-                                Sync {appStore.isProcessingTx === true && <LoaderButton />}
+                                Sync {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.SYNC_PROTOCOL && <LoaderButton />}
                             </BlueButton>
                             {isEmulator && (
                                 <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
-                                    [TEST] Add Tokens {appStore.isProcessingTx === true && <LoaderButton />}
+                                    [TEST] Add Tokens {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.ADD_TEST_TOKENS && <LoaderButton />}
                                 </BlueButton>
                             )}
                         </>

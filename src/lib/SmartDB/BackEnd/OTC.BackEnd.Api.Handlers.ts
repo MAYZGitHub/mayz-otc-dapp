@@ -1,4 +1,4 @@
-import { CreateOTCTxParams, CreateOtcTxParamsSchema, OTC_CREATE, OTC_ID_TN_Str } from '@/utils/constants/on-chain';
+import { CreateOTCTxParams, CreateOtcTxParamsSchema,  OTC_ID_TN_Str, TxEnums } from '@/utils/constants/on-chain';
 import { Address, applyParamsToScript, Assets, Constr, mintingPolicyToId, PolicyId, Script, slotToUnixTime, TxBuilder } from '@lucid-evolution/lucid';
 import { NextApiResponse } from 'next';
 import {
@@ -327,7 +327,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const transaction_ = new TransactionEntity({
                         paymentPKH: walletTxParams.pkh,
                         date: new Date(from),
-                        type: OTC_CREATE,
+                        type: TxEnums.OTC_CREATE,
                         status: TRANSACTION_STATUS_CREATED,
                         reading_UTxOs: [],
                         consuming_UTxOs: [],

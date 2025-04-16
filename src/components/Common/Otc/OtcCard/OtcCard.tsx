@@ -2,6 +2,8 @@
 import { useOtcCard } from './useOtcCard';
 import styles from './OtcCard.module.scss';
 import Image from 'next/image';
+import { getUrlForImage } from 'smart-db';
+import { GENERIC } from '@/utils/constants/images';
 
 export default function OtcCard(prop: any) {
     const {} = useOtcCard();
@@ -12,7 +14,7 @@ export default function OtcCard(prop: any) {
                 <div className={styles.otcDescription}>
                     <Image
                         className={styles.otcTokenPhoto}
-                        src={prop.image.src}
+                        src={prop.image.src !== undefined ? getUrlForImage(prop.image.src) : GENERIC}
                         alt={prop.photoAlt}
                         width={65} // ajusta el tamaño real
                         height={65} // ajusta el tamaño real

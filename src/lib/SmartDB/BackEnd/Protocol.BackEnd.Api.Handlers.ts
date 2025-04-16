@@ -1,9 +1,8 @@
 import {
     DeployProtocolTxParamsSchema,
-    PROTOCOL_CREATE,
-    PROTOCOL_UPDATE,
     ProtocolDeployTxParams,
     ProtocolUpdateTxParams,
+    TxEnums,
     UpdateProtocolTxParamsSchema,
 } from '@/utils/constants/on-chain';
 import { Address, Assets, Constr, Data, PaymentKeyHash, slotToUnixTime, TxBuilder } from '@lucid-evolution/lucid';
@@ -44,6 +43,7 @@ import {
 } from 'smart-db/backEnd';
 import { ProtocolDatum, ProtocolEntity } from '../Entities/Protocol.Entity';
 import { CreateProtocol, UpdateProtocolParams } from '../Entities/Redeemers/Protocol.Redeemer';
+import { TaskEnums } from '@/utils/constants/constants';
 
 @BackEndAppliedFor(ProtocolEntity)
 export class ProtocolBackEndApplied extends BaseSmartDBBackEndApplied {
@@ -229,7 +229,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const transaction_ = new TransactionEntity({
                         paymentPKH: walletTxParams.pkh,
                         date: new Date(from),
-                        type: PROTOCOL_CREATE,
+                        type: TxEnums.PROTOCOL_DEPLOY,
                         status: TRANSACTION_STATUS_CREATED,
                         reading_UTxOs: [],
                         consuming_UTxOs: [],
@@ -395,7 +395,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const transaction_ = new TransactionEntity({
                         paymentPKH: walletTxParams.pkh,
                         date: new Date(from),
-                        type: PROTOCOL_UPDATE,
+                        type: TxEnums.PROTOCOL_UPDATE,
                         status: TRANSACTION_STATUS_CREATED,
                         reading_UTxOs: [],
                         consuming_UTxOs: [],

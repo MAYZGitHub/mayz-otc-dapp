@@ -2,9 +2,11 @@
 import { useTokenCard } from './useTokenCard';
 import styles from './TokenCard.module.scss';
 import BlueButton from '../Buttons/BlueButton/BlueButton';
-import { Token_With_Metadata_And_Amount, getUrlForImage, hexToStr } from 'smart-db';
+import { Token_With_Metadata_And_Amount, getUrlForImage, hexToStr, useAppStore } from 'smart-db';
 import Image from 'next/image';
 import { ADA, GENERIC } from '@/utils/constants/images';
+import { TxEnums } from '@/utils/constants/on-chain';
+import LoaderButton from '../LoaderButton/LoaderButton';
 
 interface TokenCardProps {
     token: Token_With_Metadata_And_Amount;
@@ -12,6 +14,7 @@ interface TokenCardProps {
 }
 export default function TokenCard(prop: TokenCardProps) {
     const { handleInputChange, amount } = useTokenCard();
+    const appStore = useAppStore();
     return (
         <section className={styles.tokenCardContainer}>
             <Image
@@ -37,7 +40,7 @@ export default function TokenCard(prop: TokenCardProps) {
                         });
                     }}
                 >
-                    Create OTC
+                    Create OTC {appStore.isProcessingTx === true && appStore.processingTxName === TxEnums.OTC_CREATE && <LoaderButton />}
                 </BlueButton>
             </div>
         </section>
