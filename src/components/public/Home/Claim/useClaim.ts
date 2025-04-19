@@ -1,114 +1,97 @@
 import debounce from 'lodash/debounce';
-
-
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from 'react';
 import { OTCEntityWithMetadata } from '../useHome';
-import { BaseSmartDBFrontEndBtnHandlers, getUrlForImage, hexToStr, Token_With_Metadata_And_Amount, useWalletStore } from 'smart-db';
-import { ClaimOTCTxParams } from '@/utils/constants/on-chain';
-import { OTCEntity } from '@/lib/SmartDB/Entities';
+import {
+    BaseSmartDBFrontEndBtnHandlers,
+    hexToStr,
+    Token_With_Metadata_And_Amount,
+    useWalletStore,
+} from 'smart-db';
 import { OTCApi } from '@/lib/SmartDB/FrontEnd';
+import { OTCEntity } from '@/lib/SmartDB/Entities';
 import { AppStateContext } from '@/contexts/AppState';
+import { ClaimOTCTxParams } from '@/utils/constants/on-chain';
 
-export const useClaim = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], walletTokens: Token_With_Metadata_And_Amount[]) => {
-   const [searchTerm, setSearchTerm] = useState("");
+interface TokenCardInterface {
+    tokens: Token_With_Metadata_And_Amount;
+    btnHandler: () => void;
+}
 
+export interface UseClaimProps {
+    listOfOtcEntityWithTokens: OTCEntityWithMetadata[];
+    walletTokens: Token_With_Metadata_And_Amount[] | undefined;
+}
 
-   const debouncedSetSearchTerm = useCallback(
-      debounce((value) => {
-        setSearchTerm(value);
-      }, 100),
-      []
+export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimProps) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [tokenCardInterfaces, setTokenCardInterfaces] = useState<TokenCardInterface[]>([]);
+
+    const debouncedSetSearchTerm = useCallback(
+        debounce((value: string) => setSearchTerm(value), 100),
+        []
     );
-  
-    const handleInputChange = (event: any) => {
-      debouncedSetSearchTerm(event.target.value);
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        debouncedSetSearchTerm(event.target.value);
     };
-   const walletStore = useWalletStore();
-   //----------------------------------------------------------------------------
-   const { appState, setAppState } = useContext(AppStateContext);
-   const { } = appState;
-   //----------------------------------------------------------------------------
 
+    const cancelBtnHandler = async (id: string) => {
+      //   try {
+      //       const txParams: ClaimOTCTxParams = {
+      //           otcDbId: id,
+      //           otcSmartContractAddress: '', // Agrega params reales aquí
+      //           otcScript: '',                // Agrega params reales aquí
+      //       };
 
-   function filterOtc() {
-      return listOfOtcEntityWithTokens.filter((otcEntity) =>
-         walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)
-      );
-   }
+      //       const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V1(
+      //           OTCEntity,
+      //           'Claiming OTC...',
+      //           'Claim Tx',
+      //           console.log,
+      //           console.log,
+      //           walletStore,
+      //           txParams,
+      //           OTCApi.callGenericTxApi_.bind(OTCApi, 'claim-tx')
+      //       );
 
-   async function cancelBtnHandler(id: string) {
-    //   if (walletStore.isConnected !== true) return; // Ensure the wallet is connected
-    //   if (otcSmartContractAddress === undefined || otcSmartContractScript === undefined || otcSmartContractCS === undefined || protocolCS === undefined) return;
+      //       if (result === false) throw new Error('Transaction failed');
 
-    //   settersModalTx.setIsTxModalOpen(true); // Open transaction modal
+      //   } catch (e) {
+      //       console.error(e);
+      //   }
+    };
 
-    //   settersModalTx.setTxConfirmed(false);
-    //   try {
-    //      settersModalTx.setTxHash(undefined);
-    //      settersModalTx.setIsTxError(false);
-    //      settersModalTx.setTxMessage('Creating Transaction...');
+    const mapTokenToInterface = useCallback((token: OTCEntityWithMetadata): TokenCardInterface => ({
+        tokens: token.metadata,
+        btnHandler: () => cancelBtnHandler(token.entity._DB_id),
+    }), []);
 
-    //      const txParams: ClaimOTCTxParams = {
-    //         otcDbId: id,
-    //         otcSmartContractAddress: otcSmartContractAddress,
-    //         otcScript: otcSmartContractScript //TODO: Migrar a Mesh con plutus V3
-    //      };
-    //      const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V1(
-    //         OTCEntity,
-    //         'Cancel OTC...',
-    //         'Cancel Tx',
-    //         settersModalTx.setTxMessage,
-    //         settersModalTx.setTxHash,
-    //         walletStore,
-    //         txParams,
-    //         OTCApi.callGenericTxApi_.bind(OTCApi, 'claim-tx')
-    //      );
-    //      if (result === false) {
-    //         throw 'There was an error in the transaction';
-    //      }
-    //      settersModalTx.setTxConfirmed(result);
-    //   } catch (e) {
-    //      console.error(e);
-    //      settersModalTx.setTxHash(undefined);
-    //      settersModalTx.setIsTxError(true);
-    //   }
-   }
-
-      function tokenCardInterface() {
-         const otcToClaim = filterOtc();
-   
-         const mapTokenToInterface = (token: OTCEntityWithMetadata, handler: (id: string) => void) => ({
-            key: token.metadata.CS + token.metadata.TN_Hex,
-            srcImageToken: getUrlForImage(token.metadata.image),
-            photoAlt: hexToStr(token.metadata.TN_Hex),
-            tokenName: hexToStr(token.metadata.TN_Hex),
-            tokenAmount: token.entity.od_token_amount,
-            tokenCS: token.metadata.CS,
-            btnHandler: () => handler(token.entity._DB_id),
-         });
-   
-         return otcToClaim.map((token) => mapTokenToInterface(token, cancelBtnHandler));
-   
-      }
-
-      const filteredItems = useMemo(() => {
-        const tokenCards = tokenCardInterface();
-        if (!searchTerm) {
-          return tokenCards; // Mostrar todos los elementos si el campo de búsqueda está vacío
+    useMemo(() => {
+        if (!walletTokens || walletTokens.length === 0) {
+            setTokenCardInterfaces([]);
+            return;
         }
-    
-        const lowerSearchTerm = searchTerm.toLowerCase();
-    
-        return tokenCards.filter(item =>
-          item.tokenName.toLowerCase().includes(lowerSearchTerm) ||
-          item.tokenCS.toString().includes(searchTerm) ///||
-        );
-      }, [searchTerm]);
-    
 
-   return {
-      searchTerm,
-      handleInputChange,
-      filteredItems
-   };
+        const filtered = listOfOtcEntityWithTokens.filter((otcEntity) =>
+            walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)
+        );
+
+        setTokenCardInterfaces(filtered.map(mapTokenToInterface));
+    }, [listOfOtcEntityWithTokens, walletTokens, mapTokenToInterface]);
+
+    const filteredItems = useMemo(() => {
+        if (!searchTerm) return tokenCardInterfaces;
+
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return tokenCardInterfaces.filter((item) =>
+            hexToStr(item.tokens.TN_Hex).toLowerCase().includes(lowerSearchTerm) ||
+            item.tokens.CS.toLowerCase().includes(lowerSearchTerm)
+        );
+    }, [searchTerm, tokenCardInterfaces]);
+
+    return {
+        searchTerm,
+        handleInputChange,
+        filteredItems,
+    };
 };

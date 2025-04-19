@@ -1,18 +1,27 @@
 // Otc.tsx
 import { useOtc } from './useOtc';
 import styles from './Otc.module.scss';
-import OtcCard from './OtcCard/OtcCard';
+import OtcCard, { OtcCardProps } from './OtcCard/OtcCard';
+import { getUrlForImage, hexToStr, Token_With_Metadata_And_Amount, TokenMetadataEntity } from 'smart-db';
+import { ReactNode } from 'react';
+import { TokensInterface } from '@/utils/types';
+import { tokenMetadataToOtcCard } from '@/utils/utils';
 
-export default function Otc(prop: any) {
+export interface OtcProps {
+    seccionCaption: string;
+    tokens: TokensInterface[];
+}
+
+export default function Otc({ seccionCaption, tokens }: OtcProps) {
     const {} = useOtc();
-    console.log(prop.tokens);
-    const otcElems = prop.tokens.map((token: any) => (
-        <OtcCard key={token.tokenName} image={token.srcImageToken} photoAlt={token.photoAlt} tokenName={token.tokenName} tokenAmount={token.tokenAmount} btnMod={token.btnMod} />
+
+    const otcElems = tokens.map((tokenInterface: TokensInterface) => (
+        <OtcCard key={tokenInterface.token.TN_Hex + tokenInterface.token.CS} {...tokenMetadataToOtcCard(tokenInterface)}/>
     ));
 
     return (
         <section className={styles.OtcContainer}>
-            <div className={styles.seccionCaption}> {prop.seccionCaption}</div>
+            <div className={styles.seccionCaption}> {seccionCaption}</div>
             <div className={styles.separator}> </div>
 
             {otcElems}

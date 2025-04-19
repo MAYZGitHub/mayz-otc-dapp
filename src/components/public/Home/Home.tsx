@@ -31,7 +31,6 @@ export default function Home() {
             case 'Claim':
             return (
               <Claim
-                settersModalTx={settersModalTx}
                 walletTokens={walletTokens}
                 listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
               />
