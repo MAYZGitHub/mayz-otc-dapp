@@ -25,8 +25,6 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
     const { appState, setAppState } = useContext(AppStateContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [tokenCardInterfaces, setTokenCardInterfaces] = useState<TokenCardInterface[]>([]);
-    const [otc_script, set_pd_mayz_deposit_requirement] = useState(appState.protocol?.fOTCScript ?? undefined);
-    const [otcSmartContractAddress, setotcSmartContractAddress] = useState(appState.protocol?.fOTCValidator_AddressTestnet ?? undefined);
 
     //-------------------------
     const { openModal } = useModal();
@@ -85,7 +83,7 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
-        }
+        }        
         //   if (pdAdmins.length === 0) {
         //       setError('Please enter a valid Admin Payment Key Hashes.');
         //       return;
@@ -106,19 +104,16 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         //       setError('Please enter a positive number.');
         //       return;
         //   }
-        if (!otc_script) {
-            setError('OTC Script not defined.');
-            return;
-        }
         //--------------------------------------
         const fetchParams = async () => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
+            console.log(appState.protocol!._DB_id);
+            
             const txParams: ClaimOTCTxParams = {
-                otcDbId: id,
-                otcSmartContractAddress: '',
-                otcScript: otc_script,
+               protocol_id: appState.protocol!._DB_id,
+               otcDbId: id,
             };
             return {
                 lucid,
@@ -133,7 +128,7 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         const txApiCall = OTCApi.callGenericTxApi.bind(OTCApi);
         const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
         //--------------------------------------
-        await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CREATE, 'Creating OTC FT...', 'create-otc-tx', fetchParams, txApiCall, handleBtnTx);
+        await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CLAIM, 'Claiming OTC ...', 'claim-otc-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
         // await fetchProtocol();
     };

@@ -204,6 +204,7 @@ export const useMyArea = (props: MyAreaProps) => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
+            
             const txParams: CreateOTCTxParams = {
                 protocol_id: appState.protocol!._DB_id!,
                 od_token_policy_id: token.CS,
