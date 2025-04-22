@@ -21,6 +21,8 @@ import {
     LucidToolsBackEnd,
     NextApiRequestAuthenticated,
     objToCborHex,
+    optionsGetAllFields,
+    optionsGetDefault,
     optionsGetMinimalWithSmartUTxOCompleteFields,
     PaymentPubKey,
     sanitizeForDatabase,
@@ -76,11 +78,10 @@ export class OTCBackEndApplied extends BaseSmartDBBackEndApplied {
     }
 
     public static mkClaim_OTCDatum(otcDatum_In: OTCDatum): OTCDatum {
-
         const datumPlainObject: OTCDatum = {
             ...JSON.parse(toJson(otcDatum_In)),
         };
-        
+
         let datum: OTCDatum = OTCEntity.mkDatumFromPlainObject(datumPlainObject) as OTCDatum;
         return datum;
     }
@@ -462,11 +463,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 // Extracts specific parameters required for processing the transaction
                 const { otcDbId } = txParams;
 
-                const protocol = await ProtocolBackEndApplied.getById_<ProtocolEntity>(txParams.protocol_id, {
-                    ...optionsGetMinimalWithSmartUTxOCompleteFields,
+                const protocol = await this._BackEndApplied.getById_<ProtocolEntity>(txParams.protocol_id, {
+                    ...optionsGetDefault,
                     fieldsForSelect: {},
                 });
-                
+
                 if (protocol === undefined) {
                     throw `Invalid protocol id`;
                 }
@@ -474,18 +475,19 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
 
                 const otcValidator_Script = protocol.fOTCScript;
                 // Retrieves the OTC associated with the transaction based on the provided ID
-                const Otc = await OTCBackEndApplied.getById_<OTCEntity>(otcDbId, {
+                const otc = await this._BackEndApplied.getById_<OTCEntity>(otcDbId, {
                     ...optionsGetMinimalWithSmartUTxOCompleteFields,
+                    fieldsForSelect: {},
                 });
 
                 // Throws an error if the OTC is not found
-                if (Otc === undefined) {
+                if (otc === undefined) {
                     throw `Invalid OTC id`;
                 }
-                const otcValidator_Address: Address = Otc.getNet_Address();
+                const otcValidator_Address: Address = otc.getNet_Address();
 
                 // Checks that the OTC has an associated smart UTxO and is available for consumption
-                const OTC_SmartUTxO = Otc.smartUTxO;
+                const OTC_SmartUTxO = otc.smartUTxO;
                 if (OTC_SmartUTxO === undefined) {
                     throw `Can't find OTC UTxO`;
                 }
@@ -500,8 +502,8 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const valueFor_OtcDatum_Out = value_Of_OtcDatum_In;
                 console_log(0, this._Entity.className(), `Claim Tx - valueFor_OtcDatum_Out: ${showData(valueFor_OtcDatum_Out, false)}`);
                 //--------------------------------------
-                const otcDatum_In = Otc.getMyDatum() as OTCDatum;
-                console_log(0, this._Entity.className(), `Claim Tx - otcDatum_In: ${showData(otcDatum_In, true)}`);
+                const otcDatum_In = otc.getMyDatum() as OTCDatum;
+                console_log(0, this._Entity.className(), `Claim Tx - otcDatum_In: ${showData(otcDatum_In, false)}`);
                 const otcDatum_In_Hex = OTCEntity.datumToCborHex(otcDatum_In);
                 console_log(0, this._Entity.className(), `Claim Tx - otcDatum_In_Hex: ${showData(otcDatum_In_Hex, false)}`);
                 //--------------------------------------
@@ -512,30 +514,30 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
 
                 // Constructs asset values for seller tokens plus ADA and logs it
-                const lockTokenAC = Otc.od_token_policy_id + strToHex(Otc.od_token_tn);
-                const lockTokenValue: Assets = { [lockTokenAC]: Otc.od_token_amount };
+                const lockTokenAC = otc.od_token_policy_id + strToHex(otc.od_token_tn);
+                const lockTokenValue: Assets = { [lockTokenAC]: otc.od_token_amount };
 
                 console_log(0, this._Entity.className(), `claim Tx - valueFor_LockToken: ${showData(lockTokenValue)}`);
 
-                const policyID_AC = Otc.od_token_policy_id + strToHex(Otc.od_token_tn);
+                const policyID_AC = otc.od_token_policy_id + strToHex(otc.od_token_tn);
                 const policyID_Value: Assets = { [policyID_AC]: 1n };
 
                 let valueForGetBackToContract: Assets = policyID_Value;
 
-                const otcNFT_AC = Otc.od_otc_nft_policy_id + strToHex(Otc.od_otc_nft_tn);
+                const otcNFT_AC = otc.od_otc_nft_policy_id + strToHex(otc.od_otc_nft_tn);
                 const otcNFT_Value: Assets = { [otcNFT_AC]: 1n };
 
                 // Add additional values to the transaction, including minimum ADA requirement
                 valueForGetBackToContract = addAssetsList([otcNFT_Value, valueForGetBackToContract]);
 
-                const mayzAC = Otc.od_mayz_policy_id + strToHex(Otc.od_mayz_tn);
-                const mayzValue: Assets = { [otcNFT_AC]: Otc.od_mayz_locked };
+                const mayzAC = otc.od_mayz_policy_id + strToHex(otc.od_mayz_tn);
+                const mayzValue: Assets = { [otcNFT_AC]: otc.od_mayz_locked };
 
                 // Add additional values to the transaction, including minimum ADA requirement
                 valueForGetBackToContract = addAssetsList([mayzValue, valueForGetBackToContract]);
 
                 const minAdaValue: Assets = {
-                    lovelace: Otc.od_min_ada,
+                    lovelace: otc.od_min_ada,
                 };
                 valueForGetBackToContract = addAssetsList([minAdaValue, valueForGetBackToContract]);
 
@@ -582,6 +584,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     transaction = await TransactionBackEndApplied.create(transaction_);
                     //--------------------------------------
                     let tx: TxBuilder = lucid.newTx();
+                    console_log(0, this._Entity.className(), `Create OTC Tx - Tx: ${showData(tx)}`);
 
                     tx = tx
                         .collectFrom([OTC_UTxO], OTCValidatorRedeemerClaim_Hex)
@@ -591,6 +594,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
+
                     //--------------------------------------
                     const txComplete = await tx.complete();
                     //--------------------------------------
@@ -620,11 +624,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         hash: txHash,
                         ids: { protocol_id: protocol._DB_id },
                         redeemers: {
-                            otcValidatorRedeemerDatumClaim: {
-                                tx_index: 0,
-                                purpose: 'spend',
-                                redeemerObj: OTCValidatorRedeemerClaim,
-                            },
+                            otcValidatorRedeemerDatumClaim: transactionRedeemerClaimOTC,
                         },
                         datums: { otcDatum_Out: transactionOtcDatum_Out },
                         reading_UTxOs: [],

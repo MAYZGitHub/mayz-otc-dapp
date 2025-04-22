@@ -109,7 +109,6 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
-            console.log(appState.protocol!._DB_id);
             
             const txParams: ClaimOTCTxParams = {
                protocol_id: appState.protocol!._DB_id,

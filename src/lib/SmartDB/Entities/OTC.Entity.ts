@@ -1,10 +1,10 @@
 import 'reflect-metadata';
-import { Convertible, BaseSmartDBEntity, asSmartDBEntity, type TN } from 'smart-db';
-import { type VrfKeyHash, type PolicyId } from '@lucid-evolution/lucid';
+import { Convertible, BaseSmartDBEntity, asSmartDBEntity, type TN,type PaymentPubKey } from 'smart-db';
+import { type PolicyId } from '@lucid-evolution/lucid';
 import { OTC_ID_TN_Str } from '@/utils/constants/on-chain';
 
 export interface OTCDatum {
-    od_creator: VrfKeyHash;
+    od_creator: PaymentPubKey;
     od_token_policy_id: PolicyId;
     od_token_tn: TN;
     od_token_amount: bigint;
@@ -32,7 +32,7 @@ export class OTCEntity extends BaseSmartDBEntity {
 
     // #region fields
     @Convertible({ isForDatum: true })
-    od_creator!: VrfKeyHash;
+    od_creator!: PaymentPubKey;
     @Convertible({ isForDatum: true })
     od_token_policy_id!: PolicyId;
     @Convertible({ isForDatum: true })
