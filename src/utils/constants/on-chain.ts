@@ -110,9 +110,8 @@ export interface ClaimOTCTxParams {
 }
 
 export const ClaimOtcTxParamsSchema = yup.object().shape({
+    protocol_id: yup.string().required(),
     otcDbId: yup.string().required(),
-    otcSmartContractAddress: yup.string().required(),
-    otcScript: scriptSchema.required(),
 });
 
 export interface CloseOTCTxParams {

@@ -13,6 +13,7 @@ export enum TaskEnums {
     SYNC_PROTOCOL = 'SyncProtocol',
     ADD_TEST_TOKENS = 'AddTestTokens',
 }
+
 //--------------------------------------------------------------
 
 export enum HandlesEnums {
