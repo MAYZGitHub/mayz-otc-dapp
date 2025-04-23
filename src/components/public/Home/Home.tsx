@@ -6,6 +6,7 @@ import { useHome } from './useHome';
 import BtnConnectWallet from '@/components/Common/Buttons/ConnectWallet/BtnConnectWallet';
 import ProtocolArea from './ProtocolArea/ProtocolArea';
 import MyArea from './MyArea/MyArea';
+import Claim from './Claim/Claim';
 export default function Home() {
     const {
         appState,
@@ -28,13 +29,12 @@ export default function Home() {
             case 'Protocol Area':
                 return <ProtocolArea />;
             case 'Claim':
-            // return (
-            //   // <Claim
-            //   //   settersModalTx={settersModalTx}
-            //   //   walletTokens={walletTokens}
-            //   //   listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
-            //   // />
-            // );
+            return (
+              <Claim
+                walletTokens={walletTokens}
+                listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
+              />
+            );
             case 'My Area':
             return (
               <MyArea

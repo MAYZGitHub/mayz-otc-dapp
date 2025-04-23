@@ -1,11 +1,13 @@
 @use '@/styles/shared.scss';
+@use '@/styles/settings/colors';
 
 .tokenCardContainer{
-    background-color: #192430;
+    background-color: colors.$background-dark-sub;
     display: flex;
     flex-direction: column;
     align-items: center;
     border-radius: 0.5rem;
+    padding: 0.7rem;
     
     .tokenName{
         font-size: larger;
@@ -20,20 +22,17 @@
     }
 
     .tokenPhoto{
-        margin-top: 1.5rem;
         width: 65px;
         height: 65px;
         border-radius: 100%;
     }
 
     .separator{
-        margin-top: 0.1rem;
         width: 80%;
     }
 
     .tokenAmountForm{
         width: auto;
-        padding: 0.3rem;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -47,9 +46,7 @@
         
         .tokenAmountInput{
             background-color: #303A45;
-            margin: 1px;
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
+
             outline: none;
 
             font:inherit;
@@ -62,10 +59,10 @@
 
         .deployButton{
             width: 85%;
+            height: 2rem;
 
             background-color:#226199 ;
             margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
             font: inherit;
             font-size: small;
             font-weight: 600;

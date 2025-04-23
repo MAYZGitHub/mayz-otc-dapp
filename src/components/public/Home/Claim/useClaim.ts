@@ -1,114 +1,169 @@
-// import debounce from 'lodash/debounce';
+import debounce from 'lodash/debounce';
+import { useCallback, useContext, useMemo, useState } from 'react';
+import { OTCEntityWithMetadata } from '../useHome';
+import { BaseSmartDBFrontEndBtnHandlers, hexToStr, LucidToolsFrontEnd, Token_With_Metadata_And_Amount, useTransactions, useWalletStore } from 'smart-db';
+import { OTCApi } from '@/lib/SmartDB/FrontEnd';
+import { OTCEntity } from '@/lib/SmartDB/Entities';
+import { AppStateContext } from '@/contexts/AppState';
+import { ClaimOTCTxParams, TxEnums } from '@/utils/constants/on-chain';
+import { ModalsEnums } from '@/utils/constants/constants';
+import { useModal } from '@/contexts/ModalContext';
 
+interface TokenCardInterface {
+    tokens: Token_With_Metadata_And_Amount;
+    btnHandler: () => void;
+}
 
-// import { useCallback, useContext, useMemo, useState } from "react";
-// import { OTCEntityWithMetadata, SettersModalTx } from '../useHome';
-// import { BaseSmartDBFrontEndBtnHandlers, getUrlForImage, hexToStr, Token_With_Metadata_And_Amount, useWalletStore } from 'smart-db';
-// import { AppStateContext } from '@/pages/_app';
-// import { ClaimOTCTxParams } from '@/utils/constants/on-chain';
-// import { OTCEntity } from '@/lib/SmartDB/Entities';
-// import { OTCApi } from '@/lib/SmartDB/FrontEnd';
+export interface UseClaimProps {
+    listOfOtcEntityWithTokens: OTCEntityWithMetadata[];
+    walletTokens: Token_With_Metadata_And_Amount[] | undefined;
+}
 
-// export const useClaim = (listOfOtcEntityWithTokens: OTCEntityWithMetadata[], walletTokens: Token_With_Metadata_And_Amount[], settersModalTx: SettersModalTx) => {
-//    const [searchTerm, setSearchTerm] = useState("");
+export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimProps) => {
+    const walletStore = useWalletStore();
+    //----------------------------------------------------------------------------
+    const { appState, setAppState } = useContext(AppStateContext);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [tokenCardInterfaces, setTokenCardInterfaces] = useState<TokenCardInterface[]>([]);
 
+    //-------------------------
+    const { openModal } = useModal();
+    //-------------------------
+    const resetForm = async () => {};
+    const onTx = async () => {};
+    //--------------------------------------
+    async function checkIsValidTx() {
+        const isValid = true;
+        return isValid;
+    }
+    //--------------------------------------
+    const dependenciesValidTx: any[] = [];
+    const {
+        appStore,
+        tokensStore,
+        session,
+        status,
+        showUserConfirmation,
+        setShowUserConfirmation,
+        showProcessingTx,
+        setShowProcessingTx,
+        isProcessingTx,
+        setIsProcessingTx,
+        isFaildedTx,
+        setIsFaildedTx,
+        isConfirmedTx,
+        setIsConfirmedTx,
+        processingTxMessage,
+        setProcessingTxMessage,
+        processingTxHash,
+        setProcessingTxHash,
+        isValidTx,
+        setIsValidTx,
+        tokensGiveWithMetadata,
+        setTokensGiveWithMetadata,
+        tokensGetWithMetadata,
+        setTokensGetWithMetadata,
+        available_ADA_in_Wallet,
+        available_forSpend_ADA_in_Wallet,
+        isMaxAmountLoaded: isMaxAmountLoadedFromTxHook,
+        handleBtnShowUserConfirmation,
+        handleBtnDoTransaction_WithErrorControl,
+    } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx, resetForm });
 
-//    const debouncedSetSearchTerm = useCallback(
-//       debounce((value) => {
-//         setSearchTerm(value);
-//       }, 100),
-//       []
-//     );
-  
-//     const handleInputChange = (event: any) => {
-//       debouncedSetSearchTerm(event.target.value);
-//     };
-//    const walletStore = useWalletStore();
-//    //----------------------------------------------------------------------------
-//    const { appState, setAppState } = useContext(AppStateContext);
-//    const { meshWallet, otcAddress: otcSmartContractAddress, otcScript: otcSmartContractScript, otcCS: otcSmartContractCS, protocolCS } = appState;
-//    //----------------------------------------------------------------------------
+    const debouncedSetSearchTerm = useCallback(
+        debounce((value: string) => setSearchTerm(value), 100),
+        []
+    );
 
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        debouncedSetSearchTerm(event.target.value);
+    };
 
-//    function filterOtc() {
-//       return listOfOtcEntityWithTokens.filter((otcEntity) =>
-//          walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)
-//       );
-//    }
+    const claimBtnHandler = async (id: string) => {
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }        
+        //   if (pdAdmins.length === 0) {
+        //       setError('Please enter a valid Admin Payment Key Hashes.');
+        //       return;
+        //   }
+        //   if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
+        //       setError('Please enter a valid Admin Token Currency Symbol.');
+        //   }
+        //   if (!pd_mayz_deposit_requirement) {
+        //       setError('Please enter a value.');
+        //       return;
+        //   }
+        //   const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
+        //   if (isNaN(pd_mayz_deposit_requirementNumber)) {
+        //       setError('Please enter a valid number.');
+        //       return;
+        //   }
+        //   if (pd_mayz_deposit_requirementNumber < 0) {
+        //       setError('Please enter a positive number.');
+        //       return;
+        //   }
+        //--------------------------------------
+        const fetchParams = async () => {
+            //--------------------------------------
+            const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
+            //--------------------------------------
+            
+            const txParams: ClaimOTCTxParams = {
+               protocol_id: appState.protocol!._DB_id,
+               otcDbId: id,
+            };
+            return {
+                lucid,
+                emulatorDB,
+                walletTxParams,
+                txParams,
+            };
+        };
+        //--------------------------------------
+        openModal(ModalsEnums.PROCESSING_TX);
+        //--------------------------------------
+        const txApiCall = OTCApi.callGenericTxApi.bind(OTCApi);
+        const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
+        //--------------------------------------
+        await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CLAIM, 'Claiming OTC ...', 'claim-otc-tx', fetchParams, txApiCall, handleBtnTx);
+        //--------------------------------------
+        // await fetchProtocol();
+    };
 
-//    async function cancelBtnHandler(id: string) {
-//       if (walletStore.isConnected !== true) return; // Ensure the wallet is connected
-//       if (otcSmartContractAddress === undefined || otcSmartContractScript === undefined || otcSmartContractCS === undefined || protocolCS === undefined) return;
+    const mapTokenToInterface = useCallback(
+        (token: OTCEntityWithMetadata): TokenCardInterface => ({
+            tokens: token.metadata,
+            btnHandler: () => claimBtnHandler(token.entity._DB_id),
+        }),
+        []
+    );
 
-//       settersModalTx.setIsTxModalOpen(true); // Open transaction modal
+    useMemo(() => {
+        if (!walletTokens || walletTokens.length === 0) {
+            setTokenCardInterfaces([]);
+            return;
+        }
 
-//       settersModalTx.setTxConfirmed(false);
-//       try {
-//          settersModalTx.setTxHash(undefined);
-//          settersModalTx.setIsTxError(false);
-//          settersModalTx.setTxMessage('Creating Transaction...');
+        const filtered = listOfOtcEntityWithTokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
 
-//          const txParams: ClaimOTCTxParams = {
-//             otcDbId: id,
-//             otcSmartContractAddress: otcSmartContractAddress,
-//             otcScript: otcSmartContractScript //TODO: Migrar a Mesh con plutus V3
-//          };
-//          const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V1(
-//             OTCEntity,
-//             'Cancel OTC...',
-//             'Cancel Tx',
-//             settersModalTx.setTxMessage,
-//             settersModalTx.setTxHash,
-//             walletStore,
-//             txParams,
-//             OTCApi.callGenericTxApi_.bind(OTCApi, 'claim-tx')
-//          );
-//          if (result === false) {
-//             throw 'There was an error in the transaction';
-//          }
-//          settersModalTx.setTxConfirmed(result);
-//       } catch (e) {
-//          console.error(e);
-//          settersModalTx.setTxHash(undefined);
-//          settersModalTx.setIsTxError(true);
-//       }
-//    }
+        setTokenCardInterfaces(filtered.map(mapTokenToInterface));
+    }, [listOfOtcEntityWithTokens, walletTokens, mapTokenToInterface]);
 
-//       function tokenCardInterface() {
-//          const otcToClaim = filterOtc();
-   
-//          const mapTokenToInterface = (token: OTCEntityWithMetadata, handler: (id: string) => void) => ({
-//             key: token.metadata.CS + token.metadata.TN_Hex,
-//             srcImageToken: getUrlForImage(token.metadata.image),
-//             photoAlt: hexToStr(token.metadata.TN_Hex),
-//             tokenName: hexToStr(token.metadata.TN_Hex),
-//             tokenAmount: token.entity.od_token_amount,
-//             tokenCS: token.metadata.CS,
-//             btnHandler: () => handler(token.entity._DB_id),
-//          });
-   
-//          return otcToClaim.map((token) => mapTokenToInterface(token, cancelBtnHandler));
-   
-//       }
+    const filteredItems = useMemo(() => {
+        if (!searchTerm) return tokenCardInterfaces;
 
-//       const filteredItems = useMemo(() => {
-//         const tokenCards = tokenCardInterface();
-//         if (!searchTerm) {
-//           return tokenCards; // Mostrar todos los elementos si el campo de búsqueda está vacío
-//         }
-    
-//         const lowerSearchTerm = searchTerm.toLowerCase();
-    
-//         return tokenCards.filter(item =>
-//           item.tokenName.toLowerCase().includes(lowerSearchTerm) ||
-//           item.tokenCS.toString().includes(searchTerm) ///||
-//         );
-//       }, [searchTerm]);
-    
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return tokenCardInterfaces.filter((item) => hexToStr(item.tokens.TN_Hex).toLowerCase().includes(lowerSearchTerm) || item.tokens.CS.toLowerCase().includes(lowerSearchTerm));
+    }, [searchTerm, tokenCardInterfaces]);
 
-//    return {
-//       searchTerm,
-//       handleInputChange,
-//       filteredItems
-//    };
-// };
+    return {
+        searchTerm,
+        handleInputChange,
+        filteredItems,
+    };
+};
+function setError(arg0: string) {
+    throw new Error('Function not implemented.');
+}

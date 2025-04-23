@@ -6,6 +6,7 @@ import styles from './index.module.scss';
 
 import Home from '../components/public/Home/Home';
 import Sidebar from '../components/public/Sidebar/Sidebar';
+import { metadata } from './_document';
 // Importing the `Home` component from its path. This component will render the main content for the homepage.
 
 const HomePage: NextPage = () => {
@@ -14,6 +15,7 @@ const HomePage: NextPage = () => {
 
     return (
         <main>
+            <title> {metadata.applicationName} </title>
             <div className={styles.pageWrapper}>
                 <div className={styles.topbar}></div>
                 <Sidebar />

@@ -14,6 +14,7 @@ import 'react-notifications-component/dist/theme.css';
 import { AppGeneral, globalStore } from 'smart-db';
 import 'smart-db/dist/styles.css';
 import { AppState, AppStateContext, initialAppState } from '../contexts/AppState';
+import Head from 'next/head';
 
 export type SidebarMenu = 'Claim' | 'My Area' | 'Protocol Area';
 
@@ -25,8 +26,7 @@ export default function MyApp({ Component, pageProps }: AppProps<{ session?: Ses
     const [isLoadingProtocol, setIsLoadingProtocol] = useState(true);
 
     const fetchProtocol = async () => {
-        
-        setIsLoadingProtocol(true); 
+        setIsLoadingProtocol(true);
 
         // Example: fetch your protocol entity from SmartDB
         const protocol: ProtocolEntity | undefined = await ProtocolApi.getOneByParamsApi_(); // You must define this function

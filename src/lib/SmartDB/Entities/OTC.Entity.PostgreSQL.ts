@@ -1,8 +1,8 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { OTCEntity } from './OTC.Entity';
-import { PostgreSQLAppliedFor, type TN } from 'smart-db';
+import { type PaymentPubKey, PostgreSQLAppliedFor, type TN } from 'smart-db';
 import { BaseSmartDBEntityPostgreSQL, PostgreSQLDatabaseService } from 'smart-db/backEnd';
-import { type VrfKeyHash, type PolicyId } from '@lucid-evolution/lucid';
+import { type PolicyId } from '@lucid-evolution/lucid';
 
 @PostgreSQLAppliedFor([OTCEntity])
 @Entity({ name: PostgreSQLDatabaseService.getTableName(OTCEntity.className()) })
@@ -16,7 +16,7 @@ export class OTCEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     _id!: number; // Auto-generated primary key
 
     @Column({ type: 'varchar', length: 255, nullable: true })
-    od_creator!: VrfKeyHash;
+    od_creator!: PaymentPubKey;
     @Column({ type: 'varchar', length: 255, nullable: true })
     od_token_policy_id!: PolicyId;
     @Column({ type: 'varchar', length: 255, nullable: true })

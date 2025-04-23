@@ -17,7 +17,7 @@ import { OTCApi } from '@/lib/SmartDB/FrontEnd';
 import { OTCEntity } from '@/lib/SmartDB/Entities';
 
 interface TokensInterface {
-    token: Token_With_Metadata;
+    token: Token_With_Metadata_And_Amount;
     btnHandler: () => void;
 }
 export interface MyAreaProps {
@@ -32,11 +32,8 @@ export const useMyArea = (props: MyAreaProps) => {
     //----------------------------------------------------------------------------
     const { appState, setAppState } = useContext(AppStateContext);
     //-------------------------
-    const [error, setError] = useState<string | null>(null);
     //-------------------------
     const [tokensOTCsOfUser, setTokensOTCsOfUser] = useState<OTCEntityWithMetadata[]>([]);
-    const [tokensOTCToCancel, setTokensOTCsToCancel] = useState<OTCEntityWithMetadata[]>([]);
-    const [tokensOTCToClose, setTokensOTCsToClose] = useState<OTCEntityWithMetadata[]>([]);
     const [tokensOTCToCancelInterface, setTokensOTCsToCancelInterface] = useState<TokensInterface[]>([]);
     const [tokensOTCToCloseInterface, setTokensOTCsToCloseInterface] = useState<TokensInterface[]>([]);
     //-------------------------
@@ -87,18 +84,20 @@ export const useMyArea = (props: MyAreaProps) => {
     useEffect(() => {
         const tokens = listOfOtcEntityWithTokens.filter((otcEntity) => otcEntity.entity.od_creator === walletStore.info?.pkh);
         setTokensOTCsOfUser(tokens);
-        const otcToCancel = walletTokens !== undefined ? tokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)) : [];
-        const otcToClose = walletTokens !== undefined ? tokens.filter((otcEntity) => !walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id)) : [];
-        setTokensOTCsToCancel(otcToCancel);
-        setTokensOTCsToClose(otcToClose);
+        if(!walletTokens){
+            return 
+        }
+        const otcToCancel = tokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
+        const otcToClose = tokens.filter((otcEntity) => !walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
+        
         const mapTokenToInterface = (token: OTCEntityWithMetadata, handler: (id: string) => void) => ({
             token: {
                 ...token.metadata,
             },
             btnHandler: () => handler(token.entity._DB_id),
         });
-        const otcToCancelInterface = tokensOTCToCancel.map((token) => mapTokenToInterface(token, cancelBtnHandler));
-        const otcToCloseInterface = tokensOTCToClose.map((token) => mapTokenToInterface(token, closeBtnHandler));
+        const otcToCancelInterface = otcToCancel.map((token) => mapTokenToInterface(token, cancelBtnHandler));
+        const otcToCloseInterface = otcToClose.map((token) => mapTokenToInterface(token, closeBtnHandler));
         setTokensOTCsToCancelInterface(otcToCancelInterface);
         setTokensOTCsToCloseInterface(otcToCloseInterface);
     }, [listOfOtcEntityWithTokens, walletTokens]);
@@ -205,6 +204,7 @@ export const useMyArea = (props: MyAreaProps) => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
+            
             const txParams: CreateOTCTxParams = {
                 protocol_id: appState.protocol!._DB_id!,
                 od_token_policy_id: token.CS,
