@@ -12,7 +12,7 @@ import {
     useWalletStore,
 } from 'smart-db';
 import { OTCEntityWithMetadata } from '../useHome';
-import { CreateOTCTxParams, TxEnums } from '@/utils/constants/on-chain';
+import { ClaimOTCTxParams, CloseOTCTxParams, CreateOTCTxParams, TxEnums } from '@/utils/constants/on-chain';
 import { OTCApi } from '@/lib/SmartDB/FrontEnd';
 import { OTCEntity } from '@/lib/SmartDB/Entities';
 
@@ -40,7 +40,9 @@ export const useMyArea = (props: MyAreaProps) => {
     const { openModal } = useModal();
     //-------------------------
     const resetForm = async () => {};
-    const onTx = async () => {};
+    const onTx = async () => {
+        window.location.reload();
+    };
     //--------------------------------------
     async function checkIsValidTx() {
         const isValid = true;
@@ -138,39 +140,56 @@ export const useMyArea = (props: MyAreaProps) => {
         //   }
     }
     async function closeBtnHandler(id: string) {
-        //   if (walletStore.isConnected !== true) return; // Ensure the wallet is connected
-        //   if (otcSmartContractAddress === undefined || otcSmartContractScript === undefined || otcSmartContractCS === undefined || protocolCS === undefined) return;
-        //   settersModalTx.setIsTxModalOpen(true); // Open transaction modal
-        //   settersModalTx.setTxConfirmed(false);
-        //   try {
-        //      settersModalTx.setTxHash(undefined);
-        //      settersModalTx.setIsTxError(false);
-        //      settersModalTx.setTxMessage('Creating Transaction...');
-        //      const txParams: CloseOTCTxParams = {
-        //         otcDbId: id,
-        //         otcSmartContractAddress: otcSmartContractAddress,
-        //         otcScript: otcSmartContractScript,
-        //         mintingOtcNFT: undefined //TODO: Aca hay que ver como guardamos el script para hacer el burn.
-        //      };
-        //      const result = await BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransactionV1(
-        //         OTCEntity,
-        //         'Cancel OTC...',
-        //         'Cancel Tx',
-        //         settersModalTx.setTxMessage,
-        //         settersModalTx.setTxHash,
-        //         walletStore,
-        //         txParams,
-        //         OTCApi.callGenericTxApi_.bind(OTCApi, 'close-tx')
-        //      );
-        //      if (result === false) {
-        //         throw 'There was an error in the transaction';
-        //      }
-        //      settersModalTx.setTxConfirmed(result);
-        //   } catch (e) {
-        //      console.error(e);
-        //      settersModalTx.setTxHash(undefined);
-        //      settersModalTx.setIsTxError(true);
+        if (appStore.isProcessingTx === true) {
+            openModal(ModalsEnums.PROCESSING_TX);
+            return;
+        }        
+        //   if (pdAdmins.length === 0) {
+        //       setError('Please enter a valid Admin Payment Key Hashes.');
+        //       return;
         //   }
+        //   if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
+        //       setError('Please enter a valid Admin Token Currency Symbol.');
+        //   }
+        //   if (!pd_mayz_deposit_requirement) {
+        //       setError('Please enter a value.');
+        //       return;
+        //   }
+        //   const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
+        //   if (isNaN(pd_mayz_deposit_requirementNumber)) {
+        //       setError('Please enter a valid number.');
+        //       return;
+        //   }
+        //   if (pd_mayz_deposit_requirementNumber < 0) {
+        //       setError('Please enter a positive number.');
+        //       return;
+        //   }
+        //--------------------------------------
+        const fetchParams = async () => {
+            //--------------------------------------
+            const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
+            //--------------------------------------
+            
+            const txParams: CloseOTCTxParams = {
+               protocol_id: appState.protocol!._DB_id,
+               otcDbId: id,
+            };
+            return {
+                lucid,
+                emulatorDB,
+                walletTxParams,
+                txParams,
+            };
+        };
+        //--------------------------------------
+        openModal(ModalsEnums.PROCESSING_TX);
+        //--------------------------------------
+        const txApiCall = OTCApi.callGenericTxApi.bind(OTCApi);
+        const handleBtnTx = BaseSmartDBFrontEndBtnHandlers.handleBtnDoTransaction_V2_NoErrorControl.bind(BaseSmartDBFrontEndBtnHandlers);
+        //--------------------------------------
+        await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CLOSE, 'Close OTC ...', 'close-otc-tx', fetchParams, txApiCall, handleBtnTx);
+        //--------------------------------------
+        // await fetchProtocol();
     }
     //-------------------------
     // Function to handle the sell transaction for a specific asset

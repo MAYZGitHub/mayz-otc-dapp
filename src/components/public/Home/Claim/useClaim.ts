@@ -29,7 +29,9 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
     //-------------------------
     const { openModal } = useModal();
     //-------------------------
-    const resetForm = async () => {};
+    const resetForm = async () => {
+        window.location.reload();
+    };
     const onTx = async () => {};
     //--------------------------------------
     async function checkIsValidTx() {

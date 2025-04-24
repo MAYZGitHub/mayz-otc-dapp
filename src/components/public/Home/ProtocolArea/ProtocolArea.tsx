@@ -142,7 +142,6 @@ export default function ProtocolArea() {
         if (confirm('Are you sure you want to create the protocol?')) {
             //--------------------------------------
             appStore.setProcessingTaskName(TaskEnums.CREATE_PROTOCOL);
-            appStore.setShowProcessingTask(true);
             appStore.setIsProcessingTask(true);
             appStore.setIsConfirmedTask(false);
             appStore.setIsFaildedTask(false);
@@ -277,7 +276,6 @@ export default function ProtocolArea() {
         if (confirm('Are you sure you want to delete the protocol?')) {
             //--------------------------------------
             appStore.setProcessingTaskName(TaskEnums.DELETE_PROTOCOL);
-            appStore.setShowProcessingTask(true);
             appStore.setIsProcessingTask(true);
             appStore.setIsConfirmedTask(false);
             appStore.setIsFaildedTask(false);
@@ -319,7 +317,6 @@ export default function ProtocolArea() {
         if (confirm('Are you sure you want to Add Tokens?')) {
             //--------------------------------------
             appStore.setProcessingTaskName(TaskEnums.ADD_TEST_TOKENS);
-            appStore.setShowProcessingTask(true);
             appStore.setIsProcessingTask(true);
             appStore.setIsConfirmedTask(false);
             appStore.setIsFaildedTask(false);
@@ -505,7 +502,6 @@ export default function ProtocolArea() {
         if (confirm('Are you sure you want to sync the protocol?')) {
             //--------------------------------------
             appStore.setProcessingTaskName(TaskEnums.SYNC_PROTOCOL);
-            appStore.setShowProcessingTask(true);
             appStore.setIsProcessingTask(true);
             appStore.setIsConfirmedTask(false);
             appStore.setIsFaildedTask(false);
