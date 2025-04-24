@@ -128,14 +128,10 @@ export const CloseOtcTxParamsSchema = yup.object().shape({
 
 export interface CancelOTCTxParams {
     otcDbId: string;
-    otcSmartContractAddress: string;
-    otcScript: Script;
-    mintingOtcNFT: Script;
+    protocol_id: string;
 }
 
 export const CancelOtcTxParamsSchema = yup.object().shape({
     otcDbId: yup.string().required(),
-    otcSmartContractAddress: yup.string().required(),
-    otcScript: scriptSchema.required(),
-    mintingOtcNFT: scriptSchema.required(),
+    protocol_id: yup.string().required(),
 });
