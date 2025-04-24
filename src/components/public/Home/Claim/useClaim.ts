@@ -148,7 +148,11 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
             return;
         }
 
-        const filtered = listOfOtcEntityWithTokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
+        const filtered = listOfOtcEntityWithTokens.filter(
+            (otcEntity) =>
+            walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id) &&
+            otcEntity.entity.od_creator !== walletStore.getPkh()
+        );
 
         setTokenCardInterfaces(filtered.map(mapTokenToInterface));
     }, [listOfOtcEntityWithTokens, walletTokens, mapTokenToInterface]);
