@@ -42,7 +42,7 @@ export class ClaimOTC extends BaseTxRedeemer {
     protected static _plutusDataIsSubType = false;
 }
 
-// Class for handling a CloseOTC operation in the Market.
+// Class for handling a CloseOTC operation
 // It extends from BaseTxRedeemer to inherit common functionality for a transaction redeemer.
 export class CloseOTC extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
@@ -60,7 +60,6 @@ export class CancelOTC extends BaseTxRedeemer {
     protected static _plutusDataIsSubType = false;
 }
 
-// Class for handling a CloseOTC operation in the Market.
 // It extends from BaseTxRedeemer to inherit common functionality for a transaction redeemer.
 export class UpdateOTCMinAda extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
