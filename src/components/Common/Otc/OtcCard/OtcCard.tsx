@@ -1,5 +1,4 @@
 // OtcCard.tsx
-import { useOtcCard } from './useOtcCard';
 import styles from './OtcCard.module.scss';
 import Image from 'next/image';
 import { getUrlForImage } from 'smart-db';
@@ -10,13 +9,11 @@ export interface OtcCardProps {
     image: string;
     photoAlt: string;
     tokenName: string;
-    tokenAmount: bigint ;
+    tokenAmount: bigint;
     btnMod: ReactNode;
 }
 
 export default function OtcCard({ image, photoAlt, tokenName, tokenAmount, btnMod }: OtcCardProps) {
-    const {} = useOtcCard();
-    
     return (
         <section className={styles.otcCardContainer}>
             <div className={styles.otcBox}>

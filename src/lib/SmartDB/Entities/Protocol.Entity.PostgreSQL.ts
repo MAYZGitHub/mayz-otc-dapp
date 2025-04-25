@@ -24,10 +24,9 @@ export class ProtocolEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     @Column({ type: 'jsonb' })
     fProtocolScript_Params!: object;
 
-
     @Column({ type: 'varchar', length: 255, unique: true })
     fProtocolPolicyID_CS!: CS;
-    
+
     @Column({ type: 'varchar', length: 255 })
     fProtocolValidator_AddressMainnet!: string;
 
@@ -36,7 +35,6 @@ export class ProtocolEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
 
     @Column({ type: 'varchar', length: 255, unique: true })
     fProtocolValidator_Hash!: string;
-
 
     @Column({ type: 'jsonb' })
     fOTCScript!: Script;
@@ -106,5 +104,4 @@ export class ProtocolEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     }
 
     // #endregion internal class methods
-
 }

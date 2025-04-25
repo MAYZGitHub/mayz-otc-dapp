@@ -1,11 +1,5 @@
-import {
-    DeployProtocolTxParamsSchema,
-    ProtocolDeployTxParams,
-    ProtocolUpdateTxParams,
-    TxEnums,
-    UpdateProtocolTxParamsSchema,
-} from '@/utils/constants/on-chain';
-import { Address, Assets, Constr, Data, PaymentKeyHash, slotToUnixTime, TxBuilder } from '@lucid-evolution/lucid';
+import { DeployProtocolTxParamsSchema, ProtocolDeployTxParams, ProtocolUpdateTxParams, TxEnums, UpdateProtocolTxParamsSchema } from '@/utils/constants/on-chain';
+import { Address, Assets, PaymentKeyHash, slotToUnixTime, TxBuilder } from '@lucid-evolution/lucid';
 import { NextApiResponse } from 'next';
 import {
     TRANSACTION_STATUS_CREATED,
@@ -33,17 +27,14 @@ import {
     TransactionRedeemer,
     WalletTxParams,
     addAssetsList,
-    calculateMinAdaOfUTxO,
     console_error,
     console_log,
-    isEmulator,
     objToCborHex,
     sanitizeForDatabase,
     showData,
 } from 'smart-db/backEnd';
 import { ProtocolDatum, ProtocolEntity } from '../Entities/Protocol.Entity';
 import { CreateProtocol, UpdateProtocolParams } from '../Entities/Redeemers/Protocol.Redeemer';
-import { TaskEnums } from '@/utils/constants/constants';
 
 @BackEndAppliedFor(ProtocolEntity)
 export class ProtocolBackEndApplied extends BaseSmartDBBackEndApplied {
@@ -108,11 +99,6 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     } else if (query[1] === 'update-tx') {
                         return await this.protocolUpdateTxApiHandler(req, res);
                     }
-                    // else if (query[1] === 'update-params-tx') {
-                    //     return await this.claimTxApiHandler(req, res);
-                    // } else if (query[1] === 'update-min-ada-tx') {
-                    //     return await this.updateTxApiHandler(req, res);
-                    // }
                 }
                 return res.status(405).json({ error: 'Wrong Api route' });
             } else {
@@ -181,12 +167,9 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const valueFor_Mint_ProtocolID: Assets = { [protocolPolicyID_AC_Lucid]: 1n };
                 console_log(0, this._Entity.className(), `Deploy Tx - valueFor_Mint_ProtocolID: ${showData(valueFor_Mint_ProtocolID)}`);
                 //--------------------------------------
-                const protocolDatum_Out_ForCalcMinADA = this._BackEndApplied.mkNew_ProtocolDatum(protocol, txParams, 0n);
-                const protocolDatum_Out_Hex_ForCalcMinADA = ProtocolEntity.datumToCborHex(protocolDatum_Out_ForCalcMinADA);
-                //--------------------------------------
                 let valueFor_ProtocolDatum_Out: Assets = valueFor_Mint_ProtocolID;
                 // const minADA_For_ProtocolDatum = calculateMinAdaOfUTxO({ datum: protocolDatum_Out_Hex_ForCalcMinADA, assets: valueFor_ProtocolDatum_Out });
-                const minADA_For_ProtocolDatum = 100_000_000n
+                const minADA_For_ProtocolDatum = 100_000_000n;
                 const value_MinAda_For_ProtocolDatum: Assets = { lovelace: minADA_For_ProtocolDatum };
                 valueFor_ProtocolDatum_Out = addAssetsList([value_MinAda_For_ProtocolDatum, valueFor_ProtocolDatum_Out]);
                 console_log(0, this._Entity.className(), `Deploy Tx - valueFor_ProtocolDatum_Out: ${showData(valueFor_ProtocolDatum_Out, false)}`);
@@ -211,7 +194,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const untilSlot = lucid.unixTimeToSlot(until);
                 //--------------------------------------
                 if (flomSlot < 0) {
-                    from = lucid.currentSlot()
+                    from = lucid.currentSlot();
                     from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
                 }
                 //--------------------------------------
@@ -338,16 +321,12 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 }
                 //--------------------------------------
                 const protocolValidator_Address: Address = protocol.getNet_Address();
-                const protocolValidator_Hash = protocol.fProtocolValidator_Hash;
                 const protocolValidator_Script = protocol.fProtocolScript;
                 //--------------------------------------
                 const protocol_SmartUTxO = protocol.smartUTxO;
                 if (protocol_SmartUTxO === undefined) {
                     throw `Can't find Protocol UTxO`;
                 }
-                // if (protocol_SmartUTxO.isAvailableForReading() === false) {
-                //     throw `Protocol UTxO is being used, please wait and try again`;
-                // }
                 //--------------------------------------
                 const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
@@ -377,7 +356,7 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const untilSlot = lucid.unixTimeToSlot(until);
                 //--------------------------------------
                 if (flomSlot < 0) {
-                    from = lucid.currentSlot()
+                    from = lucid.currentSlot();
                     from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
                 }
                 //--------------------------------------
@@ -409,7 +388,12 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     tx = tx
                         .collectFrom([protocol_UTxO], protocolValidatorRedeemerDatumUpdate_Hex)
-                        .pay.ToAddressWithData(protocolValidator_Address, { kind: 'inline', value: protocolDatum_Out_Hex }, valueFor_ProtocolDatum_Out, protocol_UTxO.scriptRef !== null && protocol_UTxO.scriptRef !== undefined ? protocol_UTxO.scriptRef : protocol_SmartUTxO.scriptRef)
+                        .pay.ToAddressWithData(
+                            protocolValidator_Address,
+                            { kind: 'inline', value: protocolDatum_Out_Hex },
+                            valueFor_ProtocolDatum_Out,
+                            protocol_UTxO.scriptRef !== null && protocol_UTxO.scriptRef !== undefined ? protocol_UTxO.scriptRef : protocol_SmartUTxO.scriptRef
+                        )
                         .attach.SpendingValidator(protocolValidator_Script)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)

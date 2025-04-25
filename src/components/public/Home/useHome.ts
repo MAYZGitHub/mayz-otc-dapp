@@ -1,9 +1,7 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppStateContext } from '@/contexts/AppState';
-import { useModal } from '@/contexts/ModalContext';
 import { OTCApi } from '@/lib/SmartDB/FrontEnd';
 import { OTCEntity } from '@/lib/SmartDB/Entities';
-import { ModalsEnums } from '@/utils/constants/constants';
 
 import {
   getAssetOfUTxOs,
@@ -14,7 +12,6 @@ import {
   Token_With_Metadata_And_Amount,
   TokenMetadataFrontEndApiCalls,
   TokensWithMetadataAndAmount,
-  useAppStore,
   useDetails,
   useList,
   useWalletStore,
@@ -55,9 +52,7 @@ const fetchOtcTokensWithMetadata = async (): Promise<OTCEntityWithMetadata[]> =>
 // ------------------------- Hook ----------------------------------
 export const useHome = () => {
   const walletStore = useWalletStore();
-  const appStore = useAppStore();
   const { appState, setAppState } = useContext(AppStateContext);
-  const [isWalletConnectorModalOpen, setIsWalletConnectorModalOpen] = useState(false);
 
   const {
     isLoadingDetails,
@@ -98,26 +93,9 @@ export const useHome = () => {
 
   return {
     appState,
-    setAppState,
     sidebarState: appState.sidebarState,
     isWalletConnected: walletStore.isConnected,
-    isWalletConnectorModalOpen,
-    setIsWalletConnectorModalOpen,
-    isTxModalOpen: appStore.showProcessingTx,
-    txHash: appStore.processingTxHash,
-    isTxError: appStore.isFaildedTx,
-    txMessage: appStore.processingTxMessage,
-    txConfirmed: appStore.isConfirmedTx,
-    settersModalTx: {
-      isTxModalOpen: appStore.showProcessingTx,
-      setIsTxModalOpen: appStore.setShowProcessingTx,
-      txHash: appStore.processingTxHash,
-      isTxError: appStore.isFaildedTx,
-      txMessage: appStore.processingTxMessage,
-      txConfirmed: appStore.isConfirmedTx,
-    },
     walletTokens,
     listOfOtcEntityWithTokens,
-    handleBtnSync,
   };
 };

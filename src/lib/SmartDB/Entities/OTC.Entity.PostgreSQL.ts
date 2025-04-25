@@ -70,5 +70,4 @@ export class OTCEntityPostgreSQL extends BaseSmartDBEntityPostgreSQL {
     }
 
     // #endregion internal class methods
-
 }

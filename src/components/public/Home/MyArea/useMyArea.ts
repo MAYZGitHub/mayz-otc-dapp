@@ -2,15 +2,7 @@ import { AppStateContext } from '@/contexts/AppState';
 import { useModal } from '@/contexts/ModalContext';
 import { ModalsEnums } from '@/utils/constants/constants';
 import { useContext, useEffect, useState } from 'react';
-import {
-    BaseSmartDBFrontEndBtnHandlers,
-    LucidToolsFrontEnd,
-    Token_With_Metadata,
-    Token_With_Metadata_And_Amount,
-    TokensWithMetadataAndAmount,
-    useTransactions,
-    useWalletStore,
-} from 'smart-db';
+import { BaseSmartDBFrontEndBtnHandlers, LucidToolsFrontEnd, Token_With_Metadata_And_Amount, TokensWithMetadataAndAmount, useTransactions, useWalletStore } from 'smart-db';
 import { OTCEntityWithMetadata } from '../useHome';
 import { CancelOTCTxParams, ClaimOTCTxParams, CloseOTCTxParams, CreateOTCTxParams, TxEnums } from '@/utils/constants/on-chain';
 import { OTCApi } from '@/lib/SmartDB/FrontEnd';
@@ -51,47 +43,17 @@ export const useMyArea = (props: MyAreaProps) => {
     //--------------------------------------
     const dependenciesValidTx: any[] = [];
     //--------------------------------------
-    const {
-        appStore,
-        tokensStore,
-        session,
-        status,
-        showUserConfirmation,
-        setShowUserConfirmation,
-        showProcessingTx,
-        setShowProcessingTx,
-        isProcessingTx,
-        setIsProcessingTx,
-        isFaildedTx,
-        setIsFaildedTx,
-        isConfirmedTx,
-        setIsConfirmedTx,
-        processingTxMessage,
-        setProcessingTxMessage,
-        processingTxHash,
-        setProcessingTxHash,
-        isValidTx,
-        setIsValidTx,
-        tokensGiveWithMetadata,
-        setTokensGiveWithMetadata,
-        tokensGetWithMetadata,
-        setTokensGetWithMetadata,
-        available_ADA_in_Wallet,
-        available_forSpend_ADA_in_Wallet,
-        isMaxAmountLoaded: isMaxAmountLoadedFromTxHook,
-        handleBtnShowUserConfirmation,
-        handleBtnDoTransaction_WithErrorControl,
-    } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx, resetForm });
+    const { appStore, handleBtnDoTransaction_WithErrorControl } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx, resetForm });
     //--------------------------------------
     useEffect(() => {
         const tokens = listOfOtcEntityWithTokens.filter((otcEntity) => otcEntity.entity.od_creator === walletStore.info?.pkh);
         setTokensOTCsOfUser(tokens);
-        if(!walletTokens){
-            return 
+        if (!walletTokens) {
+            return;
         }
         const otcToCancel = tokens.filter((otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
         const otcToClose = tokens.filter((otcEntity) => !walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id));
-        
+
         const mapTokenToInterface = (token: OTCEntityWithMetadata, handler: (id: string) => void) => ({
             token: {
                 ...token.metadata,
@@ -108,36 +70,16 @@ export const useMyArea = (props: MyAreaProps) => {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
-        }        
-        //   if (pdAdmins.length === 0) {
-        //       setError('Please enter a valid Admin Payment Key Hashes.');
-        //       return;
-        //   }
-        //   if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
-        //       setError('Please enter a valid Admin Token Currency Symbol.');
-        //   }
-        //   if (!pd_mayz_deposit_requirement) {
-        //       setError('Please enter a value.');
-        //       return;
-        //   }
-        //   const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
-        //   if (isNaN(pd_mayz_deposit_requirementNumber)) {
-        //       setError('Please enter a valid number.');
-        //       return;
-        //   }
-        //   if (pd_mayz_deposit_requirementNumber < 0) {
-        //       setError('Please enter a positive number.');
-        //       return;
-        //   }
+        }
         //--------------------------------------
         const fetchParams = async () => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
-            
+
             const txParams: CancelOTCTxParams = {
-               protocol_id: appState.protocol!._DB_id,
-               otcDbId: id,
+                protocol_id: appState.protocol!._DB_id,
+                otcDbId: id,
             };
             return {
                 lucid,
@@ -155,42 +97,21 @@ export const useMyArea = (props: MyAreaProps) => {
         await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CANCEL, 'Cancel OTC ...', 'cancel-otc-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
         // await fetchProtocol();
-
     }
     async function closeBtnHandler(id: string) {
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
-        }        
-        //   if (pdAdmins.length === 0) {
-        //       setError('Please enter a valid Admin Payment Key Hashes.');
-        //       return;
-        //   }
-        //   if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
-        //       setError('Please enter a valid Admin Token Currency Symbol.');
-        //   }
-        //   if (!pd_mayz_deposit_requirement) {
-        //       setError('Please enter a value.');
-        //       return;
-        //   }
-        //   const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
-        //   if (isNaN(pd_mayz_deposit_requirementNumber)) {
-        //       setError('Please enter a valid number.');
-        //       return;
-        //   }
-        //   if (pd_mayz_deposit_requirementNumber < 0) {
-        //       setError('Please enter a positive number.');
-        //       return;
-        //   }
+        }
         //--------------------------------------
         const fetchParams = async () => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
-            
+
             const txParams: CloseOTCTxParams = {
-               protocol_id: appState.protocol!._DB_id,
-               otcDbId: id,
+                protocol_id: appState.protocol!._DB_id,
+                otcDbId: id,
             };
             return {
                 lucid,
@@ -207,7 +128,6 @@ export const useMyArea = (props: MyAreaProps) => {
         //--------------------------------------
         await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CLOSE, 'Close OTC ...', 'close-otc-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
-        // await fetchProtocol();
     }
     //-------------------------
     // Function to handle the sell transaction for a specific asset
@@ -216,32 +136,12 @@ export const useMyArea = (props: MyAreaProps) => {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
         }
-        //   if (pdAdmins.length === 0) {
-        //       setError('Please enter a valid Admin Payment Key Hashes.');
-        //       return;
-        //   }
-        //   if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
-        //       setError('Please enter a valid Admin Token Currency Symbol.');
-        //   }
-        //   if (!pd_mayz_deposit_requirement) {
-        //       setError('Please enter a value.');
-        //       return;
-        //   }
-        //   const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
-        //   if (isNaN(pd_mayz_deposit_requirementNumber)) {
-        //       setError('Please enter a valid number.');
-        //       return;
-        //   }
-        //   if (pd_mayz_deposit_requirementNumber < 0) {
-        //       setError('Please enter a positive number.');
-        //       return;
-        //   }
         //--------------------------------------
         const fetchParams = async () => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
-            
+
             const txParams: CreateOTCTxParams = {
                 protocol_id: appState.protocol!._DB_id!,
                 od_token_policy_id: token.CS,
@@ -263,7 +163,6 @@ export const useMyArea = (props: MyAreaProps) => {
         //--------------------------------------
         await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CREATE, 'Creating OTC FT...', 'create-otc-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
-        // await fetchProtocol();
     };
 
     return {

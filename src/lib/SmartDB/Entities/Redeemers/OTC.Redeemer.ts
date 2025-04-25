@@ -1,6 +1,6 @@
-import { BaseTxRedeemer } from "smart-db";
+import { BaseTxRedeemer } from 'smart-db';
 
-// Define a type that represents a Redeemer for a Policy ID, 
+// Define a type that represents a Redeemer for a Policy ID,
 // which can either be related to Minting or Burning an ID.
 export type PolicyIdRedeemer = MintNFT | BurnNFT;
 
@@ -9,7 +9,7 @@ export type PolicyIdRedeemer = MintNFT | BurnNFT;
 export class MintNFT extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 0;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }
@@ -19,7 +19,7 @@ export class MintNFT extends BaseTxRedeemer {
 export class BurnNFT extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 1;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }
@@ -29,7 +29,7 @@ export type OTCRedeemer = CreateOTC | ClaimOTC | CloseOTC | CancelOTC | UpdateOT
 export class CreateOTC extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 0;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }
@@ -37,7 +37,7 @@ export class CreateOTC extends BaseTxRedeemer {
 export class ClaimOTC extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 1;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }
@@ -47,7 +47,7 @@ export class ClaimOTC extends BaseTxRedeemer {
 export class CloseOTC extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 2;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }
@@ -55,7 +55,7 @@ export class CloseOTC extends BaseTxRedeemer {
 export class CancelOTC extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 3;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }
@@ -65,7 +65,7 @@ export class CancelOTC extends BaseTxRedeemer {
 export class UpdateOTCMinAda extends BaseTxRedeemer {
     // The index of the Plutus data associated with this redeemer.
     protected static _plutusDataIndex = 4;
-    
+
     // Indicates that this redeemer is a subtype of a more general type.
     protected static _plutusDataIsSubType = false;
 }

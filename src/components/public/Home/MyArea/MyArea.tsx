@@ -4,8 +4,8 @@ import styles from './MyArea.module.scss';
 import { MyAreaProps, useMyArea } from './useMyArea';
 import YourTokenSeccion from './YourTokenSeccion/YourTokenSeccion';
 
-export default function MyArea({walletTokens, listOfOtcEntityWithTokens}: MyAreaProps) {
-    const { tokensOTCToCancelInterface, tokensOTCToCloseInterface, createOTCBtnHandler } = useMyArea({walletTokens, listOfOtcEntityWithTokens});
+export default function MyArea({ walletTokens, listOfOtcEntityWithTokens }: MyAreaProps) {
+    const { tokensOTCToCancelInterface, tokensOTCToCloseInterface, createOTCBtnHandler } = useMyArea({ walletTokens, listOfOtcEntityWithTokens });
     //---------------------------------------------------
     const otcUnions = () => {
         const cancelElem = tokensOTCToCancelInterface?.map((token) => {
@@ -30,7 +30,7 @@ export default function MyArea({walletTokens, listOfOtcEntityWithTokens}: MyArea
         });
         return [...cancelElem, ...closeElem];
     };
-    console.log(otcUnions())
+    console.log(otcUnions());
     //---------------------------------------------------
     return (
         <section className={styles.myAreaSection}>

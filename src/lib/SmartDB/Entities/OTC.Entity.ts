@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { Convertible, BaseSmartDBEntity, asSmartDBEntity, type TN,type PaymentPubKey } from 'smart-db';
+import { Convertible, BaseSmartDBEntity, asSmartDBEntity, type TN, type PaymentPubKey } from 'smart-db';
 import { type PolicyId } from '@lucid-evolution/lucid';
 import { OTC_ID_TN_Str } from '@/utils/constants/on-chain';
 

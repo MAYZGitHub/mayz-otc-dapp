@@ -8,17 +8,7 @@ import ProtocolArea from './ProtocolArea/ProtocolArea';
 import MyArea from './MyArea/MyArea';
 import Claim from './Claim/Claim';
 export default function Home() {
-    const {
-        appState,
-        sidebarState,
-        isWalletConnectorModalOpen,
-        setIsWalletConnectorModalOpen,
-        isWalletConnected,
-        settersModalTx,
-        listOfOtcEntityWithTokens,
-        walletTokens,
-        handleBtnSync,
-    } = useHome();
+    const { appState, sidebarState, isWalletConnected, listOfOtcEntityWithTokens, walletTokens } = useHome();
     //--------------------------------------
     function renderHome() {
         if (!isWalletConnected) {
@@ -29,19 +19,9 @@ export default function Home() {
             case 'Protocol Area':
                 return <ProtocolArea />;
             case 'Claim':
-            return (
-              <Claim
-                walletTokens={walletTokens}
-                listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
-              />
-            );
+                return <Claim walletTokens={walletTokens} listOfOtcEntityWithTokens={listOfOtcEntityWithTokens} />;
             case 'My Area':
-            return (
-              <MyArea
-                walletTokens={walletTokens}
-                listOfOtcEntityWithTokens={listOfOtcEntityWithTokens}
-              />
-            );
+                return <MyArea walletTokens={walletTokens} listOfOtcEntityWithTokens={listOfOtcEntityWithTokens} />;
 
             default:
                 return null;

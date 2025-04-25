@@ -1,5 +1,5 @@
 import React, { useState } from 'react'; // Importing React to create the functional component
-import { DISCONNECT, IUseWalletStore } from 'smart-db'; // Importing necessary utilities and types from `smart-db`
+import { IUseWalletStore } from 'smart-db'; // Importing necessary utilities and types from `smart-db`
 import WalletApiKey from './WalletApiKey/WalletApiKey'; // Importing the WalletApiKey component to display the API key modal
 import styles from './WalletInfo.module.scss'; // Assuming SCSS module for component-specific styles
 import { useWalletInfo } from './useWalletInfo';

@@ -40,37 +40,7 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
     }
     //--------------------------------------
     const dependenciesValidTx: any[] = [];
-    const {
-        appStore,
-        tokensStore,
-        session,
-        status,
-        showUserConfirmation,
-        setShowUserConfirmation,
-        showProcessingTx,
-        setShowProcessingTx,
-        isProcessingTx,
-        setIsProcessingTx,
-        isFaildedTx,
-        setIsFaildedTx,
-        isConfirmedTx,
-        setIsConfirmedTx,
-        processingTxMessage,
-        setProcessingTxMessage,
-        processingTxHash,
-        setProcessingTxHash,
-        isValidTx,
-        setIsValidTx,
-        tokensGiveWithMetadata,
-        setTokensGiveWithMetadata,
-        tokensGetWithMetadata,
-        setTokensGetWithMetadata,
-        available_ADA_in_Wallet,
-        available_forSpend_ADA_in_Wallet,
-        isMaxAmountLoaded: isMaxAmountLoadedFromTxHook,
-        handleBtnShowUserConfirmation,
-        handleBtnDoTransaction_WithErrorControl,
-    } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx, resetForm });
+    const { appStore, handleBtnDoTransaction_WithErrorControl } = useTransactions({ dependenciesValidTx, checkIsValidTx, onTx, resetForm });
 
     const debouncedSetSearchTerm = useCallback(
         debounce((value: string) => setSearchTerm(value), 100),
@@ -85,36 +55,16 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         if (appStore.isProcessingTx === true) {
             openModal(ModalsEnums.PROCESSING_TX);
             return;
-        }        
-        //   if (pdAdmins.length === 0) {
-        //       setError('Please enter a valid Admin Payment Key Hashes.');
-        //       return;
-        //   }
-        //   if (isNullOrBlank(pdTokenAdminPolicy_CS)) {
-        //       setError('Please enter a valid Admin Token Currency Symbol.');
-        //   }
-        //   if (!pd_mayz_deposit_requirement) {
-        //       setError('Please enter a value.');
-        //       return;
-        //   }
-        //   const pd_mayz_deposit_requirementNumber = Number(pd_mayz_deposit_requirement);
-        //   if (isNaN(pd_mayz_deposit_requirementNumber)) {
-        //       setError('Please enter a valid number.');
-        //       return;
-        //   }
-        //   if (pd_mayz_deposit_requirementNumber < 0) {
-        //       setError('Please enter a positive number.');
-        //       return;
-        //   }
+        }
         //--------------------------------------
         const fetchParams = async () => {
             //--------------------------------------
             const { lucid, emulatorDB, walletTxParams } = await LucidToolsFrontEnd.prepareLucidFrontEndForTx(walletStore);
             //--------------------------------------
-            
+
             const txParams: ClaimOTCTxParams = {
-               protocol_id: appState.protocol!._DB_id,
-               otcDbId: id,
+                protocol_id: appState.protocol!._DB_id,
+                otcDbId: id,
             };
             return {
                 lucid,
@@ -131,7 +81,6 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         //--------------------------------------
         await handleBtnDoTransaction_WithErrorControl(OTCEntity, TxEnums.OTC_CLAIM, 'Claiming OTC ...', 'claim-otc-tx', fetchParams, txApiCall, handleBtnTx);
         //--------------------------------------
-        // await fetchProtocol();
     };
 
     const mapTokenToInterface = useCallback(
@@ -149,9 +98,7 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         }
 
         const filtered = listOfOtcEntityWithTokens.filter(
-            (otcEntity) =>
-            walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id) &&
-            otcEntity.entity.od_creator !== walletStore.getPkh()
+            (otcEntity) => walletTokens.some((token) => token.CS === otcEntity.entity.od_otc_nft_policy_id) && otcEntity.entity.od_creator !== walletStore.getPkh()
         );
 
         setTokenCardInterfaces(filtered.map(mapTokenToInterface));
@@ -170,6 +117,3 @@ export const useClaim = ({ listOfOtcEntityWithTokens, walletTokens }: UseClaimPr
         filteredItems,
     };
 };
-function setError(arg0: string) {
-    throw new Error('Function not implemented.');
-}

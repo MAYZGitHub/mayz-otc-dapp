@@ -19,7 +19,7 @@ export default function Claim({ listOfOtcEntityWithTokens, walletTokens }: UseCl
                 ),
             };
         });
-    };    
+    };
 
     return (
         <section className={styles.claimSection}>

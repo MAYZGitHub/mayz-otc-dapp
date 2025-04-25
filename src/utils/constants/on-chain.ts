@@ -117,13 +117,11 @@ export const ClaimOtcTxParamsSchema = yup.object().shape({
 export interface CloseOTCTxParams {
     otcDbId: string;
     protocol_id: string;
-
 }
 
 export const CloseOtcTxParamsSchema = yup.object().shape({
     otcDbId: yup.string().required(),
     protocol_id: yup.string().required(),
-
 });
 
 export interface CancelOTCTxParams {

@@ -97,7 +97,7 @@ export class ProtocolEntityMongo extends BaseSmartDBEntityMongo {
             pd_mayz_tn: { type: String, required: true },
             pd_mayz_deposit_requirement: { type: String, required: true },
             pd_min_ada: { type: String, required: true },
-        }
+        };
 
         const schema = new Schema<Interface>(
             {
@@ -106,7 +106,8 @@ export class ProtocolEntityMongo extends BaseSmartDBEntityMongo {
             },
             {
                 timestamps: true,
-            });
+            }
+        );
 
         const ModelDB = models[this._mongoTableName] || model<Interface>(this._mongoTableName, schema);
         return ModelDB;
@@ -114,4 +115,3 @@ export class ProtocolEntityMongo extends BaseSmartDBEntityMongo {
 
     // #endregion mongo db
 }
-

@@ -28,12 +28,9 @@ import {
     convertMillisToTime,
     fixUTxOList,
     getTxRedeemersDetailsAndResources,
-    isEmulator,
     LucidToolsBackEnd,
     NextApiRequestAuthenticated,
     objToCborHex,
-    optionsGetAllFields,
-    optionsGetDefault,
     optionsGetMinimalWithSmartUTxOCompleteFields,
     PaymentPubKey,
     sanitizeForDatabase,
@@ -43,7 +40,6 @@ import {
     TN,
     toJson,
     TRANSACTION_STATUS_CREATED,
-    TRANSACTION_STATUS_PENDING,
     TransactionBackEndApplied,
     TransactionDatum,
     TransactionEntity,
@@ -123,38 +119,6 @@ export class OTCBackEndApplied extends BaseSmartDBBackEndApplied {
         // Convert string to hex bytes
         return strToHex(numberAsString);
     }
-
-    private static formatWithSeparators(n: bigint, acc: string = ''): string {
-        if (n === 0n) {
-            return acc;
-        } else {
-            const currentGroup = n % 1000n;
-            // Convert current group to 3 digits with leading zeros if needed
-            const groupBytes = this.padNumber(currentGroup);
-            let newAcc: string;
-            if (acc.length === 0) {
-                newAcc = groupBytes;
-            } else {
-                // Add separator (.) which is 2E in hex
-                newAcc = groupBytes + '2e' + acc;
-            }
-            return this.formatWithSeparators(n / 1000n, newAcc);
-        }
-    }
-    private static padNumber(n: bigint): string {
-        const bytes = n.toString();
-        const len = bytes.length;
-
-        if (len === 1) {
-            // Add "00" prefix
-            return strToHex('00' + bytes);
-        } else if (len === 2) {
-            // Add "0" prefix
-            return strToHex('0' + bytes);
-        } else {
-            return strToHex(bytes);
-        }
-    }
 }
 
 @BackEndApiHandlersFor(OTCEntity)
@@ -178,8 +142,8 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         return await this.claimTxApiHandler(req, res);
                     } else if (query[1] === 'close-otc-tx') {
                         return await this.closeTxApiHandler(req, res);
-                        } else if (query[1] === 'cancel-otc-tx') {
-                            return await this.cancelTxApiHandler(req, res);
+                    } else if (query[1] === 'cancel-otc-tx') {
+                        return await this.cancelTxApiHandler(req, res);
                     }
                 }
                 return res.status(405).json({ error: 'Wrong Api route' });
@@ -259,17 +223,6 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `Invalid address`;
                 }
                 //--------------------------------------
-                /// Parameters for the OTC NFT Minting Policys
-                // pp_otc_nft_policy_id_tx_out_ref: OutputReference,
-                // /// Reference to OTC validator for validation. It's also the OTC ID PolicyID
-                // pp_otc_validator_hash: ScriptHash,
-                // /// Protocol ID policy ID
-                // pp_protocol_policy_id: PolicyId,
-                // /// Protocol ID token name
-                // pp_protocol_id_tn: ByteArray,
-                // /// OTC ID token name
-                // pp_otc_id_tn: ByteArray,
-                //--------------------------------------
                 const pp_otc_nft_policy_id_tx_out_ref = new Constr(0, [uTxOsAtWalletForMinting.txHash, BigInt(uTxOsAtWalletForMinting.outputIndex)]);
                 const pp_otc_validator_hash = otcScriptValidator_Hash;
                 const pp_protocol_policy_id = protocol.getNET_id_CS();
@@ -287,10 +240,6 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 console.log(`otc_NFT_Policy_CS ${otc_NFT_Policy_CS}`);
                 const otc_NFT_TN = this._BackEndApplied.generateOtcName(od_token_tn, od_token_amount);
                 console.log(`otc_NFT_TN ${otc_NFT_TN}`);
-                //--------------------------------------
-                // Generate datum object with relevant sale data and no min ADA yet
-                const otcDatum_Out_ForCalcMinADA = this._BackEndApplied.mkNew_OTCDatum(txParams, 0n, protocol, creator, otc_NFT_Policy_CS, otc_NFT_TN);
-                const otcDatum_Out_Hex_ForCalcMinADA = OTCEntity.datumToCborHex(otcDatum_Out_ForCalcMinADA);
                 //--------------------------------------
                 const otc_NFT_AC_Lucid = otc_NFT_Policy_CS + otc_NFT_TN;
                 //--------------------------------------
@@ -372,7 +321,6 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     tx = tx
                         .readFrom([protocol_UTxO])
                         .collectFrom([uTxOsAtWalletForMinting])
-                        // .attach.MintingPolicy(otcScript)
                         .attach.MintingPolicy(otcNFTScript)
                         .mintAssets(valueFor_Mint_OTC_ID, otcValidatorRedeemerCreateOTC_Hex)
                         .mintAssets(valueFor_Mint_OTC_NFT, otcNFTPolicyRedeemerMint_Hex)

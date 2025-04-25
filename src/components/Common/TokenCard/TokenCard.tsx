@@ -13,7 +13,7 @@ interface TokenCardProps {
     createOTCBtnHandler: (token: Token_With_Metadata_And_Amount) => Promise<void>;
 }
 export default function TokenCard(prop: TokenCardProps) {
-    const { handleInputChange, amount } = useTokenCard();
+    const { handleInputChange, amount, imageSize } = useTokenCard();
     const appStore = useAppStore();
     return (
         <section className={styles.tokenCardContainer}>
@@ -21,8 +21,8 @@ export default function TokenCard(prop: TokenCardProps) {
                 className={styles.tokenPhoto}
                 src={prop.token.image !== undefined ? getUrlForImage(prop.token.image) : GENERIC}
                 alt={prop.token.TN_Hex}
-                width={65} // specify actual width
-                height={65} // specify actual height
+                width={imageSize} // specify actual width
+                height={imageSize} // specify actual height
                 unoptimized // optionally remove this if you're using an image loader or CDN
             />
             <div className={styles.tokenName}>{hexToStr(prop.token.TN_Hex)}</div>
