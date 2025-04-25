@@ -63,7 +63,9 @@ export const WalletSelectorModal: React.FC = () => {
                         }}
                     >
                         <Image width={36} height={36} alt={`${wallet.name} icon`} src={wallet.icon.toString()} className={styles.walletIcon} />
-                        <span>{wallet.name}</span>
+                        <div className={styles.walletLine}>
+                            <span>{wallet.name}</span>
+                        </div>
                         {walletStore.isConnecting && walletSelected === wallet.wallet && <LoaderButton />}
                     </li>
                 ))}

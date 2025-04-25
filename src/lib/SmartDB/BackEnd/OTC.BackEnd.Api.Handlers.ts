@@ -262,7 +262,7 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 let valueFor_OtcDatum_Out: Assets = addAssetsList([lockTokenValue, valueFor_Mint_OTC_ID, mayzValue]);
                 // const minADA_For_OtcDatum = calculateMinAdaOfUTxO({ datum: otcDatum_Out_Hex_ForCalcMinADA, assets: valueFor_OtcDatum_Out });
-                const minADA_For_OtcDatum = 100_000_000n;
+                const minADA_For_OtcDatum = 100_000_000n; //Ada threshold for nft-script, it would be returned when it is closed
                 const value_MinAda_For_OtcDatum: Assets = { lovelace: minADA_For_OtcDatum };
                 valueFor_OtcDatum_Out = addAssetsList([value_MinAda_For_OtcDatum, valueFor_OtcDatum_Out]);
                 console_log(0, this._Entity.className(), `Create OTC Tx - valueFor_OtcDatum_Out: ${showData(valueFor_OtcDatum_Out, false)}`);
