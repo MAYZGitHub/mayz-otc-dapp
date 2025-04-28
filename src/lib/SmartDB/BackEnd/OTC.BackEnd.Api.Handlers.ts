@@ -442,7 +442,15 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `Invalid protocol id`;
                 }
                 //--------------------------------------
-                const otcScript = protocol.fOTCScript;
+                const protocol_SmartUTxO = protocol.smartUTxO;
+                if (protocol_SmartUTxO === undefined) {
+                    throw `Can't find Protocol UTxO`;
+                }
+                // if (protocol_SmartUTxO.isAvailableForReading() === false) {
+                //     throw `Protocol UTxO is being used, please wait and try again`;
+                // }
+                //--------------------------------------
+                const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
                 // Retrieves the OTC associated with the transaction based on the provided ID
                 const otc = await this._BackEndApplied.getById_<OTCEntity>(otcDbId, {
@@ -550,10 +558,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     let tx: TxBuilder = lucid.newTx();
                     //--------------------------------------
                     tx = tx
+                        .readFrom([protocol_UTxO])
                         .collectFrom([OTC_UTxO], OTCValidatorRedeemerClaim_Hex)
                         .pay.ToAddressWithData(otcValidator_Address, { kind: 'inline', value: otcDatum_Out_Hex }, valueFor_OtcDatum_Out, otcNFTScript)
                         .pay.ToAddress(address, lockTokenValue)
-                        .attach.SpendingValidator(otcScript)
+                        // .attach.SpendingValidator(otcScript)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
