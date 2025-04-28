@@ -1,14 +1,16 @@
 // Home.tsx
 import styles from './Home.module.scss';
 import { useHome } from './useHome';
-// import Claim from "./Claim/Claim";
-// import MyArea from "./MyArea/MyArea";
 import BtnConnectWallet from '@/components/Common/Buttons/ConnectWallet/BtnConnectWallet';
 import ProtocolArea from './ProtocolArea/ProtocolArea';
 import MyArea from './MyArea/MyArea';
 import Claim from './Claim/Claim';
+import { useWalletSession } from 'smart-db';
 export default function Home() {
     const { appState, sidebarState, isWalletConnected, listOfOtcEntityWithTokens, walletTokens } = useHome();
+    //--------------------------------------
+    // para que cargue la sesion del wallet
+    useWalletSession();
     //--------------------------------------
     function renderHome() {
         if (!isWalletConnected) {

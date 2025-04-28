@@ -97,10 +97,6 @@ export class OTCBackEndApplied extends BaseSmartDBBackEndApplied {
         return OTCBackEndApplied.mkClaim_OTCDatum(otcDatum_In);
     }
 
-    public static mkCancel_OTCDatum(otcDatum_In: OTCDatum): OTCDatum {
-        return OTCBackEndApplied.mkClaim_OTCDatum(otcDatum_In);
-    }
-
     public static generateOtcName(tokenTn: string, amount: bigint): string {
         // "OTC-" in hex is "4F54432D"
         const prefix = '4f54432d';
@@ -196,19 +192,10 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `Invalid protocol id`;
                 }
                 //--------------------------------------
-                const otcValidator_Address: Address = protocol.getOTC_Net_Address();
-
-                const otcScriptValidator_Hash = protocol.fOTCValidator_Hash;
-                //--------------------------------------
-                const otcPolicyID_AC_Lucid = protocol.getOTC_NET_id_CS() + strToHex(OTC_ID_TN_Str);
-                //--------------------------------------
                 const protocol_SmartUTxO = protocol.smartUTxO;
                 if (protocol_SmartUTxO === undefined) {
                     throw `Can't find Protocol UTxO`;
                 }
-                // if (protocol_SmartUTxO.isAvailableForReading() === false) {
-                //     throw `Protocol UTxO is being used, please wait and try again`;
-                // }
                 //--------------------------------------
                 const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
@@ -223,8 +210,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `Invalid address`;
                 }
                 //--------------------------------------
+                const otcValidator_Address: Address = protocol.getOTC_Net_Address();
+                const otcValidator_Hash = protocol.fOTCValidator_Hash;
+                //--------------------------------------
                 const pp_otc_nft_policy_id_tx_out_ref = new Constr(0, [uTxOsAtWalletForMinting.txHash, BigInt(uTxOsAtWalletForMinting.outputIndex)]);
-                const pp_otc_validator_hash = otcScriptValidator_Hash;
+                const pp_otc_validator_hash = otcValidator_Hash;
                 const pp_protocol_policy_id = protocol.getNET_id_CS();
                 const pp_protocol_id_tn = strToHex(protocol.getNET_id_TN_Str());
                 const pp_otc_id_tn = strToHex(OTC_ID_TN_Str);
@@ -241,16 +231,18 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const otc_NFT_TN = this._BackEndApplied.generateOtcName(od_token_tn, od_token_amount);
                 console.log(`otc_NFT_TN ${otc_NFT_TN}`);
                 //--------------------------------------
+                const otc_ID_AC_Lucid = protocol.getOTC_NET_id_CS() + strToHex(OTC_ID_TN_Str);
                 const otc_NFT_AC_Lucid = otc_NFT_Policy_CS + otc_NFT_TN;
                 //--------------------------------------
                 const valueFor_Mint_OTC_NFT: Assets = { [otc_NFT_AC_Lucid]: 1n };
                 console_log(0, this._Entity.className(), `Create OTC Tx - valueFor_Mint_OTC_NFT: ${showData(valueFor_Mint_OTC_NFT)}`);
                 //--------------------------------------
-                const valueFor_Mint_OTC_ID: Assets = { [otcPolicyID_AC_Lucid]: 1n };
+                const valueFor_Mint_OTC_ID: Assets = { [otc_ID_AC_Lucid]: 1n };
                 console_log(0, this._Entity.className(), `Create OTC Tx - valueFor_Mint_OTC_ID: ${showData(valueFor_Mint_OTC_ID)}`);
                 //--------------------------------------
                 const lockToken_AC_Lucid = od_token_policy_id + od_token_tn;
                 const lockTokenValue: Assets = { [lockToken_AC_Lucid]: BigInt(od_token_amount) };
+                //--------------------------------------
                 const mayz_AC_Lucid = protocol.pd_mayz_policy_id + protocol.pd_mayz_tn;
                 const mayzValue: Assets = { [mayz_AC_Lucid]: BigInt(protocol.pd_mayz_deposit_requirement) };
                 //--------------------------------------
@@ -286,11 +278,6 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 const flomSlot = lucid.unixTimeToSlot(from);
                 const untilSlot = lucid.unixTimeToSlot(until);
-                //--------------------------------------
-                if (flomSlot < 0) {
-                    from = lucid.currentSlot();
-                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
-                }
                 //--------------------------------------
                 console_log(
                     0,
@@ -348,11 +335,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         unit_steps: resources.redeemers[0]?.CPU,
                     };
                     const transactionRedeemerMint: TransactionRedeemer = {
-                        tx_index: 0,
+                        tx_index: 1,
                         purpose: 'mint',
                         redeemerObj: otcNFTPolicyRedeemerMint,
-                        unit_mem: resources.redeemers[0]?.MEM,
-                        unit_steps: resources.redeemers[0]?.CPU,
+                        unit_mem: resources.redeemers[1]?.MEM,
+                        unit_steps: resources.redeemers[1]?.CPU,
                     };
                     const transactionOtcDatum_Out: TransactionDatum = {
                         address: otcValidator_Address,
@@ -446,9 +433,6 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 if (protocol_SmartUTxO === undefined) {
                     throw `Can't find Protocol UTxO`;
                 }
-                // if (protocol_SmartUTxO.isAvailableForReading() === false) {
-                //     throw `Protocol UTxO is being used, please wait and try again`;
-                // }
                 //--------------------------------------
                 const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
@@ -461,21 +445,23 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 if (otc === undefined) {
                     throw `Invalid OTC id`;
                 }
-                const otcValidator_Address: Address = otc.getNet_Address();
                 //--------------------------------------
                 // Checks that the OTC has an associated smart UTxO and is available for consumption
                 const OTC_SmartUTxO = otc.smartUTxO;
                 if (OTC_SmartUTxO === undefined) {
                     throw `Can't find OTC UTxO`;
                 }
-                // --------------------------------------------------
+                //--------------------------------------------------
                 if (OTC_SmartUTxO.scriptRef === null || OTC_SmartUTxO.scriptRef === undefined) {
                     throw `otcNFTScript is undefined`;
                 }
+                //--------------------------------------------------
+                // Gets the UTxO associated with the OTC
+                const OTC_UTxO = OTC_SmartUTxO.getUTxO();
+                //--------------------------------------------------
+                const otcValidator_Address: Address = otc.getNet_Address();
                 const otcNFTScript = OTC_SmartUTxO.scriptRef;
-                // --------------------------------------------------
-                console_log(0, this._Entity.className(), `Claim OTC Tx - otcNFTScript: ${showData(otcNFTScript, false)}`);
-                // --------------------------------------------------
+                //--------------------------------------------------
                 const otcDatum_In = otc.getMyDatum() as OTCDatum;
                 console_log(0, this._Entity.className(), `Claim OTC Tx - otcDatum_In: ${showData(otcDatum_In, false)}`);
                 const otcDatum_In_Hex = OTCEntity.datumToCborHex(otcDatum_In);
@@ -496,8 +482,8 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 console_log(0, this._Entity.className(), `Claim OTC Tx -valueFor_LockToken: ${showData(lockTokenValue)}`);
                 //--------------------------------------
-                const policyID_AC = otc.getNET_id_CS() + strToHex(otc.getNET_id_TN_Str());
-                const policyID_Value: Assets = { [policyID_AC]: 1n };
+                const otcID_AC = otc.getNET_id_CS() + strToHex(otc.getNET_id_TN_Str());
+                const otcID_Value: Assets = { [otcID_AC]: 1n };
                 //--------------------------------------
                 const otcNFT_AC = otc.od_otc_nft_policy_id + otc.od_otc_nft_tn;
                 const otcNFT_Value: Assets = { [otcNFT_AC]: 1n };
@@ -509,11 +495,9 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     lovelace: otc.od_min_ada,
                 };
                 //--------------------------------------
-                const valueFor_OtcDatum_Out: Assets = addAssetsList([policyID_Value, otcNFT_Value, mayzValue, minAdaValue]);
+                const valueFor_OtcDatum_Out: Assets = addAssetsList([otcID_Value, otcNFT_Value, mayzValue, minAdaValue]);
                 console_log(0, this._Entity.className(), `Claim OTC Tx - valueFor_OtcDatum_Out: ${showData(valueFor_OtcDatum_Out, false)}`);
                 //--------------------------------------
-                // Gets the UTxO associated with the OTC
-                const OTC_UTxO = OTC_SmartUTxO.getUTxO();
                 // Creates a redeemer for the validator and converts it to CBOR format for transaction claimal
                 const OTCValidatorRedeemerClaim = new ClaimOTC();
                 console_log(0, this._Entity.className(), `Claim OTC Tx -OTCValidatorRedeemerclaim: ${showData(OTCValidatorRedeemerClaim, false)}`);
@@ -525,11 +509,6 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 const flomSlot = lucid.unixTimeToSlot(from);
                 const untilSlot = lucid.unixTimeToSlot(until);
-                //--------------------------------------
-                if (flomSlot < 0) {
-                    from = lucid.currentSlot();
-                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
-                }
                 //--------------------------------------
                 console_log(
                     0,
@@ -562,12 +541,11 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                         .collectFrom([OTC_UTxO], OTCValidatorRedeemerClaim_Hex)
                         .pay.ToAddressWithData(otcValidator_Address, { kind: 'inline', value: otcDatum_Out_Hex }, valueFor_OtcDatum_Out, otcNFTScript)
                         .pay.ToAddress(address, lockTokenValue)
-                        // .attach.SpendingValidator(otcScript)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
                     //--------------------------------------
-                    const txComplete = await tx.complete({ localUPLCEval: false });
+                    const txComplete = await tx.complete();
                     //--------------------------------------
                     const txCborHex = txComplete.toCBOR();
                     //--------------------------------------
@@ -597,12 +575,12 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     await TransactionBackEndApplied.setPendingTransaction(transaction, {
                         hash: txHash,
-                        ids: { protocol_id: protocol._DB_id },
+                        ids: { protocol_id: protocol._DB_id, otc_id: otcDbId },
                         redeemers: {
                             otcValidatorRedeemerDatumClaim: transactionRedeemerClaimOTC,
                         },
                         datums: { otcDatum_In: transactionOtcDatum_In, otcDatum_Out: transactionOtcDatum_Out },
-                        reading_UTxOs: [],
+                        reading_UTxOs: [protocol_UTxO],
                         consuming_UTxOs: [OTC_UTxO],
                         unit_mem: resources.tx[0]?.MEM,
                         unit_steps: resources.tx[0]?.CPU,
@@ -682,11 +660,12 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `Invalid protocol id`;
                 }
                 //--------------------------------------
-                if (uTxOsAtWallet.length === 0) {
-                    throw `No UTxOs found in wallet`;
+                const protocol_SmartUTxO = protocol.smartUTxO;
+                if (protocol_SmartUTxO === undefined) {
+                    throw `Can't find Protocol UTxO`;
                 }
                 //--------------------------------------
-                const otcScript = protocol.fOTCScript;
+                const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
                 // Retrieves the OTC associated with the transaction based on the provided ID
                 const otc = await this._BackEndApplied.getById_<OTCEntity>(otcDbId, {
@@ -697,79 +676,65 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 if (otc === undefined) {
                     throw `Invalid OTC id`;
                 }
-                const otcValidator_Address: Address = otc.getNet_Address();
                 //--------------------------------------
                 // Checks that the OTC has an associated smart UTxO and is available for consumption
                 const OTC_SmartUTxO = otc.smartUTxO;
                 if (OTC_SmartUTxO === undefined) {
                     throw `Can't find OTC UTxO`;
                 }
-                // --------------------------------------------------
+                //--------------------------------------------------
                 if (OTC_SmartUTxO.scriptRef === null || OTC_SmartUTxO.scriptRef === undefined) {
                     throw `otcNFTScript is undefined`;
                 }
+                //-----------------------------------
+                // Gets the UTxO associated with the OTC
+                const OTC_UTxO = OTC_SmartUTxO.getUTxO();
+                //-----------------------------------
+                const otcValidator_Address: Address = otc.getNet_Address();
                 const otcNFTScript = OTC_SmartUTxO.scriptRef;
-                // --------------------------------------------------
+                //--------------------------------------------------
                 console_log(0, this._Entity.className(), `Close OTC Tx - otcNFTScript: ${showData(otcNFTScript, false)}`);
-                // --------------------------------------------------
+                //--------------------------------------------------
                 const otcDatum_In = otc.getMyDatum() as OTCDatum;
                 console_log(0, this._Entity.className(), `Close OTC Tx - otcDatum_In: ${showData(otcDatum_In, false)}`);
                 const otcDatum_In_Hex = OTCEntity.datumToCborHex(otcDatum_In);
                 console_log(0, this._Entity.className(), `Close OTC Tx - otcDatum_In_Hex: ${showData(otcDatum_In_Hex, false)}`);
                 //--------------------------------------
-                const otcDatum_Out = this._BackEndApplied.mkClose_OTCDatum(otcDatum_In);
-                console_log(0, this._Entity.className(), `Close OTC Tx - otcDatum_Out: ${showData(otcDatum_Out, false)}`);
-                const otcDatum_Out_Hex = OTCEntity.datumToCborHex(otcDatum_Out);
-                console_log(0, this._Entity.className(), `Close OTC Tx - otcDatum_Out_Hex: ${showData(otcDatum_Out_Hex, false)}`);
-                //--------------------------------------
                 // Constructs asset values
                 //--------------------------------------
-                const policyID_AC = otc.getNET_id_CS() + strToHex(otc.getNET_id_TN_Str());
-                const policyID_toBurnValue: Assets = { [policyID_AC]: -1n };
-
+                const otcID_AC = otc.getNET_id_CS() + strToHex(otc.getNET_id_TN_Str());
+                const otcID_toBurnValue: Assets = { [otcID_AC]: -1n };
+                //--------------------------------------
                 const otcNFT_AC = otc.od_otc_nft_policy_id + otc.od_otc_nft_tn;
                 const otcNFT_toBurnValue: Assets = { [otcNFT_AC]: -1n };
-
                 //--------------------------------------
                 const mayzAC = otc.od_mayz_policy_id + otc.od_mayz_tn;
                 const mayzValue: Assets = { [mayzAC]: otc.od_mayz_locked };
-
+                //--------------------------------------
                 // Add additional values to the transaction, including minimum ADA requirement
                 let valueForGetBackToUser = mayzValue;
-
                 const minAdaValue: Assets = {
                     lovelace: otc.od_min_ada,
                 };
                 valueForGetBackToUser = addAssetsList([minAdaValue, valueForGetBackToUser]);
                 console_log(0, this._Entity.className(), `Close OTC Tx - value to users: ${showData(valueForGetBackToUser, false)}`);
-
-                // -----------------------------------
-                const valueFor_OtcDatum_Out: Assets = addAssetsList([policyID_toBurnValue, otcNFT_toBurnValue, mayzValue, minAdaValue]);
-                console_log(0, this._Entity.className(), `Close OTC Tx - valueFor_OtcDatum_Out: ${showData(valueFor_OtcDatum_Out, false)}`);
-                //--------------------------------------
-                // Gets the UTxO associated with the OTC
-                const OTC_UTxO = OTC_SmartUTxO.getUTxO();
+                //-----------------------------------
                 // Creates a redeemer for the validator and converts it to CBOR format for transaction closeal
                 const otcValidatorRedeemerCloseOTC = new CloseOTC();
                 console_log(0, this._Entity.className(), `Close OTC Tx - otcValidatorRedeemerCloseOTC: ${showData(otcValidatorRedeemerCloseOTC, false)}`);
                 const otcValidatorRedeemerCloseOTC_Hex = objToCborHex(otcValidatorRedeemerCloseOTC);
                 console_log(0, this._Entity.className(), `Close OTC Tx - otcValidatorRedeemerCloseOTC_Hex: ${showData(otcValidatorRedeemerCloseOTC_Hex, false)}`);
                 //--------------------------------------
-                const otcNFTPolicyRedeemerBurn = new BurnNFT();
-                console_log(0, this._Entity.className(), `Close OTC Tx - otcNFTPolicyRedeemerBurn: ${showData(otcNFTPolicyRedeemerBurn, false)}`);
-                const otcNFTPolicyRedeemerBurn_Hex = objToCborHex(otcNFTPolicyRedeemerBurn);
-                console_log(0, this._Entity.className(), `Close OTC Tx - otcNFTPolicyRedeemerBurn_Hex: ${showData(otcNFTPolicyRedeemerBurn_Hex, false)}`);
+                const otcNFTPolicyRedeemerBurnNFT = new BurnNFT();
+                console_log(0, this._Entity.className(), `Close OTC Tx - otcNFTPolicyRedeemerBurnNFT: ${showData(otcNFTPolicyRedeemerBurnNFT, false)}`);
+                const otcNFTPolicyRedeemerBurnNFT_Hex = objToCborHex(otcNFTPolicyRedeemerBurnNFT);
+                console_log(0, this._Entity.className(), `Close OTC Tx - otcNFTPolicyRedeemerBurnNFT_Hex: ${showData(otcNFTPolicyRedeemerBurnNFT_Hex, false)}`);
                 //--------------------------------------
                 // Sets the transaction time range and logs it
                 let { from, until } = await TimeBackEnd.getTxTimeRange();
                 //--------------------------------------
                 const flomSlot = lucid.unixTimeToSlot(from);
                 const untilSlot = lucid.unixTimeToSlot(until);
-                //--------------------------------------
-                if (flomSlot < 0) {
-                    from = lucid.currentSlot();
-                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
-                }
                 //--------------------------------------
                 console_log(
                     0,
@@ -800,17 +765,17 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     console_log(0, this._Entity.className(), `Close OTC Tx - UTxO value: ${showData(OTC_UTxO.assets, false)}`);
 
                     tx = tx
+                        .readFrom([protocol_UTxO])
+                        .attach.MintingPolicy(otcNFTScript)
                         .collectFrom([OTC_UTxO], otcValidatorRedeemerCloseOTC_Hex)
-                        .readFrom([OTC_UTxO])
-                        .attach.SpendingValidator(otcScript)
-                        .mintAssets(policyID_toBurnValue, otcNFTPolicyRedeemerBurn_Hex)
-                        .mintAssets(otcNFT_toBurnValue, otcValidatorRedeemerCloseOTC_Hex)
+                        .mintAssets(otcID_toBurnValue, otcValidatorRedeemerCloseOTC_Hex)
+                        .mintAssets(otcNFT_toBurnValue, otcNFTPolicyRedeemerBurnNFT_Hex)
                         .pay.ToAddress(address, valueForGetBackToUser)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
                     //--------------------------------------
-                    const txComplete = await tx.complete({ localUPLCEval: false });
+                    const txComplete = await tx.complete();
                     //--------------------------------------
                     const txCborHex = txComplete.toCBOR();
                     //--------------------------------------
@@ -819,32 +784,43 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const resources = getTxRedeemersDetailsAndResources(txComplete);
                     //--------------------------------------
                     console_log(0, this._Entity.className(), `Close OTC Tx - Tx Resources: ${showData({ redeemers: resources.redeemersLogs, tx: resources.tx })}`);
-                    const transactionRedeemerCloseOTC: TransactionRedeemer = {
+                    const transactionOtcValidatorRedeemerCloseOTC: TransactionRedeemer = {
                         tx_index: 0,
-                        purpose: 'burn',
+                        purpose: 'spend',
                         redeemerObj: otcValidatorRedeemerCloseOTC,
                         unit_mem: resources.redeemers[0]?.MEM,
                         unit_steps: resources.redeemers[0]?.CPU,
                     };
-                    const transactionRedeemerBurn: TransactionRedeemer = {
+                    const transactionOtcPolicyRedeemerCloseOTC: TransactionRedeemer = {
                         tx_index: 0,
                         purpose: 'burn',
-                        redeemerObj: otcNFTPolicyRedeemerBurn,
-                        unit_mem: resources.redeemers[0]?.MEM,
-                        unit_steps: resources.redeemers[0]?.CPU,
+                        redeemerObj: otcValidatorRedeemerCloseOTC,
+                        unit_mem: resources.redeemers[1]?.MEM,
+                        unit_steps: resources.redeemers[1]?.CPU,
                     };
-                    const transactionOtcDatum_Out: TransactionDatum = {
+                    const transactionotcNFTPolicyRedeemerBurnNFT: TransactionRedeemer = {
+                        tx_index: 2,
+                        purpose: 'burn',
+                        redeemerObj: otcNFTPolicyRedeemerBurnNFT,
+                        unit_mem: resources.redeemers[2]?.MEM,
+                        unit_steps: resources.redeemers[2]?.CPU,
+                    };
+                    const transactionOtcDatum_In: TransactionDatum = {
                         address: otcValidator_Address,
                         datumType: OTCEntity.className(),
-                        datumObj: otcDatum_Out,
+                        datumObj: otcDatum_In,
                     };
                     //--------------------------------------
                     await TransactionBackEndApplied.setPendingTransaction(transaction, {
                         hash: txHash,
-                        ids: { protocol_id: protocol._DB_id },
-                        redeemers: { CloseOTC: transactionRedeemerCloseOTC, BurnNFT: transactionRedeemerBurn },
-                        datums: { otcDatum_Out: transactionOtcDatum_Out },
-                        reading_UTxOs: [],
+                        ids: { protocol_id: protocol._DB_id, otc_id: otcDbId },
+                        redeemers: {
+                            CloseOTC: transactionOtcValidatorRedeemerCloseOTC,
+                            BurnNFT: transactionotcNFTPolicyRedeemerBurnNFT,
+                            BurnID: transactionOtcPolicyRedeemerCloseOTC,
+                        },
+                        datums: { otcDatum_In: transactionOtcDatum_In },
+                        reading_UTxOs: [protocol_UTxO],
                         consuming_UTxOs: [OTC_UTxO],
                         unit_mem: resources.tx[0]?.MEM,
                         unit_steps: resources.tx[0]?.CPU,
@@ -924,11 +900,12 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     throw `Invalid protocol id`;
                 }
                 //--------------------------------------
-                if (uTxOsAtWallet.length === 0) {
-                    throw `No UTxOs found in wallet`;
+                const protocol_SmartUTxO = protocol.smartUTxO;
+                if (protocol_SmartUTxO === undefined) {
+                    throw `Can't find Protocol UTxO`;
                 }
                 //--------------------------------------
-                const otcScript = protocol.fOTCScript;
+                const protocol_UTxO = protocol_SmartUTxO.getUTxO();
                 //--------------------------------------
                 // Retrieves the OTC associated with the transaction based on the provided ID
                 const otc = await this._BackEndApplied.getById_<OTCEntity>(otcDbId, {
@@ -939,83 +916,67 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 if (otc === undefined) {
                     throw `Invalid OTC id`;
                 }
-                const otcValidator_Address: Address = otc.getNet_Address();
                 //--------------------------------------
                 // Checks that the OTC has an associated smart UTxO and is available for consumption
                 const OTC_SmartUTxO = otc.smartUTxO;
                 if (OTC_SmartUTxO === undefined) {
                     throw `Can't find OTC UTxO`;
                 }
-                // --------------------------------------------------
+                //--------------------------------------------------
                 if (OTC_SmartUTxO.scriptRef === null || OTC_SmartUTxO.scriptRef === undefined) {
                     throw `otcNFTScript is undefined`;
                 }
+                //--------------------------------------------------
+                // Gets the UTxO associated with the OTC
+                const OTC_UTxO = OTC_SmartUTxO.getUTxO();
+                //--------------------------------------------------
+                const otcValidator_Address: Address = otc.getNet_Address();
                 const otcNFTScript = OTC_SmartUTxO.scriptRef;
-                // --------------------------------------------------
-                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcNFTScript: ${showData(otcNFTScript, false)}`);
-                // --------------------------------------------------
+                //--------------------------------------------------
                 const otcDatum_In = otc.getMyDatum() as OTCDatum;
                 console_log(0, this._Entity.className(), `Cancel OTC Tx - otcDatum_In: ${showData(otcDatum_In, false)}`);
                 const otcDatum_In_Hex = OTCEntity.datumToCborHex(otcDatum_In);
                 console_log(0, this._Entity.className(), `Cancel OTC Tx - otcDatum_In_Hex: ${showData(otcDatum_In_Hex, false)}`);
                 //--------------------------------------
-                const otcDatum_Out = this._BackEndApplied.mkCancel_OTCDatum(otcDatum_In);
-                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcDatum_Out: ${showData(otcDatum_Out, false)}`);
-                const otcDatum_Out_Hex = OTCEntity.datumToCborHex(otcDatum_Out);
-                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcDatum_Out_Hex: ${showData(otcDatum_Out_Hex, false)}`);
-                //--------------------------------------
                 // Constructs asset values
                 //--------------------------------------
-                const policyID_AC = otc.getNET_id_CS() + strToHex(otc.getNET_id_TN_Str());
-                const policyID_toBurnValue: Assets = { [policyID_AC]: -1n };
-
+                const otcID_AC = otc.getNET_id_CS() + strToHex(otc.getNET_id_TN_Str());
+                const otcID_toBurnValue: Assets = { [otcID_AC]: -1n };
+                //--------------------------------------
                 const otcNFT_AC = otc.od_otc_nft_policy_id + otc.od_otc_nft_tn;
                 const otcNFT_toBurnValue: Assets = { [otcNFT_AC]: -1n };
-
                 //--------------------------------------
                 const mayzAC = otc.od_mayz_policy_id + otc.od_mayz_tn;
                 const mayzValue: Assets = { [mayzAC]: otc.od_mayz_locked };
-
+                //--------------------------------------
+                const lockTokenAC = otc.od_token_policy_id + otc.od_token_tn;
+                const lockTokenValue: Assets = { [lockTokenAC]: otc.od_token_amount };
+                //--------------------------------------
                 // Add additional values to the transaction, including minimum ADA requirement
                 let valueForGetBackToUser = mayzValue;
-
                 const minAdaValue: Assets = {
                     lovelace: otc.od_min_ada,
                 };
                 valueForGetBackToUser = addAssetsList([minAdaValue, valueForGetBackToUser]);
-                const lockTokenAC = otc.od_token_policy_id + otc.od_token_tn;
-                const lockTokenValue: Assets = { [lockTokenAC]: otc.od_token_amount };
                 valueForGetBackToUser = addAssetsList([lockTokenValue, valueForGetBackToUser]);
-
                 console_log(0, this._Entity.className(), `Cancel OTC Tx - value to users: ${showData(valueForGetBackToUser, false)}`);
-
-                // -----------------------------------
-                const valueFor_OtcDatum_Out: Assets = addAssetsList([policyID_toBurnValue, otcNFT_toBurnValue, mayzValue, minAdaValue]);
-                console_log(0, this._Entity.className(), `Cancel OTC Tx - valueFor_OtcDatum_Out: ${showData(valueFor_OtcDatum_Out, false)}`);
-                //--------------------------------------
-                // Gets the UTxO associated with the OTC
-                const OTC_UTxO = OTC_SmartUTxO.getUTxO();
+                //-----------------------------------
                 // Creates a redeemer for the validator and converts it to CBOR format for transaction cancelal
                 const otcValidatorRedeemerCancelOTC = new CancelOTC();
                 console_log(0, this._Entity.className(), `Cancel OTC Tx - otcValidatorRedeemerCancelOTC: ${showData(otcValidatorRedeemerCancelOTC, false)}`);
                 const otcValidatorRedeemerCancelOTC_Hex = objToCborHex(otcValidatorRedeemerCancelOTC);
                 console_log(0, this._Entity.className(), `Cancel OTC Tx - otcValidatorRedeemerCancelOTC_Hex: ${showData(otcValidatorRedeemerCancelOTC_Hex, false)}`);
                 //--------------------------------------
-                const otcNFTPolicyRedeemerBurn = new BurnNFT();
-                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcNFTPolicyRedeemerBurn: ${showData(otcNFTPolicyRedeemerBurn, false)}`);
-                const otcNFTPolicyRedeemerBurn_Hex = objToCborHex(otcNFTPolicyRedeemerBurn);
-                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcNFTPolicyRedeemerBurn_Hex: ${showData(otcNFTPolicyRedeemerBurn_Hex, false)}`);
+                const otcNFTPolicyRedeemerBurnNFT = new BurnNFT();
+                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcNFTPolicyRedeemerBurnNFT: ${showData(otcNFTPolicyRedeemerBurnNFT, false)}`);
+                const otcNFTPolicyRedeemerBurnNFT_Hex = objToCborHex(otcNFTPolicyRedeemerBurnNFT);
+                console_log(0, this._Entity.className(), `Cancel OTC Tx - otcNFTPolicyRedeemerBurnNFT: ${showData(otcNFTPolicyRedeemerBurnNFT_Hex, false)}`);
                 //--------------------------------------
                 // Sets the transaction time range and logs it
                 let { from, until } = await TimeBackEnd.getTxTimeRange();
                 //--------------------------------------
                 const flomSlot = lucid.unixTimeToSlot(from);
                 const untilSlot = lucid.unixTimeToSlot(until);
-                //--------------------------------------
-                if (flomSlot < 0) {
-                    from = lucid.currentSlot();
-                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
-                }
                 //--------------------------------------
                 console_log(
                     0,
@@ -1043,20 +1004,18 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     //--------------------------------------
                     let tx: TxBuilder = lucid.newTx();
                     //--------------------------------------
-                    console_log(0, this._Entity.className(), `Cancel OTC Tx - UTxO value: ${showData(OTC_UTxO.assets, false)}`);
-
                     tx = tx
+                        .readFrom([protocol_UTxO])
+                        .attach.MintingPolicy(otcNFTScript)
                         .collectFrom([OTC_UTxO], otcValidatorRedeemerCancelOTC_Hex)
-                        .readFrom([OTC_UTxO])
-                        .attach.SpendingValidator(otcScript)
-                        .mintAssets(policyID_toBurnValue, otcNFTPolicyRedeemerBurn_Hex)
-                        .mintAssets(otcNFT_toBurnValue, otcValidatorRedeemerCancelOTC_Hex)
+                        .mintAssets(otcID_toBurnValue, otcValidatorRedeemerCancelOTC_Hex)
+                        .mintAssets(otcNFT_toBurnValue, otcNFTPolicyRedeemerBurnNFT_Hex)
                         .pay.ToAddress(address, valueForGetBackToUser)
                         .addSigner(walletTxParams.address)
                         .validFrom(from)
                         .validTo(until);
                     //--------------------------------------
-                    const txComplete = await tx.complete({ localUPLCEval: false });
+                    const txComplete = await tx.complete();
                     //--------------------------------------
                     const txCborHex = txComplete.toCBOR();
                     //--------------------------------------
@@ -1065,32 +1024,43 @@ export class OTCApiHandlers extends BaseSmartDBBackEndApiHandlers {
                     const resources = getTxRedeemersDetailsAndResources(txComplete);
                     //--------------------------------------
                     console_log(0, this._Entity.className(), `Cancel OTC Tx - Tx Resources: ${showData({ redeemers: resources.redeemersLogs, tx: resources.tx })}`);
-                    const transactionRedeemerCancelOTC: TransactionRedeemer = {
+                    const transactionOtcValidatorRedeemerCancelOTC: TransactionRedeemer = {
                         tx_index: 0,
-                        purpose: 'burn',
+                        purpose: 'spend',
                         redeemerObj: otcValidatorRedeemerCancelOTC,
                         unit_mem: resources.redeemers[0]?.MEM,
                         unit_steps: resources.redeemers[0]?.CPU,
                     };
-                    const transactionRedeemerBurn: TransactionRedeemer = {
-                        tx_index: 0,
+                    const transactionOtcPolicyRedeemerCancelOTC: TransactionRedeemer = {
+                        tx_index: 1,
                         purpose: 'burn',
-                        redeemerObj: otcNFTPolicyRedeemerBurn,
-                        unit_mem: resources.redeemers[0]?.MEM,
-                        unit_steps: resources.redeemers[0]?.CPU,
+                        redeemerObj: otcValidatorRedeemerCancelOTC,
+                        unit_mem: resources.redeemers[1]?.MEM,
+                        unit_steps: resources.redeemers[1]?.CPU,
                     };
-                    const transactionOtcDatum_Out: TransactionDatum = {
+                    const transactionotcNFTPolicyRedeemerBurnNFT: TransactionRedeemer = {
+                        tx_index: 2,
+                        purpose: 'burn',
+                        redeemerObj: otcNFTPolicyRedeemerBurnNFT,
+                        unit_mem: resources.redeemers[2]?.MEM,
+                        unit_steps: resources.redeemers[2]?.CPU,
+                    };
+                    const transactionOtcDatum_In: TransactionDatum = {
                         address: otcValidator_Address,
                         datumType: OTCEntity.className(),
-                        datumObj: otcDatum_Out,
+                        datumObj: otcDatum_In,
                     };
                     //--------------------------------------
                     await TransactionBackEndApplied.setPendingTransaction(transaction, {
                         hash: txHash,
-                        ids: { protocol_id: protocol._DB_id },
-                        redeemers: { CancelOTC: transactionRedeemerCancelOTC, BurnNFT: transactionRedeemerBurn },
-                        datums: { otcDatum_Out: transactionOtcDatum_Out },
-                        reading_UTxOs: [],
+                        ids: { protocol_id: protocol._DB_id, otc_id: otcDbId },
+                        redeemers: {
+                            CancelOTC: transactionOtcValidatorRedeemerCancelOTC,
+                            BurnNFT: transactionotcNFTPolicyRedeemerBurnNFT,
+                            BurnID: transactionOtcPolicyRedeemerCancelOTC,
+                        },
+                        datums: { otcDatum_In: transactionOtcDatum_In },
+                        reading_UTxOs: [protocol_UTxO],
                         consuming_UTxOs: [OTC_UTxO],
                         unit_mem: resources.tx[0]?.MEM,
                         unit_steps: resources.tx[0]?.CPU,

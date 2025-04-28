@@ -193,11 +193,6 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 const flomSlot = lucid.unixTimeToSlot(from);
                 const untilSlot = lucid.unixTimeToSlot(until);
                 //--------------------------------------
-                if (flomSlot < 0) {
-                    from = lucid.currentSlot();
-                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
-                }
-                //--------------------------------------
                 console_log(
                     0,
                     this._Entity.className(),
@@ -354,11 +349,6 @@ export class ProtocolApiHandlers extends BaseSmartDBBackEndApiHandlers {
                 //--------------------------------------
                 const flomSlot = lucid.unixTimeToSlot(from);
                 const untilSlot = lucid.unixTimeToSlot(until);
-                //--------------------------------------
-                if (flomSlot < 0) {
-                    from = lucid.currentSlot();
-                    from = slotToUnixTime(lucid.config().network!, lucid.currentSlot()) as number; // slot es en segundots
-                }
                 //--------------------------------------
                 console_log(
                     0,
