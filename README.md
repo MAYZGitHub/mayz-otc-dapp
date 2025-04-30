@@ -13,7 +13,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/MAYZGitHub/mayz-otc-dapp">
-    <img src="public/icon.ico" alt="Logo" width="120" height="120">
+    <img src="https://www.mayz.io/img/logo/logo.svg" alt="Logo" width="300" height="120">
   </a>
 
   <h3 align="center">MAYZ OTC DApp</h3>
@@ -244,7 +244,7 @@ Project Link: [https://github.com/MAYZGitHub/mayz-otc-dapp](https://github.com/M
 [license-url]: https://github.com/MAYZGitHub/mayz-otc-dapp/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/your-profile
-[product-screenshot]: /.media/screenshot.png
+[product-screenshot]: https://github.com/MAYZGitHub/mayz-otc-dapp/blob/main/.media/screenshot.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org/
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB

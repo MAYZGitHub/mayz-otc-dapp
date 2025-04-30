@@ -97,7 +97,7 @@ export default function ProtocolArea() {
                                 Update {appStore.isProcessingTx === true && appStore.processingTxName === TxEnums.PROTOCOL_UPDATE && <LoaderButton />}
                             </BlueButton>
                             <BlueButton style={styles.btnAction} onClick={handleSyncProtocol}>
-                                {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.SYNC_PROTOCOL && <LoaderButton />}
+                                Sync {appStore.isProcessingTask === true && appStore.processingTaskName === TaskEnums.SYNC_PROTOCOL && <LoaderButton />}
                             </BlueButton>
                             {isEmulator && (
                                 <BlueButton style={styles.btnAction} onClick={handleAddTokens}>
