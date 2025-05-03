@@ -30,7 +30,6 @@ export default function MyArea({ walletTokens, listOfOtcEntityWithTokens }: MyAr
         });
         return [...cancelElem, ...closeElem];
     };
-    console.log(otcUnions());
     //---------------------------------------------------
     return (
         <section className={styles.myAreaSection}>

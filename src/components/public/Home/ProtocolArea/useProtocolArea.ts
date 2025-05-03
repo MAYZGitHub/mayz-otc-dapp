@@ -334,7 +334,6 @@ export const useProtocolArea = () => {
                 //--------------------------------------
                 const valueTokens1: Assets = { [TEST_TOKEN_POLICY_CS + strToHex(TEST_TOKEN_TN_Str)]: BigInt(100) };
                 const valueTokenMAYZ: Assets = { [appState.protocol!.pd_mayz_policy_id + appState.protocol!.pd_mayz_tn]: BigInt(100) };
-                console.log(uTxO);
 
                 const valueTokens = addAssets(valueTokens1, valueTokenMAYZ);
                 //--------------------------------------
