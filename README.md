@@ -24,7 +24,9 @@
     <a href="https://github.com/MAYZGitHub/mayz-otc-dapp"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/MAYZGitHub/mayz-otc-dapp">View Demo</a>
+    <a href="https://www.youtube.com/watch?v=mfEXdJ-sYZY">View Demo</a>
+    ·
+    <a href="https://github.com/MAYZGitHub/mayz-otc-dapp">View Contracts Repository</a>
     ·
     <a href="https://github.com/MAYZGitHub/mayz-otc-dapp/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
